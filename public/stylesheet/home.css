@@ -1,0 +1,189 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.header-section {
+    position: fixed;
+    z-index: 100;
+}
+
+.navbar,
+.navgb {
+    background: #464545;
+}
+
+.navbar-brand,
+.offcanvas-title {
+    color: #fff;
+    font-weight: bold;
+}
+
+.login-button {
+    background-color: #fff;
+    color: #464545;
+    font-size: 14px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: 0.3s background-color;
+}
+
+.login-button:hover {
+    background-color: #f1f1f1cb;
+}
+
+.navbar-toggler {
+    border: none;
+    font-size: 1.25rem;
+}
+
+.navbar-toggler:focus,
+.btn-close:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.navbar-toggler-icon,
+.btn-close {
+    background-color: #a5a5a5;
+    border-radius: 5px
+}
+
+.navbar-toggler-icon:hover,
+.btn-close:hover {
+    background-color: #dfdfdf;
+}
+
+.nav-link {
+    color: #fff;
+    font-weight: 500;
+
+}
+
+.nav-link:hover {
+    color: #fff;
+}
+
+.icon-bg {
+    color: #fff;
+}
+
+
+
+/* main  */
+
+/* banner section */
+/* Custom styles for the banner section */
+.banner-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.banner-image {
+    max-height: 400px;
+    /* Restrict maximum width */
+    width: auto;
+    /* Maintain aspect ratio */
+    border-radius: 20px;
+    /* Optional: Add rounded corners */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    /* Optional: Subtle shadow */
+}
+
+
+/* category section */
+
+.category-title {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.like-btn {
+    border: none;
+    background: transparent;
+    color: #ff0000;
+
+    font-size: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+.like-btn:hover {
+    background-color: #ffffff;
+    color: #ff0000;
+}
+
+.like-btn .liked {
+    color: red;
+}
+
+.position-relative:hover {
+    transform: translateY(-5px);
+    transition: 0.3s ease-in-out;
+}
+
+.btn-dark {
+    background-color: #000;
+    color: #fff;
+    border-radius: 10px;
+}
+
+.btn-dark:hover {
+    background-color: red;
+    color: #fff;
+}
+
+.custom-shadow {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+
+/* best deal */
+/* Card-specific styles */
+/* Best Deal Section Styles */
+
+.rating i {
+    color: #f4c150;
+}
+
+.rating i.bi-star {
+    color: #ccc;
+}
+
+
+/* Footer Custom Styles */
+.footer {
+    background-color: #343a40;
+    color: #f8f9fa;
+}
+
+.footer h5 {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.footer a {
+    color: #f8f9fa;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: #007bff;
+}
+
+.footer .form-control {
+    background-color: #495057;
+    border: 1px solid #6c757d;
+    color: #f8f9fa;
+}
+
+.footer .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.footer .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}

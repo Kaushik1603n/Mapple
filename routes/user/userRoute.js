@@ -6,10 +6,11 @@ const userController = require("../../controllers/userController");
 // router.get("/login", auth.isLogin, userController.loadLogin);
 // router.post("/login", userController.login);
 
-
+router.get("/",userController.loadHomePage)
 
 router.get("/login", (req, res) => {
   res.render("user/login");
+  
 });
 router.get("/signup", (req, res) => {
   res.render("user/signup");
