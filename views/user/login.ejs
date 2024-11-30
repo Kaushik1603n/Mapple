@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="/stylesheet/login.css"> 
+</head>
+
+<body>
+    <div class="container">
+        <div class="form-container ">
+            <h1>Welcome back!</h1>
+            <p>Enter your Credentials to access your account</p>
+            <form action="/login" method="POST"> <!-- Updated form action to handle POST request -->
+                <input type="email" name="email" placeholder="Email or Phone Number" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button class="create-account-btn" type="submit">Log In</button>
+                <!-- Changed button text to 'Log In' -->
+                <p class="login-link">
+                    <a href="#">Forget Password?</a>
+                </p>
+                <button class="google-signup-btn" type="button">
+                    <img src="/image/Google_Icon.webp" alt="Google Logo"> Sign up with Google
+                </button>
+            </form>
+            <p class="login-link">
+                Don’t have an account? <a href="/user/signup">Sign up</a> <!-- Updated the signup link -->
+            </p>
+        </div>
+        <div class="image-container">
+            <img src="/image/lap.webp" alt="Placeholder Image"> <!-- Ensure the image is in the public folder -->
+        </div>
+    </div>
+</body>
+
+</html>

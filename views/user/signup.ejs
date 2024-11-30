@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up Page</title>
+  <link rel="stylesheet" href="/stylesheet/login.css">
+</head>
+<body>
+    <div class="container">
+      <div class="form-container">
+        <h1>Create an account</h1>
+        <p>Enter your details below</p>
+        <form action="signup" method="POST"> 
+          <input type="text" name="firstName" placeholder="First Name" required>
+          <input type="text" name="lastName" placeholder="Last Name" required>
+          <input type="email" name="email" placeholder="Email or Phone Number" required>
+          <input type="password" name="password" placeholder="Password" required>
+          <button class="create-account-btn" type="submit">Create Account</button>
+          <button class="google-signup-btn" type="button">
+            <img src="/image/Google_Icon.webp" alt="Google Logo"> Sign up with Google
+          </button>
+        </form>
+        <p class="login-link">
+          Already have an account? <a href="/user/login">Log in</a> <!-- Dynamic login link -->
+        </p>
+      </div>
+      <div class="image-container">
+        <img src="/image/lap.webp" alt="Placeholder Image"> <!-- Dynamic image path -->
+      </div>
+    </div>
+  </body>
+</html>
