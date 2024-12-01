@@ -1,33 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign Up Page</title>
   <link rel="stylesheet" href="/stylesheet/login.css">
 </head>
+
 <body>
-    <div class="container">
-      <div class="form-container">
-        <h1>Create an account</h1>
-        <p>Enter your details below</p>
-        <form action="signup" method="POST"> 
-          <input type="text" name="firstName" placeholder="First Name" required>
-          <input type="text" name="lastName" placeholder="Last Name" required>
-          <input type="email" name="email" placeholder="Email or Phone Number" required>
-          <input type="password" name="password" placeholder="Password" required>
-          <button class="create-account-btn" type="submit">Create Account</button>
-          <button class="google-signup-btn" type="button">
-            <img src="/image/Google_Icon.webp" alt="Google Logo"> Sign up with Google
-          </button>
-        </form>
-        <p class="login-link">
-          Already have an account? <a href="/user/login">Log in</a> <!-- Dynamic login link -->
-        </p>
-      </div>
-      <div class="image-container">
-        <img src="/image/lap.webp" alt="Placeholder Image"> <!-- Dynamic image path -->
-      </div>
+  <div class="container">
+    <div class="form-container">
+      <h1>Create an account</h1>
+      <p>Enter your details below</p>
+      <form id="submitform" action="signup" method="POST">
+        <div id="error1" class="error-msg"></div>
+        <input type="text" name="name" id="name" placeholder="Full Name">
+        <div id="error2" class="error-msg"></div>
+        <input type="email" name="email" id="email" placeholder="Email">
+        <div id="error3" class="error-msg"></div>
+        <input type="password" name="password" id="password" placeholder="Password">
+        <div id="error4" class="error-msg"></div>
+        <input type="password" name="cpassword" id="cpassword" placeholder="Confirm Password">
+        <button class="create-account-btn" type="submit">Create Account</button>
+        <button class="google-signup-btn" type="button">
+          <img src="/image/Google_Icon.webp" alt="Google Logo"> Sign up with Google
+        </button>
+      </form>
+      <p class="login-link">
+        Already have an account? <a href="/user/login">Log in</a> <!-- Dynamic login link -->
+      </p>
     </div>
-  </body>
+    <div class="image-container">
+      <img src="/image/lap.webp" alt="Placeholder Image"> <!-- Dynamic image path -->
+    </div>
+  </div>
+</body>
+
+<script>
+
+  const nameid = document.getElementById("name");
+  const emailid = document.getElementById("email");
+  const passwordid = document.getElementById("password");
+  const cpasswordid = document.getElementById("cpassword");
+
+  const error1 = document.getElementById("error1");
+  const error2 = document.getElementById("error2");
+  const error3 = document.getElementById("error3");
+  const error4 = document.getElementById("error4");
+
+  const submitform = document.getElementById("submitform");
+
+
+  function nameValidation(e) {
+    const nameval = nameid.value;
+    const namepattern = /^[A-Za-z\s]+$/;
+
+    if (nameval.trim() === "") {
+      error1.style.display = "block";
+      error1.innerHTML = "Please enter valid name"
+    } else if (!namepattern.test(nameval)) {
+      error1.style.display = "block";
+      error1.innerHTML = "Name only contain alphabets and spaces"
+    } else {
+      error1.style.display = "none";
+      error1.innerHTML = ""
+    }
+  }
+  function emailValidation(e) {
+    const emailval = emailid.value;
+    const emailpattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+
+    if (!emailpattern.test(emailval)) {
+      error2.style.display = "block";
+      error2.innerHTML = "Invalid format"
+    } else {
+      error2.style.display = "none";
+      error2.innerHTML = ""
+    }
+  }
+  function passwordValidation(e) {
+    const passval = passwordid.value;
+    const cpassval = cpasswordid.value;
+    const alpha = /[a-zA-Z]/;
+    const digit = /\d/;
+
+    if (passval.length < 8) {
+      error3.style.display = "block";
+      error3.innerHTML = "Should contail atleast 8 characters"
+    } else if (!alpha.test(passval) || !digit.test(passval)) {
+      error3.style.display = "block";
+      error3.innerHTML = "Should contail numbers and alphabets"
+    } else {
+      error3.style.display = "none";
+      error3.innerHTML = ""
+    }
+
+    if(passval !== cpassval){
+      error4.style.display = "block";
+      error4.innerHTML = "passwords do not match"
+    }else {
+      error4.style.display = "none";
+      error4.innerHTML = ""
+    }
+
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    submitform.addEventListener("submit", function (e) {
+      nameValidation();
+      emailValidation();
+      passwordValidation();
+
+      if (!nameid || !emailid || !passwordid || !error1 || !error2 || !error3 || !error4 || !submitform) {
+        console.log("One or More elements not found");
+      }
+      if (error1.innerHTML || error2.innerHTML || error3.innerHTML || error4.innerHTML) {
+        e.preventDefault();
+      }
+
+      
+    })
+  })
+
+</script>
+
 </html>

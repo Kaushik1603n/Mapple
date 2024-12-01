@@ -17,6 +17,7 @@ connectDB();
 const app = express();
 
 // Middleware
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(
@@ -24,8 +25,14 @@ app.use(
     secret: process.env.SESSION_SECRET || "defaultSecret",
     resave: false,
     saveUninitialized: true,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 72 * 60 * 60 * 1000,
+    },
   })
 );
+
 app.use("/user", userRoutes);
 // app.use("/admin", adminRoutes);
 

@@ -122,7 +122,9 @@ input:focus {
     border-radius: 20px 0 0 20px;
     object-fit: cover;
 }
-
+.error-msg{
+    color: red;
+}
 
 /* Responsive Design */
 
