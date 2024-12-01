@@ -1,12 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../../controllers/userController");
+const passport = require("passport");
 
 router.get("/",userController.loadHomePage)
 router.get("/signup",userController.loadSignup)
 router.post("/signup",userController.signup)
 router.post("/verificationOTP", userController.verifyOTP)
 router.post("/resendOTP", userController.resendOTP)
+
+router.get("/auth/google", passport.authenticate("google",{scope:["profile","email",]}))
+router.get("/auth/google/callback",passport.authenticate("google",{failureRedirect:"/user/signup"}),(req,res)=>{
+  res.redirect("/user")
+})
 
 router.get("/login", (req, res) => {
   res.render("user/login");

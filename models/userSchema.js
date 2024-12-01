@@ -23,7 +23,7 @@ const userSchema = new Schema({
   googleID: {
     type: String,
     unique: true,
-    unique: true,
+  
   },
   password: {
     type: String,

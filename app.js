@@ -7,6 +7,7 @@ const userRoutes = require("./routes/user/userRoute");
 // const adminRoutes = require("./routes/admin");
 const path = require("path");
 const fs = require("fs");
+const passport = require("./config/passport")
 
 // Load environment variables
 dotenv.config();
@@ -32,6 +33,9 @@ app.use(
     },
   })
 );
+app.use(passport.initialize());
+app.use(passport.session())
+
 
 app.use("/user", userRoutes);
 // app.use("/admin", adminRoutes);
