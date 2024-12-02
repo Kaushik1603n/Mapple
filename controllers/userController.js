@@ -6,7 +6,13 @@ const bcrypt = require("bcrypt");
 
 const loadHomePage = async (req, res) => {
   try {
-    return res.render("user/home");
+    const user = req.session.user;
+    if (user) {
+      const userData = await User.findOne({ id: user._id });
+      res.render("user/home", { user: userData });
+    } else {
+      return res.render("user/home");
+    }
   } catch (error) {
     console.log("home Page Not Fount");
     res.status(500).send("Sever error");
@@ -132,7 +138,9 @@ const verifyOTP = async (req, res) => {
 
       res.json({ success: true, redirectUrl: "/user/login" }); // Absolute URL
     } else {
-      res.status(400).json({ success: false, message: "Invalid OTP. Please try again." });
+      res
+        .status(400)
+        .json({ success: false, message: "Invalid OTP. Please try again." });
     }
   } catch (error) {
     console.error("Error verifying OTP:", error);
@@ -140,28 +148,98 @@ const verifyOTP = async (req, res) => {
   }
 };
 
-const resendOTP = async (req,res)=>{
+const resendOTP = async (req, res) => {
   try {
-    const {email} = req.session.userData;
-    if(!email){
-      return res.status(400).json({success:false,message:"Email not fount in session"})
+    const { email } = req.session.userData;
+    if (!email) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email not fount in session" });
     }
     const otp = generateOtp();
-    req.session.userOtp=otp;
+    req.session.userOtp = otp;
 
     const emailSent = await sendVerificationEmail(email, otp);
-    if(emailSent){
-      console.log("Resend OTP: ",otp);
-      res.status(200).json({success:true,message:"OTP Ressent Successfully"})
-    }else{
-      res.status(500).json({success:false,message:"failed to resend OTP try again"})
+    if (emailSent) {
+      console.log("Resend OTP: ", otp);
+      res
+        .status(200)
+        .json({ success: true, message: "OTP Ressent Successfully" });
+    } else {
+      res
+        .status(500)
+        .json({ success: false, message: "failed to resend OTP try again" });
     }
   } catch (error) {
-    console.error("Error resending OTP",error)
-    res.status(500).json({success:false,message:"Internal Sever Error Try again"})
+    console.error("Error resending OTP", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Internal Sever Error Try again" });
+  }
+};
+
+const loadLogin = async (req, res) => {
+  try {
+    if (!req.session.user) {
+      return res.render("user/login");
+    } else {
+      res.redirect("/user");
+    }
+  } catch (error) {
+    res.redirect("/user/pageNotFount");
+  }
+};
+
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const findUser = await User.findOne({ email: email });
+
+    if (!findUser) {
+      return res.render("user/login", { message: "User Not Found" });
+    }
+    if (findUser.isBlocked) {
+      return res.render("user/login", { message: "User is blocked by Admin" });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, findUser.password);
+    if (!passwordMatch) {
+      return res.render("user/login", { message: "Incorrect Password" });
+    }
+
+    req.session.user = findUser._id;
+    res.redirect("/user");
+  } catch (error) {
+    console.error("Login error", error);
+    res.render("user/login", {
+      message: "login failed. Pease try again later",
+    });
+  }
+};
+
+const logout = async (req,res)=>{
+  try {
+    req.session.destroy((err)=>{
+      if(err){
+        console.log("Session destruction error", err);
+        return res.redirect("/user/pageNotFount");
+      }
+      return res.redirect("/user/login");
+    })
+  } catch (error) {
+    console.log("Logout Error",error);
+    res.redirect("/user/pageNotFount");
   }
 }
 
+const pageNotFount = async (req, res) => {
+  try {
+    res.render("user/pageNotFount");
+  } catch (error) {
+    res.redirect("/pageNotFount");
+  }
+};
 
 module.exports = {
   loadHomePage,
@@ -169,4 +247,8 @@ module.exports = {
   signup,
   verifyOTP,
   resendOTP,
+  loadLogin,
+  pageNotFount,
+  login,
+  logout,
 };

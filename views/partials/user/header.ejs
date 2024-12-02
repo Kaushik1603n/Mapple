@@ -23,34 +23,36 @@
                         <li class="nav-item ">
                             <a class="nav-link mx-lg-2" href="#">Contact Us</a>
                         </li>
-                        <!-- <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            Dropdown
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Action</a></li>
-                            <li><a class="dropdown-item" href="#">Another action</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        </ul>
-                    </li> -->
+
                     </ul>
-                    <!-- <form class="d-flex mt-3" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">Search</button>
-                </form> -->
+
                 </div>
             </div>
             <a href="#" class="mx-2 icon-bg"><i class="fa-solid fa-user"></i></a>
             <a href="#" class="mx-2 icon-bg"><i class="fa-solid fa-cart-shopping"></i></a>
-            <a href="/user/login" class="login-button mx-lg-2">Login</a>
-            <button class="navbar-toggler primary" type="button" data-bs-toggle="offcanvas"
-                data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <% if (locals.user) { %>
+                <div class="dropdown">
+                    <a href="#" class="sign-in-link">
+                        <%= locals.user.name %>
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="/user/logout">Logout</a>
+                    </div>
+                </div>
+                <% } else { %>
+                    <a href="/user/login" class="login-button mx-lg-2">Login</a>
+                    <% } %>
+                        <!-- <% if (locals.user) { %>
+                <a href="logout" class="login-button mx-lg-2"><%= locals.user.name %></a>
+            <% } else { %>
+                <a href="/user/login" class="login-button mx-lg-2">Login</a>
+            <% } %> -->
+
+                        <button class="navbar-toggler primary" type="button" data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar"
+                            aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
         </div>
     </nav>
 </header>
