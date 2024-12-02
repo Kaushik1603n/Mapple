@@ -23,6 +23,7 @@ body {
     border-radius: 10px;
     overflow: hidden;
     flex-direction: row;
+    padding: 0;
     /* Default for larger screens */
 }
 

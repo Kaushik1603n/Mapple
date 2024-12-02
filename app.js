@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/user/userRoute");
-// const adminRoutes = require("./routes/admin");
+const adminRoutes = require("./routes/admin/adminRoute");
 const path = require("path");
 const fs = require("fs");
 const passport = require("./config/passport")
@@ -38,7 +38,7 @@ app.use(passport.session())
 
 
 app.use("/user", userRoutes);
-// app.use("/admin", adminRoutes);
+app.use("/admin", adminRoutes);
 
 app.get("/", (req, res) => {
   res.send("hello");

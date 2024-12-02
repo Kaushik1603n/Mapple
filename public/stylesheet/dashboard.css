@@ -1,0 +1,75 @@
+#sidebar {
+    width: 280px; /* Increased sidebar width */
+    background-color: #e9ecef; /* Darker background color */
+    text-align: center; /* Center the text inside the sidebar */
+    padding: 20px 0; /* Add some padding to top and bottom */
+}
+
+
+#sidebar .nav-link {
+    text-align: center; /* Ensure nav links are also centered */
+    padding: 10px 0;
+}
+
+.card {
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+}
+
+.card-title {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.pagination {
+    justify-content: center;
+}
+
+.nav-link{
+    color: #464545;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    background-color: #464545;
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+
+
+.table th, .table td {
+    vertical-align: middle;
+}
+
+.search-bar input {
+    width: 300px;
+}
+
+.search-bar button {
+    margin-left: 10px;
+}
+
+header {
+    background-color: #fff;
+    padding: 1rem 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+    font-size: 1.8rem;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    #sidebar {
+        width: 240px; /* Adjusted for smaller screens */
+    }
+    .card {
+        margin-bottom: 10px;
+    }
+}

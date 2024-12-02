@@ -15,7 +15,7 @@
     <div class="form-container">
       <h1>Enter OTP</h1>
       <p>Enter OTP code sent to abc.....z@gmail.com</p> <!-- Dynamically display email (if passed from server) -->
-      <form action="verificationOTP" method="POST" onsubmit="return validateOTPform()">
+      <form id="formID" action="verificationOTP" method="POST" onsubmit="return validateOTPform()">
         <input type="text" id="otp" placeholder="OTP" name="otp" required>
         <button class="create-account-btn" type="submit" id="continue-btn" disabled>Continue</button>
         <p class="login-link">
