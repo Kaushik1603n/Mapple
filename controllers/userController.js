@@ -109,7 +109,9 @@ const signup = async (req, res) => {
     
     req.session.userData = { name, email, password };
 
-    res.render("user/verificationOTP");
+    // req.session.registerUser=true;
+
+    res.redirect("/user/verificationOTP");
     console.log("signUp verification OTP is: ", otp);
   } catch (error) {
     console.error("signUp error", error);
@@ -123,6 +125,14 @@ const securePassword = async (password) => {
     return passwordHash;
   } catch (error) {}
 };
+
+const loadVerifyOTP = async (req,res)=>{
+  try {
+    return res.render("user/verificationOTP")
+  } catch (error) {
+    
+  }
+}
 
 const verifyOTP = async (req, res) => {
   try {
@@ -225,6 +235,17 @@ const login = async (req, res) => {
   }
 };
 
+const googleLogin = async(req,res)=>{
+  try {
+    req.session.user=req.user
+    // console.log(req.user.name);
+    
+    res.redirect('/user')
+  } catch (error) {
+    res.status(500).send('Internal server error');
+  }
+}
+
 const logout = async (req,res)=>{
   try {
     req.session.destroy((err)=>{
@@ -252,10 +273,12 @@ module.exports = {
   loadHomePage,
   loadSignup,
   signup,
+  loadVerifyOTP,
   verifyOTP,
   resendOTP,
   loadLogin,
   pageNotFount,
   login,
+  googleLogin,
   logout,
 };

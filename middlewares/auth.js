@@ -21,6 +21,14 @@ const userAuth = (req, res, next) => {
   }
 };
 
+const isLogin = (req, res, next) => {
+  if (req.session.user) {
+    res.redirect("/user");
+  } else {
+    next();
+  }
+};
+
 const adminAuth = (req, res, next) => {
   Admin.findOne({ isAdmin: true })
     .then((data) => {
@@ -36,7 +44,28 @@ const adminAuth = (req, res, next) => {
     });
 };
 
+const storeSessionEmail = (req, res, next) => {
+  if (req.user) {
+    req.session.user = req.user;
+    // console.log(req.user.name);
+     
+  }
+  next();
+};
+
+// const validRegisteredUser = async (req, res, next) => {
+//   try {
+//     if (!req.session.registerUser) {
+//       return res.redirect("/user/signup");
+//     }
+//     next();
+//   } catch (error) {}
+// };
+
 module.exports = {
   userAuth,
   adminAuth,
+  isLogin,
+  storeSessionEmail,
+  // validRegisteredUser,
 };
