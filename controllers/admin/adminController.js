@@ -1,4 +1,5 @@
 const Admin = require("../../models/adminSchema");
+const User = require("../../models/userSchema");
 const bcrypt = require("bcrypt");
 
 
@@ -64,6 +65,99 @@ const loadDashboard = async (req, res) => {
     }
 };
 
+const loadCustomer = async (req,res)=>{
+    if (!req.session.admin) {
+        return res.redirect("/admin/login");
+    }
+    try {
+        const user = await User.find({});        
+        res.render("admin/customer",{ user });
+    } catch (error) {
+        console.log("Dashboard error:", error);
+        res.redirect("/admin/pageerror");
+    }
+};
+
+// Update user status route
+const updateCustomerStatus = async (req, res) => {
+    const { userId } = req.params;
+    const { isBlock } = req.body;    
+    
+    try {
+        // Update the user's `isBlock` status in the database
+        const result = await User.findByIdAndUpdate(
+            userId,
+            { isBlock: Boolean(isBlock) },
+            { new: true } 
+        );
+        
+        if (result) {
+            return res.status(200).json({ success: true, message: 'User status updated successfully.' });
+        } else {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+    } catch (error) {
+        console.error('Error updating user status:', error);
+        return res.status(500).json({ success: false, message: 'An error occurred while updating user status.' });
+    }
+};
+
+const deleteCustomer = async (req, res) => {
+    const { id } = req.params;
+    console.log(req);
+    
+    try {
+        // Attempt to delete the user
+        const result = await User.findOneAndDelete({ _id: id });
+        console.log(result);
+        
+        // If result is null, the user was not found
+        if (result) {
+            return res.status(200).json({ success: true, message: 'User deleted successfully.' });
+        } else {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        return res.status(500).json({ success: false, message: 'An error occurred while deleting the user.' });
+    }
+};
+
+const loadcategory = async (req,res)=>{
+    if (!req.session.admin) {
+        return res.redirect("/admin/login");
+    }
+    try {
+        res.render("admin/category");
+    } catch (error) {
+        console.log("category error:", error);
+        res.redirect("/admin/pageerror");
+    }
+};
+const loadproducts = async (req,res)=>{
+    if (!req.session.admin) {
+        return res.redirect("/admin/login");
+    }
+    try {
+        res.render("admin/products");
+    } catch (error) {
+        console.log("products error:", error);
+        res.redirect("/admin/pageerror");
+    }
+};
+const loadAddProducts = async (req,res)=>{
+    if (!req.session.admin) {
+        return res.redirect("/admin/login");
+    }
+    try {
+        res.render("admin/addProduct");
+    } catch (error) {
+        console.log("products error:", error);
+        res.redirect("/admin/pageerror");
+    }
+};
+
+
 const logout = (req,res)=>{
     try {
         req.session.destroy(err=>{
@@ -87,6 +181,12 @@ module.exports ={
     loadLogin,
     login,
     loadDashboard,
+    loadCustomer,
+    updateCustomerStatus,
+    deleteCustomer,
+    loadcategory,
+    loadproducts,
+    loadAddProducts,
     pageerror,
     logout,
 }

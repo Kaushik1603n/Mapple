@@ -1,0 +1,235 @@
+/* Maintain Sidebar Styling */
+#sidebar {
+    width: 280px; /* Increased sidebar width */
+    background-color: #e9ecef; /* Darker background color */
+    text-align: center; /* Center the text inside the sidebar */
+    padding: 20px 0; /* Add some padding to top and bottom */
+}
+.app-name{
+    background-color: #ffffff;
+    padding: 10px;
+    color: #464545;
+    font-weight: 600;
+}
+
+#sidebar .nav-link {
+    text-align: center; /* Ensure nav links are also centered */
+    padding: 10px 0;
+    color: #464545;
+    font-weight: bold;
+}
+
+#sidebar .nav-link:hover {
+    background-color: #464545;
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+/* Main Section Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f6fa;
+    margin: 0;
+    padding: 0;
+}
+
+.container-fluid {
+    padding: 20px;
+}
+
+.head-container{
+    background-color: #fff;
+    padding: 10px ;
+}
+
+.main-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-btn,
+.add-customer-btn {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.add-customer-btn {
+    background-color: #28a745;
+}
+
+.filter-btn:hover,
+.add-customer-btn:hover {
+    opacity: 0.9;
+}
+
+.status-tabs {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.tab {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #e9ecef;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.tab.active-tab {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.tab:hover {
+    background-color: #d0d8df;
+}
+
+.customer-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.customer-table thead {
+    background-color: #f8f9fa;
+}
+
+.customer-table th,
+.customer-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.customer-table th:first-child,
+.customer-table td:first-child {
+    text-align: center;
+}
+
+.status {
+    padding: 4px 8px;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 12px;
+}
+
+.status.active {
+    background-color: #28a745;
+}
+
+.status.blocked {
+    background-color: #dc3545;
+}
+
+
+.edit-btn,
+.delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.2s ease;
+}
+
+.edit-btn:hover,
+.delete-btn:hover {
+    transform: scale(1.1);
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 5px;
+}
+
+.page-numbers button,
+.prev-page,
+.next-page {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: #e9ecef;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.page.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.page-numbers button:hover,
+.prev-page:hover,
+.next-page:hover {
+    background-color: #d0d8df;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 15px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .header h2 {
+        font-size: 20px;
+    }
+
+    .status-tabs {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .customer-table th,
+    .customer-table td {
+        font-size: 14px;
+    }
+
+    .filter-btn,
+    .add-customer-btn {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+
+    .pagination button {
+        padding: 6px 10px;
+    }
+}

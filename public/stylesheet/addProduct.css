@@ -1,0 +1,98 @@
+#sidebar {
+    width: 280px;
+    /* Increased sidebar width */
+    background-color: #e9ecef;
+    /* Darker background color */
+    text-align: center;
+    /* Center the text inside the sidebar */
+    padding: 20px 0;
+    /* Add some padding to top and bottom */
+}
+
+.app-name {
+    background-color: #ffffff;
+    padding: 10px;
+    color: #464545;
+    font-weight: 600;
+}
+
+#sidebar .nav-link {
+    text-align: center;
+    /* Ensure nav links are also centered */
+    padding: 10px 0;
+    color: #464545;
+    font-weight: bold;
+}
+
+#sidebar .nav-link:hover {
+    background-color: #464545;
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+/* Main Section Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f6fa;
+    margin: 0;
+    padding: 0;
+}
+
+.head-container {
+    background-color: #fff;
+    padding: 10px;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+.table td,
+.table th {
+    vertical-align: middle;
+}
+
+.table img {
+    object-fit: cover;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+.form-label {
+    font-weight: 600;
+}
+
+.bg-dark,
+.bg-warning,
+.bg-success,
+.bg-primary {
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.bg-dark:hover,
+.bg-warning:hover,
+.bg-success:hover,
+.bg-primary:hover {
+    border-color: #000;
+}
+
+button:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.5);
+}
+
+
+@media (max-width: 576px) {
+    .pagination {
+        justify-content: center;
+    }
+
+    .btn {
+        width: 100%;
+        /* Full-width buttons on small screens */
+        margin-bottom: 0.5rem;
+    }
+}

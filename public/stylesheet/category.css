@@ -15,7 +15,7 @@
     text-align: center; /* Ensure nav links are also centered */
     padding: 10px 0;
     color: #464545;
-    font-weight: 500;
+    font-weight: bold;
 }
 
 #sidebar .nav-link:hover {
@@ -24,44 +24,38 @@
     border-radius: 5px;
 }
 
+/* Main Section Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f6fa;
+    margin: 0;
+    padding: 0;
+}
+.head-container{
+    background-color: #fff;
+    padding: 10px ;
+}
 
 .card {
-    border: 1px solid #ddd;
-    margin-bottom: 15px;
-}
-
-.card-title {
-    font-size: 2rem;
-    font-weight: bold;
-}
-
-.card-body {
-    padding: 1.5rem;
-}
-
-.pagination {
-    justify-content: center;
-}
-
-.nav-link{
-    color: #464545;
-    font-weight: 500;
-}
-
-.nav-link:hover {
-    background-color: #464545;
-    color: #ffffff;
-    border-radius: 5px;
-}
-
-
-/* z */
-
-@media (max-width: 768px) {
-    #sidebar {
-        width: 240px; /* Adjusted for smaller screens */
+    border-radius: 10px;
+  }
+  
+  .table td, .table th {
+    vertical-align: middle;
+  }
+  
+  .table img {
+    object-fit: cover;
+  }
+  
+  @media (max-width: 576px) {
+    .pagination {
+      justify-content: center;
     }
-    .card {
-        margin-bottom: 10px;
+  
+    .btn {
+      width: 100%; /* Full-width buttons on small screens */
+      margin-bottom: 0.5rem;
     }
-}
+  }
+  
