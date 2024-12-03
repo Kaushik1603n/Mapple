@@ -5,7 +5,7 @@ const {userAuth,adminAuth} = require("../../middlewares/auth")
 
 router.get("/pageerror",adminController.pageerror)
 router.get("/login", adminController.loadLogin);
-router.post("/login", adminController.login);
+router.post("/login",adminAuth, adminController.login);
 router.get("/dashboard",adminController.loadDashboard)
 router.get("/logout",adminController.logout)
 

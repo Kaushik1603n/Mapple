@@ -23,7 +23,6 @@ const userSchema = new Schema({
   googleID: {
     type: String,
     unique: true,
-  
   },
   password: {
     type: String,
@@ -37,12 +36,14 @@ const userSchema = new Schema({
     type: Boolean,
     deflate: false,
   },
-  cart: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Cart",
-    },
-  ],
+  resetToken: { type: String },
+  resetTokenExpiry: { type: Date },
+  // cart: [
+  //   {
+  //     type: Schema.Types.ObjectId,
+  //     ref: "Cart",
+  //   },
+  // ],
   wallet: [
     {
       type: Schema.Types.ObjectId,
@@ -76,10 +77,11 @@ const userSchema = new Schema({
       category: {
         type: Schema.Types.ObjectId,
         ref: "category",
-      },searchOn:{
-        type:Date,
-        default:Date.now 
-      }
+      },
+      searchOn: {
+        type: Date,
+        default: Date.now,
+      },
     },
   ],
 });

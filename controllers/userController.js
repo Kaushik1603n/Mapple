@@ -7,9 +7,11 @@ const bcrypt = require("bcrypt");
 const loadHomePage = async (req, res) => {
   try {
     const user = req.session.user;
+    // console.log(user)
     if (user) {
-      const userData = await User.findOne({ id: user._id });
-      res.render("user/home", { user: userData });
+      // const userData = await User.findOne({ id: user._id });
+      // console.log(user.name)
+      res.render("user/home", { user: user });
     } else {
       return res.render("user/home");
     }
@@ -139,7 +141,7 @@ const verifyOTP = async (req, res) => {
       });
 
       await saveUserData.save();
-      req.session.user = saveUserData._id;
+      req.session.user = saveUserData;
 
       res.json({ success: true, redirectUrl: "/user/login" }); // Absolute URL
     } else {
@@ -204,7 +206,7 @@ const login = async (req, res) => {
     if (!findUser) {
       return res.render("user/login", { message: "User Not Found" });
     }
-    if (findUser.isBlocked) {
+    if (findUser.isBlock) {
       return res.render("user/login", { message: "User is blocked by Admin" });
     }
 
@@ -213,7 +215,7 @@ const login = async (req, res) => {
       return res.render("user/login", { message: "Incorrect Password" });
     }
 
-    req.session.user = findUser._id;
+    req.session.user = findUser;
     res.redirect("/user");
   } catch (error) {
     console.error("Login error", error);

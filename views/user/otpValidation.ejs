@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Validation</title>
+  <link rel="stylesheet" href="/stylesheet/login.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="form-container">
+      <h1>Enter OTP</h1>
+      <p>An OTP has been sent to <b>  <%= email %></b>. Enter it below.</p>
+      <% if (locals.message && locals.message.length> 0) { %>
+        <div class="alert alert-danger" role="alert">
+          <%= locals.message %>
+        </div>
+        <% } %>
+          <form id="formID" action="/user/otpValidation" method="POST" onsubmit="return validateOTPform()">
+            <input type="hidden" name="email" value="<%= email %>">
+            <input type="text" id="otp" placeholder="OTP" name="otp" required>
+            <button class="create-account-btn" type="submit" id="continue-btn" >Continue</button>
+            <p class="login-link">
+              Don't receive OTP code?
+              <a href="#" id="resend-link" onclick="resendOTP()" style="pointer-events: none; color: gray;">Resend</a>
+              <span id="timer"></span>
+            </p>
+          </form>
+    </div>
+    <div class="image-container">
+      <img src="/image/lap.webp" alt="Placeholder Image">
+    </div>
+  </div>
+</body>
+
+</html>

@@ -15,6 +15,16 @@ router.get("/login", userController.loadLogin);
 router.post("/login", userController.login);
 router.get("/logout", userController.logout);
 
+// router.get("/forgotPassword", userController.loadforgotPassword);
+// router.post("/forgotPassword", userController.forgotPassword);
+// router.get("/OTPverification", userController.forgotPassword);
+// router.post("/OTPverification", userController.forgotPassword);
+
+
+
+
+
+
 
 router.get(
   "/auth/google",
@@ -37,9 +47,9 @@ router.get(
 // router.get("/forgotPassword", (req, res) => {
 //   res.render("user/forgotPassword");
 // });
-router.get("/resendOTP", (req, res) => {
-  res.render("user/verificationOTP");
-});
+// router.get("/resendOTP", (req, res) => {
+//   res.render("user/verificationOTP");
+// });
 // router.get("/pageNotFount", (req, res) => {
 //   res.render("user/pageNotFount");
 // });
