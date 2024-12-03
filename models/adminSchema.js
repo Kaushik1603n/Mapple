@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const adminSchema = new Schema({
@@ -12,10 +12,10 @@ const adminSchema = new Schema({
     required: true,
   },
   isAdmin: {
-    type: String,
-    required: false,
-    enum: ['admin', 'block'],
-    default: 'admin',
+    // Boolean to indicate admin privileges
+    type: Boolean,
+    required: true,
+    default: true, // Default to true
   },
   createdAt: {
     type: Date,
@@ -27,7 +27,6 @@ const adminSchema = new Schema({
   },
 });
 
-
-const Admin = mongoose.model('Admin', adminSchema);
+const Admin = mongoose.model("Admin", adminSchema);
 
 module.exports = Admin;

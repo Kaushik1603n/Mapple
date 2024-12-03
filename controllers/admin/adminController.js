@@ -33,6 +33,11 @@ const login = async (req, res) => {
             return res.render("admin/login", { message: "Admin not found. Check your email." });
         }
 
+        if (!admin.isAdmin) {
+            console.log("Access denied: User is not an admin");
+            return res.render("admin/login", { message: "Access denied. You are not an admin." });
+        }
+
         const passwordMatch = await bcrypt.compare(password, admin.password);
         if (passwordMatch) {
             req.session.admin = true;

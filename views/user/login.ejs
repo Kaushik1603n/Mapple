@@ -11,13 +11,15 @@
 
 <body>
     <div class="container">
-
         <div class="form-container ">
             <h1>Welcome back!</h1>
             <p>Enter your Credentials to access your account</p>
-            <form action="/user/login" method="POST"> <!-- Updated form action to handle POST request -->
-                <input type="email" name="email" placeholder="Email or Phone Number" required>
-                <input type="password" name="password" placeholder="Password" required>
+            <form action="/user/login" id="submitform" method="POST">
+                <!-- Updated form action to handle POST request -->
+                <div id="error1" class="error-msg"></div>
+                <input type="email" id="email" name="email" placeholder="Email or Phone Number">
+                <div id="error2" class="error-msg"></div>
+                <input type="password" id="password" name="password" placeholder="Password">
                 <% if (locals.message && locals.message.length> 0) { %>
                     <div id="alertMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
                         <%= locals.message %>
@@ -28,9 +30,9 @@
                         <p class="login-link">
                             <a href="#">Forget Password?</a>
                         </p>
-                        <button class="google-signup-btn" type="button">
+                        <a href="/user/auth/google" class="google-signup-btn" type="button">
                             <img src="/image/Google_Icon.webp" alt="Google Logo"> Sign up with Google
-                        </button>
+                          </a>
             </form>
             <p class="login-link">
                 Don’t have an account? <a href="/user/signup">Sign up</a> <!-- Updated the signup link -->
@@ -38,10 +40,63 @@
         </div>
         <div class="image-container">
             <img src="/image/lap.webp" alt="Placeholder Image">
-            <!-- Ensure the image is in the public folder -->
         </div>
     </div>
     <script>
+
+        const emailid = document.getElementById("email");
+        const passwordid = document.getElementById("password");
+
+        const error1 = document.getElementById("error1");
+        const error2 = document.getElementById("error2");
+
+        const submitform = document.getElementById("submitform");
+
+        function emailValidation(e) {
+            const emailval = emailid.value;
+            const emailpattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+
+            if (!emailpattern.test(emailval)) {
+                error1.style.display = "block";
+                error1.innerHTML = "Invalid format"
+            } else {
+                error1.style.display = "none";
+                error1.innerHTML = ""
+            }
+        }
+        function passwordValidation(e) {
+            const passval = passwordid.value;
+            const alpha = /[a-zA-Z]/;
+            const digit = /\d/;
+
+            if (passval.length < 8) {
+                error2.style.display = "block";
+                error2.innerHTML = "Should contail atleast 8 characters"
+            } else if (!alpha.test(passval) || !digit.test(passval)) {
+                error2.style.display = "block";
+                error2.innerHTML = "Should contail numbers and alphabets"
+            } else {
+                error2.style.display = "none";
+                error2.innerHTML = ""
+            }
+
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+    submitform.addEventListener("submit", function (e) {
+      emailValidation();
+      passwordValidation();
+
+      if ( !emailid || !passwordid || !error1 || !error2 || !submitform) {
+        console.log("One or More elements not found");
+      }
+      if (error1.innerHTML || error2.innerHTML ) {
+        e.preventDefault();
+      }
+    })
+  })
+
+
+
         // Automatically hide the alert message after 4 seconds
         window.onload = function () {
             const alertMessage = document.getElementById("alertMessage");
