@@ -12,14 +12,14 @@ const categotySchema = new Schema({
     type: String,
     required: true,
   },
-  isListed: {
+  status: {
     type: Boolean,
     default: true,
   },
-  categotyOffer: {
-    type: Number,
-    default: 0,
-  },
+  // categotyOffer: {
+  //   type: Number,
+  //   default: 0,
+  // },
   createAt: {
     type: Date,
     default: Date.now,
