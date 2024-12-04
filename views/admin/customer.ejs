@@ -31,7 +31,7 @@
                     <div class="header d-flex justify-content-between align-items-center mb-4">
                         <h2>Customer Management</h2>
                         <div class="header-actions d-flex gap-2">
-                            <a href="/admin/add-customer" class="btn btn-dark">+ Add Customer</a>
+                            <a href="/admin/addCustomer" class="btn btn-dark">+ Add Customer</a>
                         </div>
                     </div>
 
@@ -78,7 +78,7 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <a href="/admin/customer/<%= user._id %>/edit"
+                                            <a href="/admin/updateCustomer/<%= user._id %>"
                                                 class="btn btn-sm btn-outline-primary">✏️</a>
                                             <button class="btn btn-sm btn-outline-danger"
                                                 onclick="deleteUser('<%= user._id %>')">🗑️</button>

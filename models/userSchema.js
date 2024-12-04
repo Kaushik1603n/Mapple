@@ -60,6 +60,7 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  secondaryEmail:{type: String},
   referalCode: {
     type: String,
   },

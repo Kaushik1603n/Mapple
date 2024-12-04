@@ -11,6 +11,9 @@ router.get("/dashboard",adminController.loadDashboard)
 router.get("/customer",adminController.loadCustomer)
 router.put('/update-customer-status/:userId',adminController.updateCustomerStatus)
 router.delete('/deleteCustomer/:id', adminController.deleteCustomer);
+router.get('/addCustomer', adminController.addCustomer);
+router.get('/updateCustomer/:id', adminController.loadUpdateCustomer);
+router.post('/updateCustomer', adminController.updateCustomer);
 
 router.get("/category",adminController.loadcategory)
 router.get("/addCategory",adminController.loadAddCategory)

@@ -3,6 +3,7 @@ const User = require("../../models/userSchema");
 const Category = require("../../models/categorySchema");
 const bcrypt = require("bcrypt");
 const categoty = require("../../models/categorySchema");
+const { log } = require("console");
 
 const pageerror = (req, res) => {
   res.render("pageerror");
@@ -77,10 +78,12 @@ const loadCustomer = async (req, res) => {
   }
 
   try {
+    const seccess = req.session.successMessage || null;
+    req.session.successMessage = null;
     const searchQuery = req.query.search || "";
     const isBlockFilter = req.query.isBlock || "";
     const page = parseInt(req.query.page) || 1;
-    const limit = 5; 
+    const limit = 5;
     const skip = (page - 1) * limit;
 
     const query = {
@@ -113,6 +116,7 @@ const loadCustomer = async (req, res) => {
       totalPages,
       totalCustomers,
       currentPage: page,
+      seccess
     });
   } catch (error) {
     console.log("Dashboard error:", error);
@@ -176,41 +180,114 @@ const deleteCustomer = async (req, res) => {
     });
   }
 };
+const addCustomer = async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect("/admin/login");
+  }
+  try {
+    res.render("admin/addCustomer");
+  } catch (error) {}
+};
 
-const loadcategory = async (req, res) => {
-    if (!req.session.admin) {
-      return res.redirect("/admin/login");
+const loadUpdateCustomer = async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect("/admin/login");
+  }
+  const { id } = req.params;
+  try {
+    const user = await User.find({ _id: id });
+    // console.log(user);
+
+    if (user) {
+      return res.render("admin/updateCustomer", { user });
     }
+  } catch (error) {}
+};
+
+const securePassword = async (password) => {
     try {
-      const page = parseInt(req.query.page) || 1;
-      const limit = 5;
-      const skip = (page - 1) * limit;
-  
-      const categoryData = await Category.find({})
-        .sort({ createAt: -1 })
-        .skip(skip)
-        .limit(limit);
-  
-      const totalCategories = await Category.countDocuments();
-      const totalPages = Math.ceil(totalCategories / limit); // Update to totalPages
-  
-      const successMessage = req.session.successMessage || null;
-      req.session.successMessage = null; // Clear the message after using it
-  
-      res.render("admin/category", {
-        category: categoryData,
-        currentPage: page,
-        totalPages: totalPages, // Update to totalPages
-        totalCategories: totalCategories,
-        success: successMessage,
-      });
+      if (!password) {
+        throw new Error("Password is empty or invalid.");
+      }
+      const passwordHash = await bcrypt.hash(password, 10);
+      return passwordHash;
     } catch (error) {
-      console.log("category error:", error);
-      res.redirect("/admin/pageerror");
+      console.error("Error in securePassword:", error);
+      throw error;
+    }
+  };
+  
+  const updateCustomer = async (req, res) => {
+    const { _id, name, email, secondaryEmail, phone, status, password } =
+      req.body;
+    try {
+      const findUser = await User.findOne({ _id });
+  
+      if (!findUser) {
+        // req.session.errorMessage = "User not found.";
+        return res.redirect("/admin/customer");
+      }
+  
+      const passwordHash = password
+        ? await securePassword(password)
+        : findUser.password;
+  
+      const isBlock = status === "true"; // Convert status to Boolean
+      const result = await User.updateOne(
+        { _id: _id },
+        {
+          $set: {
+            name: name,
+            email: email,
+            secondaryEmail: secondaryEmail,
+            phone: phone,
+            isBlock: isBlock,
+            password: passwordHash,
+          },
+        }
+      );
+      req.session.successMessage = "Customer updated successfully.";
+      return res.redirect("/admin/customer");
+    } catch (error) {
+      console.error("Error in updateCustomer:", error);
+      req.session.errorMessage = "Something went wrong. Please try again.";
+      return res.redirect("/admin/customer");
     }
   };
   
 
+const loadcategory = async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect("/admin/login");
+  }
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    const categoryData = await Category.find({})
+      .sort({ createAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalCategories = await Category.countDocuments();
+    const totalPages = Math.ceil(totalCategories / limit); // Update to totalPages
+
+    const successMessage = req.session.successMessage || null;
+    req.session.successMessage = null; // Clear the message after using it
+
+    res.render("admin/category", {
+      category: categoryData,
+      currentPage: page,
+      totalPages: totalPages, // Update to totalPages
+      totalCategories: totalCategories,
+      success: successMessage,
+    });
+  } catch (error) {
+    console.log("category error:", error);
+    res.redirect("/admin/pageerror");
+  }
+};
 
 const loadAddCategory = async (req, res) => {
   if (!req.session.admin) {
@@ -315,12 +392,10 @@ const editCategoryStatus = async (req, res) => {
 
   try {
     await Category.updateOne({ _id: id }, { status });
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Catagory status updated successfully.",
-      });
+    res.status(200).json({
+      success: true,
+      message: "Catagory status updated successfully.",
+    });
   } catch (error) {
     console.error("Error updating category status:", error);
     res.json({ success: false, message: "Failed to update category status." });
@@ -398,6 +473,9 @@ module.exports = {
   loadCustomer,
   updateCustomerStatus,
   deleteCustomer,
+  addCustomer,
+  loadUpdateCustomer,
+  updateCustomer,
   loadcategory,
   loadAddCategory,
   addCategory,
