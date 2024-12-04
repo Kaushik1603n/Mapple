@@ -75,9 +75,45 @@ const loadCustomer = async (req, res) => {
   if (!req.session.admin) {
     return res.redirect("/admin/login");
   }
+
   try {
-    const user = await User.find({});
-    res.render("admin/customer", { user });
+    const searchQuery = req.query.search || "";
+    const isBlockFilter = req.query.isBlock || "";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5; 
+    const skip = (page - 1) * limit;
+
+    const query = {
+      $and: [
+        {
+          $or: [
+            { name: new RegExp(searchQuery, "i") }, // Search by name (case-insensitive)
+            { email: new RegExp(searchQuery, "i") }, // Search by email (case-insensitive)
+          ],
+        },
+      ],
+    };
+
+    // Add isBlock filter if specified
+    if (isBlockFilter) {
+      query.$and.push({ isBlock: isBlockFilter === "true" });
+    }
+
+    // Fetch matching users with pagination
+    const totalCustomers = await User.countDocuments(query); // Total number of matching customers
+    const user = await User.find(query).skip(skip).limit(limit);
+
+    const totalPages = Math.ceil(totalCustomers / limit); // Calculate total pages
+
+    // Render the customer page with required data
+    res.render("admin/customer", {
+      user,
+      searchQuery,
+      isBlockFilter,
+      totalPages,
+      totalCustomers,
+      currentPage: page,
+    });
   } catch (error) {
     console.log("Dashboard error:", error);
     res.redirect("/admin/pageerror");
@@ -117,12 +153,10 @@ const updateCustomerStatus = async (req, res) => {
 
 const deleteCustomer = async (req, res) => {
   const { id } = req.params;
-  console.log(req);
-
   try {
     // Attempt to delete the user
     const result = await User.findOneAndDelete({ _id: id });
-    console.log(result);
+    // console.log(result);
 
     // If result is null, the user was not found
     if (result) {
@@ -144,34 +178,40 @@ const deleteCustomer = async (req, res) => {
 };
 
 const loadcategory = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 6;
-    const skip = (page - 1) * limit;
+    if (!req.session.admin) {
+      return res.redirect("/admin/login");
+    }
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = 5;
+      const skip = (page - 1) * limit;
+  
+      const categoryData = await Category.find({})
+        .sort({ createAt: -1 })
+        .skip(skip)
+        .limit(limit);
+  
+      const totalCategories = await Category.countDocuments();
+      const totalPages = Math.ceil(totalCategories / limit); // Update to totalPages
+  
+      const successMessage = req.session.successMessage || null;
+      req.session.successMessage = null; // Clear the message after using it
+  
+      res.render("admin/category", {
+        category: categoryData,
+        currentPage: page,
+        totalPages: totalPages, // Update to totalPages
+        totalCategories: totalCategories,
+        success: successMessage,
+      });
+    } catch (error) {
+      console.log("category error:", error);
+      res.redirect("/admin/pageerror");
+    }
+  };
+  
 
-    const categoryData = await Category.find({})
-      .sort({ createAt: -1 })
-      .skip(skip)
-      .limit(limit);
 
-    const totalCategories = await Category.countDocuments();
-    const totalPage = Math.ceil(totalCategories / limit);
-    res.render("admin/category", {
-      category: categoryData,
-      currentPage: page,
-      totalPage: totalPage,
-      totalCategories: totalCategories,
-    });
-
-    // res.render("admin/category");
-  } catch (error) {
-    console.log("category error:", error);
-    res.redirect("/admin/pageerror");
-  }
-};
 const loadAddCategory = async (req, res) => {
   if (!req.session.admin) {
     return res.redirect("/admin/login");
@@ -227,11 +267,89 @@ const loadEditCategory = async (req, res) => {
   if (!req.session.admin) {
     return res.redirect("/admin/login");
   }
+  const { id } = req.params;
+  //   console.log(id);
   try {
-    res.render("admin/editCategory");
+    const category = await Category.find({ _id: id });
+    res.render("admin/editCategory", { category });
   } catch (error) {
     console.log("addCategory error:", error);
     res.redirect("/admin/pageerror");
+  }
+};
+
+const editCategory = async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect("/admin/login");
+  }
+
+  try {
+    const { category, description, categoryStatus } = req.body;
+
+    const trimmedName = category.trim();
+    const nameExists = await Category.findOne({ name: trimmedName });
+
+    console.log("hello");
+
+    const booleanValue = categoryStatus === "list";
+    const result = await Category.updateOne(
+      { _id: req.body.id }, // Assuming `id` is passed in the form
+      { name: trimmedName, description, status: booleanValue }
+    );
+
+    if (result) {
+      req.session.successMessage = "Category updated successfully!";
+      return res.redirect("/admin/category");
+    }
+  } catch (error) {
+    console.error("editCategory error:", error);
+    return res.status(500).render("admin/pageerror", {
+      error: "Internal Server Error",
+    });
+  }
+};
+
+const editCategoryStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+    await Category.updateOne({ _id: id }, { status });
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Catagory status updated successfully.",
+      });
+  } catch (error) {
+    console.error("Error updating category status:", error);
+    res.json({ success: false, message: "Failed to update category status." });
+  }
+};
+
+const deleteCategory = async (req, res) => {
+  const { id } = req.params;
+  //   console.log(id);
+
+  try {
+    const result = await Category.findOneAndDelete({ _id: id });
+    console.log(result);
+
+    if (result) {
+      res
+        .status(200)
+        .json({ success: true, message: "Category deleted successfully." });
+    } else {
+      return res
+        .status(404)
+        .json({ success: false, message: "Category not found." });
+    }
+  } catch (error) {
+    console.error("Error deleting category:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while deleting the user.",
+    });
   }
 };
 
@@ -284,6 +402,9 @@ module.exports = {
   loadAddCategory,
   addCategory,
   loadEditCategory,
+  editCategory,
+  editCategoryStatus,
+  deleteCategory,
   loadproducts,
   loadAddProducts,
   pageerror,

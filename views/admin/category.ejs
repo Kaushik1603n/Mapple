@@ -29,71 +29,174 @@
                         <a href="/admin/addCategory" class="btn btn-dark">+ Create Category</a>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Category Name</th>
-                                        <th>Added</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% if (category.length > 0) { %>
-                                        <% category.forEach((cat) => { %>
-                                            <tr>
-                                                <td><div class="d-flex align-items-center"><%= cat.name %></div></td>
-                                                <td><%= new Date(cat.createdAt).toLocaleDateString() %></td>
-                                                <td>Active</td>
-                                                <td>
-                                                    <button class="btn btn-outline-primary btn-sm me-1">
-                                                        <i class="bi bi-eye"></i>
-                                                    </button>
-                                                    <a href="/admin/editCategory/<%= cat._id %>" class="btn btn-outline-secondary btn-sm me-1">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
-                                                    <a href="/admin/deleteCategory/<%= cat._id %>" class="btn btn-outline-danger btn-sm">
-                                                        <i class="bi bi-trash"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        <% }); %>
-                                    <% } else { %>
-                                        <tr>
-                                            <td colspan="4" class="text-center">No categories found</td>
-                                        </tr>
+                        <% if (locals.message && locals.message.length> 0) { %>
+                            <div id="alertMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <%= locals.message %>
+                            </div>
+                            <% } %>
+                                <% if (locals.success && locals.success.length> 0) { %>
+                                    <div id="alertMessage" class="alert alert-success alert-dismissible fade show"
+                                        role="alert">
+                                        <%= locals.success %>
+                                    </div>
                                     <% } %>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center flex-wrap">
-                            <p class="mb-2 mb-md-0">Showing <%= (currentPage - 1) * 4 + 1 %> to <%= Math.min(currentPage * 4, totalCategories) %> of <%= totalCategories %></p>
-                            <nav>
-                                <ul class="pagination pagination-sm mb-0">
-                                    <% if (currentPage > 1) { %>
-                                        <li class="page-item">
-                                            <a class="page-link" href="?page=<%= currentPage - 1 %>">←</a>
-                                        </li>
-                                    <% } %>
-                                    <% for (let i = 1; i <= totalPage; i++) { %>
-                                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                                        </li>
-                                    <% } %>
-                                    <% if (currentPage < totalPage) { %>
-                                        <li class="page-item">
-                                            <a class="page-link" href="?page=<%= currentPage + 1 %>">→</a>
-                                        </li>
-                                    <% } %>
-                                </ul>
-                            </nav>
-                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Category Name</th>
+                                                        <th>Added</th>
+                                                        <th>Status</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% if (category.length> 0) { %>
+                                                        <% category.forEach((cat)=> { %>
+                                                            <tr>
+                                                                <td>
+                                                                    <div class="d-flex align-items-center">
+                                                                        <%= cat.name %>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <%= new Date(cat.createdAt).toLocaleDateString() %>
+                                                                </td>
+                                                                <td>
+                                                                    <select class="form-select form-select-sm"
+                                                                        aria-label="Status"
+                                                                        onchange="updateCategoryStatus('<%= cat._id %>', this.value)">
+                                                                        <option value="list" <%=cat.status ? 'selected'
+                                                                            : '' %>>List</option>
+                                                                        <option value="unlist" <%=!cat.status
+                                                                            ? 'selected' : '' %>>Unlist</option>
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <button class="btn btn-outline-primary btn-sm me-1">
+                                                                        <i class="bi bi-eye"></i>
+                                                                    </button>
+                                                                    <a href="/admin/editCategory/<%= cat._id %>"
+                                                                        class="btn btn-outline-secondary btn-sm me-1">
+                                                                        <i class="bi bi-pencil"></i>
+                                                                    </a>
+                                                                    <a onclick="deleteCategory('<%= cat._id %>')"
+                                                                        class="btn btn-outline-danger btn-sm">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                            <% }); %>
+                                                                <% } else { %>
+                                                                    <tr>
+                                                                        <td colspan="4" class="text-center">No
+                                                                            categories found</td>
+                                                                    </tr>
+                                                                    <% } %>
+                                                </tbody>
+
+                                            </table>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                            <p class="mb-2 mb-md-0">Showing <%= (currentPage - 1) * 4 + 1 %> to <%=
+                                                        Math.min(currentPage * 4, totalCategories) %> of <%=
+                                                            totalCategories %>
+                                            </p>
+                                            <nav>
+                                                <ul class="pagination pagination-sm mb-0">
+                                                    <% if (currentPage> 1) { %>
+                                                        <li class="page-item">
+                                                            <a class="page-link"
+                                                                href="?page=<%= currentPage - 1 %>">←</a>
+                                                        </li>
+                                                        <% } %>
+                                                            <% for (let i=1; i <=totalPage; i++) { %>
+                                                                <li
+                                                                    class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                                                    <a class="page-link" href="?page=<%= i %>">
+                                                                        <%= i %>
+                                                                    </a>
+                                                                </li>
+                                                                <% } %>
+                                                                    <% if (currentPage < totalPage) { %>
+                                                                        <li class="page-item">
+                                                                            <a class="page-link"
+                                                                                href="?page=<%= currentPage + 1 %>">→</a>
+                                                                        </li>
+                                                                        <% } %>
+                                                </ul>
+                                            </nav>
+                                        </div>
                     </div>
                 </div>
             </div>
-            
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+        function updateCategoryStatus(categoryId, status) {
+            if (confirm("Are you sure you want to change the Category status?")) {
+                fetch(`/admin/updateCategoryStatus/${categoryId}`, {
+                    method: 'PATCH', // PATCH is appropriate for partial updates
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: status === 'list' }), // Adjust based on your backend logic
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Category status updated successfully!');
+
+                            // Optionally update the DOM dynamically:
+                            // Example: Update the text or class of the status element
+                            const statusElement = document.querySelector(`#category-status-${categoryId}`);
+                            if (statusElement) {
+                                statusElement.textContent = status === 'blocked' ? 'Blocked' : 'Active';
+                            }
+                        } else {
+                            alert('Failed to update Category status.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again.');
+                    });
+            }
+        }
+
+
+        function deleteCategory(categId) {
+            if (confirm("Are you sure you want to delete this Category?")) {
+                fetch(`/admin/deleteCategory/${categId}`, { method: 'DELETE' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Category deleted successfully");
+                            window.location.reload();
+                        } else {
+                            alert(data.message);
+                            console.error("Failed to delete category")
+                        }
+                    })
+                    .catch(error => {
+                        console.error("error: ", error);
+                        alert('An error occurred while deleting the Category.');
+                    })
+            }
+        }
+
+        window.onload = function () {
+            const alertMessage = document.getElementById("alertMessage");
+            if (alertMessage) {
+                setTimeout(() => {
+                    alertMessage.classList.remove("show");
+                    alertMessage.classList.add("d-none");
+                    alertMessage.innerText = ""
+                }, 4000);
+            }
+        };
+    </script>
 </body>

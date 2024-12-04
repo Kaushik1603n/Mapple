@@ -15,7 +15,10 @@ router.delete('/deleteCustomer/:id', adminController.deleteCustomer);
 router.get("/category",adminController.loadcategory)
 router.get("/addCategory",adminController.loadAddCategory)
 router.post("/addCategory",adminController.addCategory)
-router.get("/editCategory",adminController.loadEditCategory)
+router.get("/editCategory/:id",adminController.loadEditCategory)
+router.post("/editCategory",adminController.editCategory)
+router.patch("/updateCategoryStatus/:id",adminController.editCategoryStatus)
+router.delete("/deleteCategory/:id",adminController.deleteCategory)
 
 router.get("/products",adminController.loadproducts)
 router.get("/addProduct",adminController.loadAddProducts)

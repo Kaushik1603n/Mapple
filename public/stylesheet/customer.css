@@ -197,6 +197,29 @@ body {
     background-color: #d0d8df;
 }
 
+.searchBtn{
+    background-color: #eaeaea;  /* Darker background color on hover */
+    color: #464545; 
+}
+.searchBtn:hover{
+    background-color: #464545;  /* Darker background color on hover */
+    color: white;      
+}
+.status-tabs .btn.active {
+    background-color: #464545;  /* Background color for active button */
+    color: white;               /* Text color for active button */
+}
+
+.status-tabs .btn {
+    background-color: transparent;  /* Default button background */
+    color: #464545;  /* Default text color */
+}
+
+.status-tabs .btn:hover {
+    background-color: #353535d0;  /* Darker background color on hover */
+    color: white;                /* White text color on hover */
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-content {

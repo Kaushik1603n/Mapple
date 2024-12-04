@@ -32,39 +32,43 @@
                             <!-- <h4 class="mb-4">Category &rsaquo; Add</h4> -->
                             <div class="card shadow-sm">
                                 <div class="card-body">
-                                    <form action="#" method="post" enctype="multipart/form-data">
+                                    <form action="/admin/editCategory" method="post" >
                                         <!-- Category Name -->
                                         <div class="mb-3">
                                             <label for="category" class="form-label fw-bold">Category</label>
                                             <input type="text" id="category" name="category" class="form-control"
-                                                placeholder="Type here" required />
+                                                placeholder="Type here" value="<%= category[0].name %>" />
+                                            <div id="category-error" class="error-message"></div>
+                                            <input type="hidden" name="id" value="<%= category[0]._id %>" />
                                         </div>
-                                        <!-- Category status -->
+
+                                        <!-- Category Status -->
                                         <div class="mb-3">
                                             <label for="categoryStatus" class="form-label fw-bold">Category
                                                 Status</label>
-                                            <select id="categoryStatus" name="categoryStatus" class="form-select"
-                                                required>
-                                                <option value="" disabled selected>Select status</option>
-                                                <option value="list">List</option>
-                                                <option value="unlist">Unlist</option>
+                                            <select id="categoryStatus" name="categoryStatus" class="form-select">
+                                                <option value="" disabled>Select status</option>
+                                                <option value="list" <%=category[0].status ? "selected" : "" %>>List
+                                                </option>
+                                                <option value="unlist" <%=!category[0].status ? "selected" : "" %>
+                                                    >Unlist</option>
                                             </select>
+                                            <div id="status-error" class="error-message"></div>
                                         </div>
+
                                         <!-- Description -->
                                         <div class="mb-3">
                                             <label for="description" class="form-label fw-bold">Description</label>
                                             <textarea id="description" name="description" class="form-control" rows="3"
-                                                placeholder="Type here" required></textarea>
+                                                placeholder="Type here"><%= category[0].description %></textarea>
+                                            <div id="description-error" class="error-message"></div>
                                         </div>
-                                        <!-- Cover Photo -->
-                                        <div class="mb-4">
-                                            <label for="coverPhoto" class="form-label fw-bold">Category Cover
-                                                Photo</label>
-                                            <input type="file" id="coverPhoto" name="coverPhoto" class="form-control" />
-                                        </div>
+
+
                                         <!-- Buttons -->
                                         <div class="d-flex justify-content-between">
-                                            <button type="button" class="btn btn-outline-secondary">Cancel</button>
+                                            <a href="/admin/category" type="button"
+                                                class="btn btn-outline-secondary">Cancel</a>
                                             <button type="submit" class="btn btn-dark">Save Category</button>
                                         </div>
                                     </form>
@@ -80,4 +84,76 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.querySelector("form").onsubmit = function (event) {
+            if (!validateForm()) {
+                event.preventDefault(); // Prevent form submission if validation fails
+            }
+        };
+
+        function validateForm() {
+            clearErrorMessages();
+
+            const category = document.getElementById("category").value.trim();
+            const description = document.getElementById("description").value.trim();
+            const status = document.getElementById("categoryStatus").value;
+            let isValid = true;
+
+            // Validate category
+            if (!category) {
+                displayErrorMessage("category-error", "Please enter a category name");
+                isValid = false;
+            } else if (!/^[a-zA-Z\s]+$/.test(category)) {
+                displayErrorMessage("category-error", "Category name should only contain letters");
+                isValid = false;
+            }
+
+            // Validate description
+            if (!description) {
+                displayErrorMessage("description-error", "Please enter a description");
+                isValid = false;
+            }
+
+            // Validate category status
+            if (!status) {
+                displayErrorMessage("status-error", "Please select a category status");
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function displayErrorMessage(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.innerText = message;
+            errorElement.style.display = "block";
+            errorElement.classList.add("text-danger");
+
+            setTimeout(() => {
+                errorElement.innerText = "";
+                errorElement.style.display = "none";
+            }, 4000);
+
+        }
+
+        function clearErrorMessages() {
+            const errorElements = document.querySelectorAll(".error-message");
+            errorElements.forEach((element) => {
+                element.innerText = "";
+                element.style.display = "none";
+            });
+        }
+
+
+        window.onload = function () {
+            const alertMessage = document.getElementById("alertMessage");
+            if (alertMessage) {
+                setTimeout(() => {
+                    alertMessage.classList.remove("show");
+                    alertMessage.classList.add("d-none");
+                    alertMessage.innerText = ""
+                }, 4000);
+            }
+        };
+    </script>
 </body>
