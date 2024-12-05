@@ -52,6 +52,7 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Phone No</th>
+                                    <th>Added</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -67,6 +68,9 @@
                                         </td>
                                         <td>
                                             <%= user.phone || "N/A" %>
+                                        </td>
+                                        <td>
+                                            <%=user.createAt.toDateString() %>
                                         </td>
                                         <td>
                                             <select class="form-select form-select-sm" aria-label="Status"

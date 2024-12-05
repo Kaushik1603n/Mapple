@@ -1,0 +1,120 @@
+<script>
+    document.querySelector('form').addEventListener('submit', function (e) {
+        e.preventDefault(); // Prevent the form from submitting
+
+        // Clear previous error messages
+        let errorMessages = document.querySelectorAll('.error-message');
+        errorMessages.forEach(function (msg) {
+            msg.remove();
+        });
+
+        let valid = true;
+
+        // Validate all the form fields here (same as your previous code) ...
+
+        if (valid) {
+            // Create FormData object
+            const formData = new FormData();
+
+            // Add form fields to the FormData object
+            formData.append('productName', document.getElementById('productName').value);
+            formData.append('stockStatus', document.getElementById('stockStatus').value);
+            formData.append('quantity', document.getElementById('quantity').value);
+            formData.append('category', document.getElementById('category').value);
+            formData.append('processor', document.getElementById('processor').value);
+            formData.append('description', document.getElementById('description').value);
+            formData.append('price', document.getElementById('price').value);
+
+            // Handle color selection (optional)
+            let selectedColors = [];
+            document.querySelectorAll('.bg-dark.selected, .bg-warning.selected, .bg-success.selected, .bg-primary.selected').forEach(function (color) {
+                selectedColors.push(color.classList[1]);  // Assuming the classes are "bg-dark", "bg-warning", etc.
+            });
+            formData.append('colors', JSON.stringify(selectedColors));
+
+            // Handle variants (optional)
+            let selectedVariants = [];
+            document.querySelectorAll('.btn-outline-secondary.active').forEach(function (variant) {
+                selectedVariants.push(variant.textContent.trim());
+            });
+            formData.append('variants', JSON.stringify(selectedVariants));
+
+            // Handle uploaded images
+            const fileInput = document.getElementById('file-input');
+            for (let i = 0; i < fileInput.files.length; i++) {
+                formData.append('images', fileInput.files[i]);
+            }
+
+            // Send the form data to the server using fetch
+            fetch('/your-api-endpoint', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())  // assuming server responds with JSON
+                .then(data => {
+                    console.log('Success:', data);
+                    // Handle success, e.g., show a success message
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle error, e.g., show an error message
+                });
+        }
+    });
+</script>
+<script>
+    const express = require('express');
+    const multer = require('multer');
+    const path = require('path');
+    const app = express();
+
+    // Set up multer for file uploads
+    const storage = multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, 'uploads/');  // Directory where files will be saved
+        },
+        filename: (req, file, cb) => {
+            cb(null, Date.now() + path.extname(file.originalname));  // Unique file name
+        }
+    });
+
+    const upload = multer({ storage: storage });
+
+    // Middleware for handling JSON and form data
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+
+    // Handle POST request with form data and file uploads
+    app.post('/your-api-endpoint', upload.array('images', 5), (req, res) => {
+        // Extract form data
+        const { productName, stockStatus, quantity, category, processor, description, price } = req.body;
+        const colors = JSON.parse(req.body.colors);  // Parse colors
+        const variants = JSON.parse(req.body.variants);  // Parse variants
+
+        // Process the uploaded files
+        const uploadedImages = req.files.map(file => file.path);  // Get file paths for uploaded images
+
+        // Save the product data to the database or perform other actions
+        const productData = {
+            productName,
+            stockStatus,
+            quantity,
+            category,
+            processor,
+            description,
+            price,
+            colors,
+            variants,
+            images: uploadedImages,
+        };
+
+        // Here, save `productData` to your database
+        // Example response (success):
+        res.json({ success: true, product: productData });
+    });
+
+    app.listen(3000, () => {
+        console.log('Server running on port 3000');
+    });
+
+</script>

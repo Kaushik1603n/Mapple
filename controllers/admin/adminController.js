@@ -2,7 +2,6 @@ const Admin = require("../../models/adminSchema");
 const User = require("../../models/userSchema");
 const Category = require("../../models/categorySchema");
 const bcrypt = require("bcrypt");
-const categoty = require("../../models/categorySchema");
 const { log } = require("console");
 
 const pageerror = (req, res) => {
@@ -488,7 +487,7 @@ const deleteCategory = async (req, res) => {
 
   try {
     const result = await Category.findOneAndDelete({ _id: id });
-    console.log(result);
+    // console.log(result);
 
     if (result) {
       res

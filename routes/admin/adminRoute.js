@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../../controllers/admin/adminController");
+const productController = require("../../controllers/admin/productCondroller");
 const {userAuth,adminAuth} = require("../../middlewares/auth")
 
 router.get("/pageerror",adminController.pageerror)
@@ -25,8 +26,8 @@ router.post("/editCategory",adminController.editCategory)
 router.patch("/updateCategoryStatus/:id",adminController.editCategoryStatus)
 router.delete("/deleteCategory/:id",adminController.deleteCategory)
 
-router.get("/products",adminController.loadproducts)
-router.get("/addProduct",adminController.loadAddProducts)
+router.get("/products",productController.loadproducts)
+router.get("/addProduct",productController.loadAddProducts)
 
 
 
