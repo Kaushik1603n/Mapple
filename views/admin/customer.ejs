@@ -177,6 +177,16 @@
                     });
             }
         }
+        window.onload = function () {
+            const alertMessage = document.getElementById("alertMessage");
+            if (alertMessage) {
+                setTimeout(() => {
+                    alertMessage.classList.remove("show");
+                    alertMessage.classList.add("d-none");
+                    alertMessage.innerText = ""
+                }, 4000);
+            }
+        };
     </script>
 </body>
 

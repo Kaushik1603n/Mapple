@@ -116,7 +116,7 @@ const loadCustomer = async (req, res) => {
       totalPages,
       totalCustomers,
       currentPage: page,
-      seccess
+      seccess,
     });
   } catch (error) {
     console.log("Dashboard error:", error);
@@ -180,14 +180,86 @@ const deleteCustomer = async (req, res) => {
     });
   }
 };
-const addCustomer = async (req, res) => {
+const loadAddCustomer = async (req, res) => {
   if (!req.session.admin) {
     return res.redirect("/admin/login");
   }
   try {
-    res.render("admin/addCustomer");
+    const seccess = req.session.successMessage || null;
+    req.session.successMessage = null;
+    res.render("admin/addCustomer",{seccess});
   } catch (error) {}
 };
+
+const securePassword = async (password) => {
+  try {
+    if (!password) {
+      throw new Error("Password is empty or invalid.");
+    }
+    const passwordHash = await bcrypt.hash(password, 10);
+    return passwordHash;
+  } catch (error) {
+    console.error("Error in securePassword:", error);
+    throw error;
+  }
+};
+
+const addCustomer = async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect("/admin/login");
+  }
+
+  try {
+    const { name, email, secondaryEmail, phone, status, password } = req.body;
+
+
+
+    // Validate required fields
+    if (!name || !email) {
+      return res.render("admin/addCustomer", {
+        message: "Name and Email are required.",
+      });
+    }
+
+    // Check if the customer already exists
+    const findUser = await User.findOne({ email });
+    if (findUser) {
+      return res.render("admin/addCustomer", {
+        message: "Customer already exists.",
+      });
+    }
+
+    // Hash the password if provided
+    const passwordHash = password ? await securePassword(password) : null;
+
+    // Determine status
+    const isBlock = status === "true";
+
+    // Save the new customer
+    const saveUserData = new User({
+      name,
+      email,
+      secondaryEmail,
+      phone,
+      isBlock,
+      password: passwordHash,
+    });
+
+    await saveUserData.save();
+
+    // Redirect with success message
+    req.session.successMessage = "Customer added successfully!";
+    return res.redirect("/admin/addCustomer");
+  } catch (error) {
+    console.error("addCustomer error:", error);
+
+    // Handle error properly
+    return res.status(500).render("admin/pageerror", {
+      error: "Internal Server Error",
+    });
+  }
+};
+
 
 const loadUpdateCustomer = async (req, res) => {
   if (!req.session.admin) {
@@ -203,58 +275,68 @@ const loadUpdateCustomer = async (req, res) => {
     }
   } catch (error) {}
 };
+const loadUpdateCustomerPage = async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect("/admin/login");
+  }
+  const { id } = req.params;
 
-const securePassword = async (password) => {
-    try {
-      if (!password) {
-        throw new Error("Password is empty or invalid.");
-      }
-      const passwordHash = await bcrypt.hash(password, 10);
-      return passwordHash;
-    } catch (error) {
-      console.error("Error in securePassword:", error);
-      throw error;
-    }
-  };
-  
-  const updateCustomer = async (req, res) => {
-    const { _id, name, email, secondaryEmail, phone, status, password } =
-      req.body;
-    try {
-      const findUser = await User.findOne({ _id });
-  
-      if (!findUser) {
-        // req.session.errorMessage = "User not found.";
-        return res.redirect("/admin/customer");
-      }
-  
-      const passwordHash = password
-        ? await securePassword(password)
-        : findUser.password;
-  
-      const isBlock = status === "true"; // Convert status to Boolean
-      const result = await User.updateOne(
-        { _id: _id },
-        {
-          $set: {
-            name: name,
-            email: email,
-            secondaryEmail: secondaryEmail,
-            phone: phone,
-            isBlock: isBlock,
-            password: passwordHash,
-          },
-        }
-      );
-      req.session.successMessage = "Customer updated successfully.";
-      return res.redirect("/admin/customer");
-    } catch (error) {
-      console.error("Error in updateCustomer:", error);
-      req.session.errorMessage = "Something went wrong. Please try again.";
+  try {
+    const user = await User.find({ _id: id });
+    // Retrieve success and error messages from the session
+    const success = req.session.successMessage || null;
+    const message = req.session.errorMessage || null;
+
+    // Clear the session messages to avoid re-displaying them
+    req.session.successMessage = null;
+    req.session.errorMessage = null;
+
+    // Render the page, passing both success and message (even if null)
+    res.render("admin/updateCustomerPage", { success, message, user });
+  } catch (error) {
+    console.error("Error loading the update customer page:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+
+const updateCustomer = async (req, res) => {
+  const { _id, name, email, secondaryEmail, phone, status, password } =
+    req.body;
+  try {
+    const findUser = await User.findOne({ _id });
+
+    if (!findUser) {
+      // req.session.errorMessage = "User not found.";
       return res.redirect("/admin/customer");
     }
-  };
-  
+
+    const passwordHash = password
+      ? await securePassword(password)
+      : findUser.password;
+
+    const isBlock = status === "true"; // Convert status to Boolean
+    const result = await User.updateOne(
+      { _id: _id },
+      {
+        $set: {
+          name: name,
+          email: email,
+          secondaryEmail: secondaryEmail,
+          phone: phone,
+          isBlock: isBlock,
+          password: passwordHash,
+        },
+      }
+    );
+    req.session.successMessage = "Customer updated successfully.";
+    return res.redirect(`/admin/updateCustomerDetails/${_id}`);
+  } catch (error) {
+    console.error("Error in updateCustomer:", error);
+    req.session.errorMessage = "Something went wrong. Please try again.";
+    return res.redirect(`/admin/updateCustomerDetails/${_id}`);
+  }
+};
 
 const loadcategory = async (req, res) => {
   if (!req.session.admin) {
@@ -366,8 +448,6 @@ const editCategory = async (req, res) => {
     const trimmedName = category.trim();
     const nameExists = await Category.findOne({ name: trimmedName });
 
-    console.log("hello");
-
     const booleanValue = categoryStatus === "list";
     const result = await Category.updateOne(
       { _id: req.body.id }, // Assuming `id` is passed in the form
@@ -473,8 +553,10 @@ module.exports = {
   loadCustomer,
   updateCustomerStatus,
   deleteCustomer,
+  loadAddCustomer,
   addCustomer,
   loadUpdateCustomer,
+  loadUpdateCustomerPage,
   updateCustomer,
   loadcategory,
   loadAddCategory,
