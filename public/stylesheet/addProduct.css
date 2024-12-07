@@ -38,7 +38,193 @@ body {
     padding: 0;
 }
 
-/* #cropper-modal {
+
+.head-container {
+    background-color: #fff;
+    padding: 10px;
+}
+
+/* General Form Styling */
+form {
+    /* background-color: #f9f9f9; */
+    /* border: 1px solid #ddd; */
+    border-radius: 8px;
+    padding: 20px;
+    /* max-width: 800px; */
+    /* margin: auto; */
+    font-family: Arial, sans-serif;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.input-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.input-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+input,
+textarea,
+select {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+}
+
+textarea {
+    resize: none;
+}
+
+span.form-error {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+button,
+a.button-2 {
+    padding: 10px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+button.button {
+    background-color: #007bff;
+    color: white;
+}
+
+a.button-2 {
+    background-color: #f8f9fa;
+    color: #007bff;
+    text-decoration: none;
+    border: 1px solid #ddd;
+}
+
+/* File Input Styling */
+.file-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px dashed #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    position: relative;
+}
+
+.file-input-container:hover {
+    border-color: #007bff;
+}
+
+.file-input-container svg {
+    fill: #5c5f6a;
+}
+
+.file-input-container span {
+    font-size: 14px;
+    color: #5c5f6a;
+}
+
+.file-input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+/* Image Preview */
+/* .image-preview-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  
+  .image-preview-container img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  } */
+
+.image-list {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.image-item {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-preview-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.image-preview-container .remove-btn {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    color: var(--white);
+    background-color: var(--black);
+    border: none;
+    border-radius: 6px;
+    width: 15px;
+    height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.image-preview-container .remove-btn:hover {
+    background-color: rgba(255, 0, 0, 0.8);
+    color: #fff;
+}
+
+.crop-container {
+    width: 50%;
+}
+
+#cropper-modal {
     display: flex;
     flex-direction: column;
     right: 10px;
@@ -46,98 +232,163 @@ body {
     z-index: 10;
     gap: 10px;
     background-color: var(--white);
-  }
-  
-  #cropper-modal .button {
+}
+
+#cropper-modal .button {
     padding: 5px;
     color: var(--white);
     background-color: var(--black);
     cursor: pointer;
+}
+
+.form-check {
+    margin: 0;
+    display: flex;
+    align-items: center
+}
+
+.color-div label {
+    margin: 0;
+}
+
+.form-check label {
+    margin: 0;
+}
+
+#alertBox {
+    position: fixed;
+    top: 20px;
+    right: -100%;
+    transition: all 0.5s ease-in-out;
+    z-index: 9999;
+}
+
+#alertBox.show {
+    right: 20px;
+}
+
+#alertBox.hide {
+    right: -100%;
+}
+
+
+/* Cropper Modal */
+/* #cropper-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 8px;
   } */
 
-.head-container {
-    background-color: #fff;
-    padding: 10px;
-}
-
-.card {
-    border-radius: 10px;
-}
-
-.table td,
-.table th {
-    vertical-align: middle;
-}
-
-.table img {
-    object-fit: cover;
-}
-
-.card {
-    border-radius: 10px;
-}
-
-.form-label {
-    font-weight: 600;
-}
-
-.bg-dark,
-.bg-warning,
-.bg-success,
-.bg-primary {
+/* .cropper-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  #cropper-image {
+    max-width: 100%;
+    max-height: 400px;
+  }
+  
+  button#crop-btn,
+  button#cancel-btn {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    border: 2px solid transparent;
+  }
+  
+  button#crop-btn {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  button#cancel-btn {
+    background-color: #dc3545;
+    color: white;
+  }
+   */
+/* Color Options */
+
+
+
+
+.image-list {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
-.bg-dark:hover,
-.bg-warning:hover,
-.bg-success:hover,
-.bg-primary:hover {
-    border-color: #000;
-}
-
-button:focus {
-    outline: none !important;
-    box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.5);
-}
-
-.form-label {
-    font-weight: 600;
-}
-
-.img-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.img-item {
+.image-item {
     position: relative;
-    border: 1px solid #ddd;
+    width: 70px;
+    height: 70px;
+    border: 1px solid #ccc;
     border-radius: 8px;
     overflow: hidden;
 }
 
-.img-item img {
-    max-width: 100%;
-    max-height: 200px;
-    display: block;
+.image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-.save-btn-container {
+.image-preview-container {
     display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.image-preview-container .remove-btn {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    color: var(--white);
+    background-color: var(--black);
+    border: none;
+    border-radius: 6px;
+    width: 15px;
+    height: 15px;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    margin-top: 20px;
+    cursor: pointer;
+    font-size: 12px;
 }
 
-.save-btn-container .btn {
-    margin: 0 10px;
+.image-preview-container .remove-btn:hover {
+    background-color: rgba(255, 0, 0, 0.8);
+    color: #fff;
 }
 
-.cropped-img {
-    max-width: 100%;
-    margin-top: 10px;
+#cropper-modal {
+    display: flex;
+    flex-direction: column;
+    right: 10px;
+    width: 100%;
+    z-index: 10;
+    gap: 10px;
+    background-color: var(--white);
+}
+
+#cropper-modal .button {
+    padding: 5px;
+    color: var(--white);
+    background-color: var(--black);
+    cursor: pointer;
 }
 
 @media (max-width: 576px) {

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { type } = require("os");
 const { Schema } = mongoose;
+const category = require("./categorySchema");
 
 const productSchema = new Schema(
   {
@@ -14,7 +15,8 @@ const productSchema = new Schema(
     },
     brand: {
       type: String,
-      required: true,
+      required: false,
+      default: "Apple",
     },
     category: {
       type: Schema.Types.ObjectId,
@@ -33,14 +35,22 @@ const productSchema = new Schema(
       type: Number,
       default: 0,
     },
-    salePrice: {
-      type: Number,
-      default: true,
-    },
     color: {
       type: String,
       required: true,
     },
+    
+    variant: {
+      type: String,
+      required: true,
+    },
+    
+    processor: {
+      type: String,
+      required: true,
+    },
+    
+
     productImage: {
       type: [String],
       required: true,
@@ -55,10 +65,18 @@ const productSchema = new Schema(
       required: true,
       default: "Available",
     },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    reviews:{
+      type:Schema.Types.ObjectId,
+      ref: "review",
+    }
   },
   { timestamps: true }
 );
 
-const product = mongoose.Model("product",productSchema)
+const product = mongoose.model("product", productSchema);
 
-module.exports= product; 
+module.exports = product;
