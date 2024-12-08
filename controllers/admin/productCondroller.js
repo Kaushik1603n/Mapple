@@ -6,6 +6,7 @@ const fs = require("fs");
 const path = require("path");
 // const sharp = require("sharp");
 const multer = require("multer");
+const product = require("../../models/productSchema");
 
 // Configure multer
 const storage = multer.diskStorage({
@@ -177,10 +178,36 @@ const addProducts = async (req, res) => {
   }
 };
 
+const deleteProduct = async (req, res) => {
+  const { id } = req.params;
+  try {
+    // const find = await Product.findOne({ _id: id });
+    // console.log(find);    
+    // const result = await Product.findOneAndDelete({ _id: id });
+
+    const result = await Product.findByIdAndDelete({_id: id})
+    if (result) {
+      res
+        .status(200)
+        .json({ success: true, message: "Product deleted successfully." });
+    } else {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found." });
+    }
+  } catch (error) {
+    console.error("Error deleting Product:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while deleting the Product.",
+    });
+  }
+};
 
 module.exports = {
   loadproducts,
   loadAddProducts,
   addProducts,
   uploadImages,
+  deleteProduct,
 };

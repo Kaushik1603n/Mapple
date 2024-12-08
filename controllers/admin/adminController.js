@@ -502,7 +502,7 @@ const deleteCategory = async (req, res) => {
     console.error("Error deleting category:", error);
     return res.status(500).json({
       success: false,
-      message: "An error occurred while deleting the user.",
+      message: "An error occurred while deleting the category.",
     });
   }
 };
