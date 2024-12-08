@@ -10,7 +10,7 @@ const multer = require("multer");
 // Configure multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = path.join(__dirname, "../uploads");
+    const uploadPath = path.join(__dirname, "../../public/productsImage");
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
@@ -32,7 +32,57 @@ const loadproducts = async (req, res) => {
     return res.redirect("/admin/login");
   }
   try {
-    res.render("admin/products");
+    const searchQuery = req.query.search || "";
+    const page = parseInt(req.query.page, 10) || 1; // Default to page 1 if not provided
+    const limit = 5; // Number of products per page
+    const skip = (page - 1) * limit;
+
+    // Aggregation pipeline with consistent matching
+    const query = {
+      $or: [
+        { productName: new RegExp(searchQuery, "i") }, // Search by product name
+        { processor: new RegExp(searchQuery, "i") }, // Search by processor
+      ],
+    };
+
+    const productsWithCategory = await Product.aggregate([
+      { $match: query }, // Apply search filter
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "categoryDetails",
+        },
+      },
+      { $unwind: "$categoryDetails" },
+      {
+        $addFields: {
+          categoryName: "$categoryDetails.name", // Include category name
+        },
+      },
+      {
+        $project: {
+          categoryDetails: 0, // Exclude the full categoryDetails object
+        },
+      },
+      { $skip: skip }, // Skip products for pagination
+      { $limit: limit }, // Limit products for pagination
+    ]);
+
+    // Count total documents using the same match criteria
+    const totalProducts = await Product.countDocuments(query);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    // Render the products page with the necessary data
+    res.render("admin/products", {
+      productsWithCategory,
+      currentPage: page,
+      totalPages,
+      totalProducts,
+      searchQuery,
+    });
+    // res.render("admin/products", { productsWithCategory });
   } catch (error) {
     console.log("products error:", error);
     res.redirect("/admin/pageerror");
@@ -45,7 +95,7 @@ const loadAddProducts = async (req, res) => {
   }
   try {
     const category = await Category.find({ status: true });
-    // console.log("Fetched categories:", category);
+
     res.render("admin/addProduct", { cat: category });
   } catch (error) {
     console.log("products error:", error);
@@ -68,7 +118,11 @@ const addProducts = async (req, res) => {
       price,
     } = req.body;
 
-    const imagePaths = req.files.map((file) => file.path.replace(/\\/g, "/"));
+    console.log(req.files);
+
+    const imagePaths = req.files.map(
+      (file) => `/productsImage/${file.filename}`
+    );
     const iscategory = await Category.findOne({ name: category });
 
     if (!iscategory) {
@@ -123,36 +177,6 @@ const addProducts = async (req, res) => {
   }
 };
 
-// const addProducts = async (req, res) => {
-//   try {
-//     // Parse JSON fields
-//     const colors = JSON.parse(req.body.colors || "[]");
-//     const variants = JSON.parse(req.body.variants || "[]");
-
-//     // Ensure the target directory exists
-//     const targetDir = path.join(__dirname, "../../public/productsImage");
-//     if (!fs.existsSync(targetDir)) {
-//       fs.mkdirSync(targetDir, { recursive: true }); // Create the directory if it doesn't exist
-//     }
-
-//     // Process uploaded files
-//     req.files.forEach((file) => {
-//       // Save file to the public/productsImage folder
-//       const filePath = path.join(targetDir, file.originalname);
-//       fs.writeFileSync(filePath, file.buffer); // Save file to the directory
-//     });
-
-//     // Log the data for debugging
-//     console.log("Product Name:", req.body.productName);
-//     console.log("Colors:", colors);
-//     console.log("Variants:", variants);
-
-//     res.json({ message: "Product added successfully!" });
-//   } catch (error) {
-//     console.error("Error:", error);
-//     res.status(500).json({ message: "Something went wrong" });
-//   }
-// };
 
 module.exports = {
   loadproducts,

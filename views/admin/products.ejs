@@ -17,18 +17,20 @@
             <!-- Main Content -->
             <div class="container-fluid p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4 head-container">
-                    <div class="d-flex align-items-center">
-                        <input type="text" class="form-control me-2" placeholder="Search">
-                        <button class="btn btn-outline-primary">Search</button>
-                    </div>
+                    <form action="" method="GET" class="d-flex">
+                        <input type="text" name="search" class="form-control me-2" placeholder="Search"
+                            value="<%= searchQuery %>">
+                        <button type="submit" class="btn btn-outline-primary">Search</button>
+                    </form>
                 </div>
+                
 
                 <!-- Main Content -->
                 <div class="main-content">
                     <div class="header d-flex justify-content-between align-items-center mb-4">
                         <h2>Products</h2>
                         <div class="header-actions d-flex gap-2">
-                            <a href="/admin/addProduct" class="btn btn-dark">+ Add Product</a >
+                            <a href="/admin/addProduct" class="btn btn-dark">+ Add Product</a>
                         </div>
                     </div>
                     <div class="status-tabs mb-4">
@@ -42,8 +44,11 @@
                         <table class="table table-striped table-bordered">
                             <thead class="table-light">
                                 <tr>
+                                    <th>Image</th>
                                     <th>Product</th>
                                     <th>Category</th>
+                                    <th>Color</th>
+                                    <th>Variant</th>
                                     <th>Price</th>
                                     <th>Status</th>
                                     <th>Added</th>
@@ -51,32 +56,75 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>
-                                        <img src="/image/air.webp" alt="img" class="img-fluid" style="width: 35px; height: 25px;">
-                                        MacBook
-                                    </td>
-                                    <td>
-                                        MacBook Pro
-                                    </td>
-                                    <td>
-                                        ₹120,000
-                                    </td>
-                                    <td>
-                                        Available
-                                    </td>
-                                    <td>
-                                        12/3/2021
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary">✏️</button>
-                                        <button class="btn btn-sm btn-outline-danger">🗑️</button>
-                                    </td>
-                                </tr>
-                                <!-- Additional rows can be added here -->
+                                <% productsWithCategory.forEach(product=> { %>
+                                    <tr>
+                                        <td>
+                                            <img src="<%= product.productImage[0] %>" alt="<%= product.productName %>"
+                                                class="img-fluid" style="width: 35px; height: 25px;">
+                                            <img src="<%= product.productImage[1] %>" alt="<%= product.productName %>"
+                                                class="img-fluid" style="width: 35px; height: 25px;">
+                                            <!-- <%= product.productName %> -->
+                                        </td>
+                                        <td>
+                                            <%= product.productName %>
+                                        </td>
+                                        <td>
+                                            <%= product.categoryName %>
+                                        </td>
+                                        <td>
+                                            <%= product.color %>
+                                        </td>
+                                        <td>
+                                            <%= product.variant %>
+                                        </td>
+                                        <td>
+                                            ₹<%= product.salePrice.toLocaleString() %>
+                                        </td>
+                                        <td>
+                                            <%= product.status %>
+                                        </td>
+                                        <td>
+                                            <%= new Date(product.createdAt).toLocaleDateString() %>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">✏️</button>
+                                            <button class="btn btn-sm btn-outline-danger">🗑️</button>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
                             </tbody>
                         </table>
                     </div>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <p class="mb-2 mb-md-0">Showing <%= (currentPage - 1) * 4 + 1 %> to <%= Math.min(currentPage *
+                                    4, totalProducts) %> of <%= totalProducts %>
+                        </p>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0">
+                                <% if (currentPage> 1) { %>
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                            href="?search=<%= searchQuery %>&page=<%= currentPage - 1 %>">←</a>
+                                    </li>
+                                    <% } %>
+                                        <% for (let i=1; i <=totalPages; i++) { %>
+                                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                                <a class="page-link" href="?search=<%= searchQuery %>&page=<%= i %>">
+                                                    <%= i %>
+                                                </a>
+                                            </li>
+                                            <% } %>
+                                                <% if (currentPage < totalPages) { %>
+                                                    <li class="page-item">
+                                                        <a class="page-link"
+                                                            href="?search=<%= searchQuery %>&page=<%= currentPage + 1 %>">→</a>
+                                                    </li>
+                                                    <% } %>
+                            </ul>
+                        </nav>
+
+                    </div>
+
                 </div>
             </div>
 
