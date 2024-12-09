@@ -176,9 +176,16 @@
                   </div>
 
                 </div>
-                <div class="col-md-6">
-                  <label for="price" class="form-label">Price</label>
-                  <input type="number" name="price" id="price" placeholder="Enter Price">
+
+                <div class="input-row">
+                  <div class="col-md-6">
+                    <label for="price" class="form-label">Price</label>
+                    <input type="number" name="price" id="price" placeholder="Enter Price">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="offerPrice" class="form-label">Offer Price</label>
+                    <input type="number" name="offerPrice" id="offerPrice" placeholder="Offer Price" readonly>
+                  </div>
                 </div>
 
                 <div class="input-row">
@@ -491,7 +498,7 @@
             } else {
               // alert(data.message);
               console.log(data.message);
-              
+
               showAlert(data.message, "danger")
             }
 
@@ -515,6 +522,22 @@
         setTimeout(() => alertBox.remove(), 700);
       }, 3000);
     }
+
+    document.getElementById('price').addEventListener('input', calculateOfferPrice);
+    document.getElementById('offer').addEventListener('input', calculateOfferPrice);
+
+    function calculateOfferPrice() {
+      const price = parseFloat(document.getElementById('price').value) || 0;
+      const offer = parseFloat(document.getElementById('offer').value) || 0;
+
+      // Calculate offer price
+      const offerPrice = price - (price * (offer / 100));
+
+      // Update the offer price input
+      document.getElementById('offerPrice').value = offerPrice.toFixed(2);
+    }
+    calculateOfferPrice()
+
   </script>
 </body>
 

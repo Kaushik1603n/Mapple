@@ -29,6 +29,9 @@ router.delete("/deleteCategory/:id",adminController.deleteCategory)
 router.get("/products",productController.loadproducts)
 router.get("/addProduct",productController.loadAddProducts)
 router.post("/addProduct",productController.uploadImages,productController.addProducts)
+router.get("/updateProduct/:id",productController.loadUpdateProduct)
+router.put("/updateProduct",productController.uploadImages,productController.updateProduct)
+router.delete("/deleteProductImage/:productId",productController.deleteProductImage)
 router.delete("/deleteProduct/:id",productController.deleteProduct)
 
 

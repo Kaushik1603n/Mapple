@@ -4,9 +4,7 @@ const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 const fs = require("fs");
 const path = require("path");
-// const sharp = require("sharp");
 const multer = require("multer");
-const product = require("../../models/productSchema");
 
 // Configure multer
 const storage = multer.diskStorage({
@@ -117,9 +115,10 @@ const addProducts = async (req, res) => {
       processor,
       offer,
       price,
+      offerPrice,
     } = req.body;
 
-    console.log(req.files);
+    // console.log(req.files);
 
     const imagePaths = req.files.map(
       (file) => `/productsImage/${file.filename}`
@@ -139,8 +138,7 @@ const addProducts = async (req, res) => {
     });
 
     if (isproduct) {
-      console.log(isproduct);
-
+      // console.log(isproduct);
       console.log("product already exist");
       return res.json({ success: false, message: "Product already exists" });
     }
@@ -157,7 +155,7 @@ const addProducts = async (req, res) => {
       processor,
       productOffer: offer,
       regularPrice: price,
-      salePrice: price,
+      salePrice: offerPrice,
       productImage: imagePaths,
     });
 
@@ -178,14 +176,116 @@ const addProducts = async (req, res) => {
   }
 };
 
+const loadUpdateProduct = async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect("/admin/login");
+  }
+  const { id } = req.params;
+  try {
+    const product = await Product.findOne({ _id: id }).populate("category");
+
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found." });
+    }
+    res.render("admin/updateProduct", { product });
+  } catch (error) {
+    console.log("Edit Product error:", error);
+    res.redirect("/admin/pageerror");
+  }
+};
+
+const updateProduct = async (req, res) => {
+  try {
+    const {
+      productId,
+      productName,
+      stock,
+      quantity,
+      category,
+      description,
+      color,
+      variant,
+      processor,
+      offer,
+      price,
+      offerPrice,
+    } = req.body;
+    // console.log(req.body);
+
+    const imagePaths = req.files.map(
+      (file) => `/productsImage/${file.filename}`
+    );
+    // console.log(productId);
+
+    const updatedProduct = await Product.findByIdAndUpdate(productId, {
+      productName,
+      quantity,
+      status: stock,
+      description,
+      color,
+      variant,
+      processor,
+      offer,
+      regularPrice: price,
+      salePrice:offerPrice,
+      $push: { productImage: { $each: imagePaths } },
+    });
+
+    // console.log(updatedProduct);
+    if (!updatedProduct) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Product updated successfully",
+      product: updatedProduct, // Optionally, return the updated product data
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update the product. Please try again.",
+    });
+  }
+};
+
+const deleteProductImage = async (req, res) => {
+  const { productId } = req.params;
+  const { imagePath } = req.body;
+  try {
+    const trimmedImagePath = imagePath.trim();
+    const product = await Product.findByIdAndUpdate(
+      productId,
+      { $pull: { productImage: { $eq: trimmedImagePath } } },
+      { new: true }
+    );
+
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
+
+    // Send success response
+    res.json({ success: true, message: "Image deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting Product Image:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while deleting the Product Image.",
+    });
+  }
+};
+
 const deleteProduct = async (req, res) => {
   const { id } = req.params;
   try {
-    // const find = await Product.findOne({ _id: id });
-    // console.log(find);    
-    // const result = await Product.findOneAndDelete({ _id: id });
-
-    const result = await Product.findByIdAndDelete({_id: id})
+    const result = await Product.findByIdAndDelete({ _id: id });
     if (result) {
       res
         .status(200)
@@ -210,4 +310,7 @@ module.exports = {
   addProducts,
   uploadImages,
   deleteProduct,
+  loadUpdateProduct,
+  deleteProductImage,
+  updateProduct,
 };

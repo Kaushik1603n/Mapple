@@ -1,390 +1,144 @@
-<!DOCTYPE html>
-<html lang="en">
+<form id="product-form" enctype="multipart/form-data">
+  <div class="row g-3">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add Product</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
-  <link rel="stylesheet" href="/stylesheet/addProduct.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <div class="input-row">
+      <div class="col-md-6">
+        <label for="productName" class="form-label">Product Name</label>
+        <input 
+          type="text" 
+          class="form-control" 
+          name="productName" 
+          id="productName" 
+          placeholder="Enter product name" 
+          value="<%= product.productName %>" />
+      </div>
 
-</head>
+      <div class="col-md-6">
+        <label for="stockStatus" class="form-label">Stock Status</label>
+        <select name="stock" id="stock">
+          <option value="Available" <%= product.status === "Available" ? "selected" : "" %>>Available</option>
+          <option value="Out of Stock" <%= product.status === "Out of Stock" ? "selected" : "" %>>Out of Stock</option>
+          <option value="Discontinued" <%= product.status === "Discontinued" ? "selected" : "" %>>Discontinued</option>
+        </select>
+      </div>
+    </div>
 
-<body>
-  <div class="d-flex flex-column flex-lg-row">
-    <%- include("../../views/partials/admin/sidebar") %>
-      <div class="container-fluid p-4">
-        <div class="d-flex justify-content-between align-items-center p-2 mb-2 flex-wrap head-container ">
-          <h4 class="fw-bold p-1 m-0">Add Product</h4>
+    <div class="input-row">
+      <div class="col-md-6">
+        <label for="quantity" class="form-label">Available Quantity</label>
+        <input 
+          type="number" 
+          name="quantity" 
+          class="form-control" 
+          id="quantity" 
+          placeholder="Enter available quantity" 
+          value="<%= product.quantity || '' %>" />
+      </div>
 
-        </div>
-        <div class="card mt-4">
-          <div class="card-body">
-            <form action="/admin/addProduct" method="post" enctype="multipart/form-data">
-              <div class="row g-3">
-                <!-- Product Name -->
-                <div class="col-md-6">
-                  <label for="productName" class="form-label">Product Name</label>
-                  <input type="text" class="form-control" id="productName" placeholder="Enter product name" />
-                </div>
+      <div class="col-md-6">
+        <label for="category" class="form-label">Category</label>
+        <select name="category" class="form-select" id="category">
+          <option value="Electronics" <%= product.category === "Electronics" ? "selected" : "" %>>Electronics</option>
+          <option value="Clothing" <%= product.category === "Clothing" ? "selected" : "" %>>Clothing</option>
+          <option value="Books" <%= product.category === "Books" ? "selected" : "" %>>Books</option>
+        </select>
+      </div>
+    </div>
 
-                <!-- Stock Status -->
-                <div class="col-md-6">
-                  <label for="stockStatus" class="form-label">Stock Status</label>
-                  <input type="text" class="form-control" id="stockStatus" placeholder="Enter stock status" />
-                </div>
-
-
-
-                <!-- Available Quantity -->
-                <div class="col-md-6">
-                  <label for="quantity" class="form-label">Available Quantity</label>
-                  <input type="number" class="form-control" id="quantity" placeholder="Enter available quantity" />
-                </div>
-
-                <!-- Category -->
-                <div class="col-md-6">
-                  <label for="category" class="form-label">Category</label>
-                  <select class="form-select" id="category">
-                    <% for (let i=0; i < cat.length; i++) { %>
-                      <option value="<%= cat[i].name %>">
-                        <%= cat[i].name %>
-                      </option>
-                      <% } %>
-                  </select>
-
-                </div>
-
-                <!-- Processor -->
-                <div class="col-md-6">
-                  <label for="processor" class="form-label">Processor</label>
-                  <select class="form-select" id="processor">
-                    <option selected>M1</option>
-                    <option>M2</option>
-                    <option>Intel</option>
-                  </select>
-                </div>
-
-                <!-- Description -->
-                <div class="col-md-6">
-                  <label for="description" class="form-label">Description</label>
-                  <textarea class="form-control" id="description" rows="3"
-                    placeholder="Enter product description"></textarea>
-                </div>
-
-                <!-- Colors -->
-                <div class="col-md-6">
-                  <label class="form-label d-block">Colors</label>
-                  <div class="d-flex align-items-center">
-                    <div class="bg-dark rounded-circle me-2" style="width: 20px; height: 20px;"></div>
-                    <div class="bg-warning rounded-circle me-2" style="width: 20px; height: 20px;"></div>
-                    <div class="bg-success rounded-circle me-2" style="width: 20px; height: 20px;"></div>
-                    <div class="bg-primary rounded-circle me-2" style="width: 20px; height: 20px;"></div>
-                  </div>
-                </div>
-
-                <!-- Variants -->
-                <div class="col-md-6">
-                  <label class="form-label">Variants</label>
-                  <div class="d-flex flex-wrap gap-2">
-                    <button type="button" class="btn btn-outline-secondary">128 GB</button>
-                    <button type="button" class="btn btn-outline-secondary">256 GB</button>
-                    <button type="button" class="btn btn-outline-secondary">500 GB</button>
-                    <button type="button" class="btn btn-outline-secondary">1 TB</button>
-                    <button type="button" class="btn btn-outline-secondary">2 TB</button>
-                  </div>
-                </div>
-
-                <div class="col-md-12 ">
-                  <label for="file-input" class="form-label">Upload Images</label>
-                  <input type="file" id="file-input" class="form-control" multiple>
-                  <div class="img-container mt-3 " id="image-container"></div>
-                  <div class="save-btn-container">
-                    <button type="button" class="btn btn-dark save hide">Cropped Images</button>
-                  </div>
-                </div>
-
-                <!-- Price -->
-                <div class="col-md-6">
-                  <label for="price" class="form-label">Price</label>
-                  <input type="number" class="form-control" id="price" placeholder="Enter price" />
-                </div>
-              </div>
-              <div class="d-flex justify-content-end  p-2 mb-2 ">
-                <div>
-                  <button class="btn btn-outline-secondary me-2"><i class="bi bi-x-circle"></i> Cancel</button>
-                  <button class="btn btn-dark"><i class="bi bi-save"></i> Save</button>
-
-                </div>
-              </div>
-
-            </form>
-          </div>
+    <div class="input-row">
+      <div class="input-col">
+        <label for="images">Images</label>
+        <ul>
+          <% product.productImage.forEach(function(image) { %>
+            <li><img src="<%= image %>" alt="Product Image" style="max-width: 100px;" /></li>
+          <% }); %>
+        </ul>
+        <div class="file-input-container">
+          <svg width="18" height="17" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- SVG content -->
+          </svg>
+          <span>Choose product images</span>
+          <input 
+            name="images" 
+            type="file" 
+            id="file-input" 
+            class="file-input" 
+            accept="image/*" 
+            multiple />
         </div>
       </div>
+    </div>
+
+    <div class="input-row">
+      <div class="col-12">
+        <label for="description" class="form-label">Description</label>
+        <textarea 
+          name="description" 
+          class="form-control" 
+          id="description" 
+          rows="3"
+          placeholder="Enter product description"><%= product.description %></textarea>
+      </div>
+    </div>
+
+    <div class="input-row">
+      <div class="col-md-6">
+        <label class="form-label d-block">Colors</label>
+        <div class="d-flex align-items-center">
+          <input 
+            type="radio" 
+            name="color" 
+            id="colorBlack" 
+            value="Black" 
+            <%= product.color === "Black" ? "checked" : "" %> />
+          <label for="colorBlack">Black</label>
+          <input 
+            type="radio" 
+            name="color" 
+            id="colorYellow" 
+            value="Yellow" 
+            <%= product.color === "Yellow" ? "checked" : "" %> />
+          <label for="colorYellow">Yellow</label>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Variants</label>
+        <div class="d-flex">
+          <input 
+            type="radio" 
+            name="variant" 
+            id="variant128GB" 
+            value="128GB" 
+            <%= product.variant === "128GB" ? "checked" : "" %> />
+          <label for="variant128GB">128 GB</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-row">
+      <div class="col-md-6">
+        <label for="processor" class="form-label">Processor</label>
+        <select class="form-select" name="processor" id="processor">
+          <option value="M1" <%= product.processor === "M1" ? "selected" : "" %>>M1</option>
+          <option value="Intel" <%= product.processor === "Intel" ? "selected" : "" %>>Intel</option>
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label for="offer" class="form-label">Offer %</label>
+        <input 
+          type="number" 
+          name="offer" 
+          id="offer" 
+          placeholder="Enter Offer" 
+          value="<%= product.productOffer %>" />
+      </div>
+    </div>
+
+    <div class="input-row">
+      <button class="button" id="submit-btn" type="submit">Add Product</button>
+      <a href="#" class="button-2">Cancel</a>
+    </div>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-  <script>
-    document.querySelector('form').addEventListener('submit', function (e) {
-      e.preventDefault(); // Prevent the form from submitting
-
-      // Clear previous error messages
-      let errorMessages = document.querySelectorAll('.error-message');
-      errorMessages.forEach(function (msg) {
-        msg.remove();
-      });
-
-      let valid = true;
-
-      // Validate Product Name
-      let productName = document.getElementById('productName');
-      if (productName.value.trim() === "") {
-        showError(productName, "Product name is required.");
-        valid = false;
-      }
-
-      // Validate Stock Status
-      let stockStatus = document.getElementById('stockStatus');
-      if (stockStatus.value.trim() === "") {
-        showError(stockStatus, "Stock status is required.");
-        valid = false;
-      }
-
-      // Validate Available Quantity
-      let quantity = document.getElementById('quantity');
-      if (quantity.value.trim() === "" || quantity.value <= 0) {
-        showError(quantity, "Available quantity must be a positive number.");
-        valid = false;
-      }
-
-      // Validate Category
-      let category = document.getElementById('category');
-      if (category.value === "") {
-        showError(category, "Please select a category.");
-        valid = false;
-      }
-
-      // Validate Processor
-      let processor = document.getElementById('processor');
-      if (processor.value === "") {
-        showError(processor, "Please select a processor.");
-        valid = false;
-      }
-
-      // Validate Description
-      let description = document.getElementById('description');
-      if (description.value.trim() === "") {
-        showError(description, "Description is required.");
-        valid = false;
-      }
-
-      // Validate Colors (example for one color, can be extended)
-      let colors = document.querySelectorAll('.bg-dark, .bg-warning, .bg-success, .bg-primary');
-      let colorSelected = false;
-      colors.forEach(function (color) {
-        if (color.classList.contains('selected')) {
-          colorSelected = true;
-        }
-      });
-      if (!colorSelected) {
-        showError(colors[0], "Please select at least one color.");
-        valid = false;
-      }
-
-      // Validate Variants (at least one variant should be selected)
-      let variants = document.querySelectorAll('.btn-outline-secondary');
-      let variantSelected = false;
-      variants.forEach(function (variant) {
-        if (variant.classList.contains('active')) {
-          variantSelected = true;
-        }
-      });
-      if (!variantSelected) {
-        showError(variants[0], "Please select at least one variant.");
-        valid = false;
-      }
-
-      // Validate Images (minimum 3 images)
-      let fileInput = document.getElementById('file-input');
-      if (fileInput.files.length < 3) {
-        showError(fileInput, "Please upload at least 3 images.");
-        valid = false;
-      }
-
-      // Validate Price
-      let price = document.getElementById('price');
-      if (price.value.trim() === "" || price.value <= 0) {
-        showError(price, "Price is required and must be a positive number.");
-        valid = false;
-      }
-
-      if (valid) {
-        // Submit the form if all fields are valid
-        const formData = new FormData();
-
-        // Add form fields to the FormData object
-        formData.append('productName', document.getElementById('productName').value);
-        formData.append('stockStatus', document.getElementById('stockStatus').value);
-        formData.append('quantity', document.getElementById('quantity').value);
-        formData.append('category', document.getElementById('category').value);
-        formData.append('processor', document.getElementById('processor').value);
-        formData.append('description', document.getElementById('description').value);
-        formData.append('price', document.getElementById('price').value);
-
-        // Handle color selection (optional)
-        let selectedColors = [];
-        document.querySelectorAll('.bg-dark.selected, .bg-warning.selected, .bg-success.selected, .bg-primary.selected').forEach(function (color) {
-          selectedColors.push(color.classList[1]);  // Assuming the classes are "bg-dark", "bg-warning", etc.
-        });
-        formData.append('colors', JSON.stringify(selectedColors));
-
-        // Handle variants (optional)
-        let selectedVariants = [];
-        document.querySelectorAll('.btn-outline-secondary.active').forEach(function (variant) {
-          selectedVariants.push(variant.textContent.trim());
-        });
-        formData.append('variants', JSON.stringify(selectedVariants));
-
-        // Handle uploaded images
-        const fileInput = document.getElementById('file-input');
-        for (let i = 0; i < fileInput.files.length; i++) {
-          formData.append('images', fileInput.files[i]);
-        }
-
-        // Send the form data to the server using fetch
-        fetch('/admin/addProduct', {
-          method: 'POST',
-          body: formData,
-        })
-          .then(response => response.json())  // assuming server responds with JSON
-          .then(data => {
-            console.log('Success:', data);
-            // Handle success, e.g., show a success message
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            // Handle error, e.g., show an error message
-          });
-      }
-    });
-
-    function showError(element, message) {
-      let errorMessage = document.createElement('div');
-      errorMessage.classList.add('text-danger', 'error-message');
-      errorMessage.textContent = message;
-      element.parentElement.appendChild(errorMessage);
-    }
-
-    // Example of handling color selection
-    let colorButtons = document.querySelectorAll('.bg-dark, .bg-warning, .bg-success, .bg-primary');
-    colorButtons.forEach(function (color) {
-      color.addEventListener('click', function () {
-        color.classList.toggle('selected');
-      });
-    });
-
-    // Example of handling variant selection
-    let variantButtons = document.querySelectorAll('.btn-outline-secondary');
-    variantButtons.forEach(function (variant) {
-      variant.addEventListener('click', function () {
-        variant.classList.toggle('active');
-      });
-    });
-
-
-
-    // cropping js code 
-
-    const fileInput = document.querySelector('#file-input');
-    const imageContainer = document.querySelector('#image-container');
-    const saveButton = document.querySelector('.save');
-    let cropperInstances = [];
-
-    // Handle file input change
-    fileInput.addEventListener('change', (event) => {
-      const files = event.target.files;
-
-      // Clear previous images and Cropper instances
-      imageContainer.innerHTML = '';
-      cropperInstances = [];
-
-      // Loop through each selected file
-      Array.from(files).forEach((file, index) => {
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-          // Create image wrapper and image element
-          const imgWrapper = document.createElement('div');
-          imgWrapper.classList.add('img-item', 'mb-3');
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          img.style.maxWidth = '100%'; // Prevent oversized images
-
-          imgWrapper.appendChild(img);
-          imageContainer.appendChild(imgWrapper);
-
-          // Initialize Cropper after the image is loaded
-          img.onload = () => {
-            const cropper = new Cropper(img, {
-              aspectRatio: 1, // Example: Square crop
-              viewMode: 1, // Restrict cropping to the visible image area
-              autoCropArea: 1, // Ensure full coverage
-            });
-            cropperInstances.push(cropper);
-          };
-          // img.onload = () => {
-          //   const cropper = new Cropper(img, {
-          //     aspectRatio: NaN, // No fixed aspect ratio, can crop freely
-          //     viewMode: 1, // Restrict cropping to the visible image area
-          //     autoCropArea: 1, // Ensure full coverage
-          //   });
-          //   cropperInstances.push(cropper);
-          // };
-
-        };
-
-        reader.readAsDataURL(file); // Load the image
-      });
-
-      // Show the save button when images are loaded
-      saveButton.classList.remove('hide');
-    });
-
-    // Handle Save Button Click
-    saveButton.addEventListener('click', () => {
-      imageContainer.innerHTML = ''; // Clear container for cropped images
-
-      // Process each Cropper instance
-      cropperInstances.forEach((cropper, index) => {
-        const croppedCanvas = cropper.getCroppedCanvas({
-          width: 300, // Fixed size for cropped output
-          height: 300,
-        });
-
-        // Compress output image
-        const croppedImageSrc = croppedCanvas.toDataURL('image/jpeg', 0.8); // Compression: 80% quality
-
-        // Create cropped image
-        const imgWrapper = document.createElement('div');
-        imgWrapper.classList.add('img-item', 'mb-3');
-        const croppedImage = document.createElement('img');
-        croppedImage.src = croppedImageSrc;
-        croppedImage.style.maxWidth = '100%'; // Keep the image responsive
-
-        imgWrapper.appendChild(croppedImage);
-        imageContainer.appendChild(imgWrapper);
-      });
-
-      // Hide save button after saving
-      saveButton.classList.add('hide');
-    });
-
-  </script>
-
-</body>
-
-</html>
+</form>

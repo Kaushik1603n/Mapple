@@ -23,6 +23,10 @@ const productSchema = new Schema(
       ref: "category",
       required: true,
     },
+    quantity: {
+      type: Number,
+      required: true,
+    },
     regularPrice: {
       type: Number,
       required: true,
@@ -39,17 +43,16 @@ const productSchema = new Schema(
       type: String,
       required: true,
     },
-    
+
     variant: {
       type: String,
       required: true,
     },
-    
+
     processor: {
       type: String,
       required: true,
     },
-    
 
     productImage: {
       type: [String],
@@ -69,10 +72,10 @@ const productSchema = new Schema(
       type: Date,
       default: Date.now,
     },
-    reviews:{
-      type:Schema.Types.ObjectId,
+    reviews: {
+      type: Schema.Types.ObjectId,
       ref: "review",
-    }
+    },
   },
   { timestamps: true }
 );

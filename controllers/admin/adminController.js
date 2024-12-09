@@ -431,7 +431,7 @@ const loadEditCategory = async (req, res) => {
     const category = await Category.find({ _id: id });
     res.render("admin/editCategory", { category });
   } catch (error) {
-    console.log("addCategory error:", error);
+    console.log("Edit Category error:", error);
     res.redirect("/admin/pageerror");
   }
 };
