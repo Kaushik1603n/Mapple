@@ -3,17 +3,18 @@ const { use } = require("../routes/user/userRoute");
 const nodemailer = require("nodemailer");
 const env = require("dotenv").config();
 const bcrypt = require("bcrypt");
+const Product = require("../models/productSchema");
 
 const loadHomePage = async (req, res) => {
   try {
     const user = req.session.user;
-    // console.log(user)
+    const products = await Product.aggregate([
+      { $sample: { size: 8 } }, // Randomly select 8 products
+    ]); 
     if (user) {
-      // const userData = await User.findOne({ id: user._id });
-      // console.log(user.name)
-      res.render("user/home", { user: user });
+      res.render("user/home", { user: user, products });
     } else {
-      return res.render("user/home");
+      return res.render("user/home", { products });
     }
   } catch (error) {
     console.log("home Page Not Fount");
@@ -96,7 +97,7 @@ const signup = async (req, res) => {
     if (findUser) {
       return res.render("user/signup", { message: "User already exists" });
     }
-    
+
     const otp = generateOtp();
 
     const emailsent = await sendVerificationEmail(email, otp);
@@ -105,8 +106,8 @@ const signup = async (req, res) => {
     }
 
     req.session.userOtp = otp;
-    console.log("session otp ",req.session.userOtp);
-    
+    console.log("session otp ", req.session.userOtp);
+
     req.session.userData = { name, email, password };
 
     // req.session.registerUser=true;
@@ -126,13 +127,11 @@ const securePassword = async (password) => {
   } catch (error) {}
 };
 
-const loadVerifyOTP = async (req,res)=>{
+const loadVerifyOTP = async (req, res) => {
   try {
-    return res.render("user/verificationOTP")
-  } catch (error) {
-    
-  }
-}
+    return res.render("user/verificationOTP");
+  } catch (error) {}
+};
 
 const verifyOTP = async (req, res) => {
   try {
@@ -235,31 +234,31 @@ const login = async (req, res) => {
   }
 };
 
-const googleLogin = async(req,res)=>{
+const googleLogin = async (req, res) => {
   try {
-    req.session.user=req.user
+    req.session.user = req.user;
     // console.log(req.user.name);
-    
-    res.redirect('/user')
-  } catch (error) {
-    res.status(500).send('Internal server error');
-  }
-}
 
-const logout = async (req,res)=>{
+    res.redirect("/user");
+  } catch (error) {
+    res.status(500).send("Internal server error");
+  }
+};
+
+const logout = async (req, res) => {
   try {
-    req.session.destroy((err)=>{
-      if(err){
+    req.session.destroy((err) => {
+      if (err) {
         console.log("Session destruction error", err);
         return res.redirect("/user/pageNotFount");
       }
       return res.redirect("/user/login");
-    })
+    });
   } catch (error) {
-    console.log("Logout Error",error);
+    console.log("Logout Error", error);
     res.redirect("/user/pageNotFount");
   }
-}
+};
 
 const pageNotFount = async (req, res) => {
   try {
