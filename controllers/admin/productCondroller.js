@@ -219,6 +219,21 @@ const updateProduct = async (req, res) => {
     );
     // console.log(productId);
 
+    // Check if product already exists
+    const isproduct = await Product.findOne({
+      productName,
+      color,
+      variant,
+      processor,
+      _id: { $ne: productId }
+    });
+
+    if (isproduct) {
+      // console.log(isproduct);
+      console.log("product already exist");
+      return res.json({ success: false, message: "Product already exists" });
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(productId, {
       productName,
       quantity,
@@ -229,7 +244,7 @@ const updateProduct = async (req, res) => {
       processor,
       offer,
       regularPrice: price,
-      salePrice:offerPrice,
+      salePrice: offerPrice,
       $push: { productImage: { $each: imagePaths } },
     });
 
@@ -311,6 +326,6 @@ module.exports = {
   uploadImages,
   deleteProduct,
   loadUpdateProduct,
-  deleteProductImage,
   updateProduct,
+  deleteProductImage,
 };

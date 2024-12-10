@@ -3,6 +3,7 @@ const router = express.Router();
 const userController = require("../../controllers/userController");
 const passport = require("passport");
 const auth = require("../../middlewares/auth");
+const { render } = require("ejs");
 
 router.get("/pageNotFount", userController.pageNotFount);
 
@@ -15,6 +16,10 @@ router.post("/resendOTP", userController.resendOTP);
 router.get("/login", auth.isLogin, userController.loadLogin);
 router.post("/login", userController.login);
 router.get("/logout", userController.logout);
+
+
+router.get("/productDetails/:productId", userController.loadProductDetails);
+
 
 router.get(
   "/auth/google",

@@ -97,9 +97,7 @@
                                 <div class="position-relative">
                                     <img src="<%= product.productImage[0] %>" class="card-img-top mx-auto pt-3 p-1"
                                         alt="<%= product.productName %>" style="width: 288px; height: 190px;">
-                                    <!-- <button class="btn btn-outline-light position-absolute top-0 end-0 m-2 like-btn">
-                                        <span class="like-icon liked">&#9829;</span>
-                                    </button> -->
+
                                     <button class="btn btn-outline-light position-absolute top-0 end-0 m-2 like-btn">
                                         <span class="like-icon">&#9825;</span>
                                     </button>
@@ -119,7 +117,8 @@
                                         <i class="bi bi-star-fill"></i>
                                         <i class="bi bi-star"></i>
                                     </div>
-                                    <button class="btn btn-dark w-100">Buy Now</button>
+                                    <a href="/user/productDetails/<%= product._id %>" class="btn btn-dark w-100">Buy
+                                        Now</a>
                                 </div>
                             </div>
                         </div>

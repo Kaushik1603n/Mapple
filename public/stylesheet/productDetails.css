@@ -1,0 +1,304 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.header-section {
+    position: fixed;
+    z-index: 100;
+}
+
+.navbar,
+.navgb {
+    background: #464545;
+}
+
+.navbar-brand,
+.offcanvas-title {
+    color: #fff;
+    font-weight: bold;
+}
+
+.login-button {
+    background-color: #fff;
+    color: #464545;
+    font-size: 14px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: 0.3s background-color;
+}
+
+.login-button:hover {
+    background-color: #f1f1f1cb;
+}
+
+.navbar-toggler {
+    border: none;
+    font-size: 1.25rem;
+}
+
+.navbar-toggler:focus,
+.btn-close:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.navbar-toggler-icon,
+.btn-close {
+    background-color: #a5a5a5;
+    border-radius: 5px
+}
+
+.navbar-toggler-icon:hover,
+.btn-close:hover {
+    background-color: #dfdfdf;
+}
+
+.nav-link {
+    color: #fff;
+    font-weight: 500;
+
+}
+
+.nav-link:hover {
+    color: #fff;
+}
+
+.icon-bg {
+    color: #fff;
+}
+
+/* Style for the logged-in user */
+.sign-in-link {
+    font-size: 16px;
+    color: #007bff;
+    text-decoration: none;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.sign-in-link:hover {
+    background-color: #e2e6ea;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 100px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Style for the login button (when the user is not logged in) */
+.login-button {
+    font-size: 16px;
+    color: #ffffff;
+    background-color: #007bff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.login-button:hover {
+    background-color: #0056b3;
+}
+
+
+
+
+/* Product Section */
+main .container {
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+.carousel-inner {
+    width: 100%;
+    max-width: 620px;
+    max-height: 375px;
+    overflow: hidden;
+}
+
+.carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.img-thumbnail {
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.img-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+.product-details h1 {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.text-primary {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Storage and Color Options */
+.btn-outline-secondary {
+    border-radius: 30px;
+    padding: 5px 20px;
+}
+
+.badge {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.badge:hover {
+    transform: scale(1.2);
+}
+
+/* Add styles for the active selection */
+.btn.active {
+    background-color: #464545;
+    color: white;
+    border-color: #000;
+}
+
+/* Style for the active color selection */
+.badge.active {
+    border: 2px solid #fff;
+    box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.3);
+}
+
+
+
+/* Quantity Control */
+input[type="text"] {
+    font-size: 1rem;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.d-flex button {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.product-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.product-buttons .btn {
+    flex: 1;
+    /* Makes buttons take equal space */
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+
+.product-buttons .btn-primary {
+    background-color: #464545;
+    border: 1px solid #000;
+}
+
+.product-buttons .btn-primary:hover {
+    background-color: orangered;
+}
+
+.product-buttons .btn-secondary {
+    background-color: #fff;
+    color: #464545;
+    border: 1px solid #6c757d;
+}
+
+.product-buttons .btn-secondary:hover {
+    background-color: orangered;
+    color: #fff;
+}
+
+/* zoom section */
+
+.zoom-wrapper {
+    overflow: hidden;
+    position: relative;
+}
+
+.zoom-image {
+    transition: transform 0.3s ease;
+}
+
+.zoom-image.zoomed {
+    transform: scale(2);
+    /* Adjust the scale value as needed */
+    cursor: zoom-in;
+}
+
+.zoom-wrapper {
+    overflow: hidden;
+    position: relative;
+}
+
+.zoom-image {
+    transition: transform 0.3s ease;
+}
+
+.zoom-image.zoomed {
+    transform: scale(2);
+    /* Adjust the scale value as needed */
+    cursor: zoom-in;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: black;
+    /* Dark color */
+    border-radius: 30%;
+}
+
+.carousel-control-prev-icon:hover,
+.carousel-control-next-icon:hover {
+    background-color: #464545;
+    /* Light color (gold) on hover */
+}
+
+@media (max-width: 768px) {
+    .carousel-inner {
+        max-width: 100%;
+        /* Full width for smaller screens */
+        max-height: 300px;
+        /* Adjust height for smaller screens */
+    }
+}
