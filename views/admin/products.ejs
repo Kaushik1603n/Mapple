@@ -79,10 +79,8 @@
                             <tbody>
                                 <% productsWithCategory.forEach(product=> { %>
                                     <tr>
-                                        <td>
+                                        <td class="text-center">
                                             <img src="<%= product.productImage[0] %>" alt="<%= product.productName %>"
-                                                class="img-fluid" style="width: 35px; height: 25px;">
-                                            <img src="<%= product.productImage[1] %>" alt="<%= product.productName %>"
                                                 class="img-fluid" style="width: 35px; height: 25px;">
                                             <!-- <%= product.productName %> -->
                                         </td>
@@ -102,7 +100,16 @@
                                             ₹<%= product.salePrice.toLocaleString() %>
                                         </td>
                                         <td>
-                                            <%= product.status %>
+                                            <!-- <%= product.status %> -->
+                                            <select class="form-select form-select-sm" aria-label="Status"
+                                                onchange="updateProductStatus('<%= product._id %>', this.value)">
+                                                <option value="Available" <%=product.status==='Available' ? 'selected'
+                                                    : '' %>>Available</option>
+                                                <option value="Out of stock" <%=product.status==='Out of stock'
+                                                    ? 'selected' : '' %>>Out of stock</option>
+                                                <option value="Discontinued" <%=product.status==='Discontinued'
+                                                    ? 'selected' : '' %>>Discontinued</option>
+                                            </select>
                                         </td>
                                         <td>
                                             <%= new Date(product.createdAt).toLocaleDateString() %>
@@ -164,6 +171,33 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
+
+        function updateProductStatus(prdId, status) {
+            if (confirm("Are you sure you want to change the Product status?")) {
+                fetch(`/admin/updateProductStatus/${prdId}`, {
+                    method: 'PATCH', // PATCH is appropriate for partial updates
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: status }), // Adjust based on your backend logic
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Product status updated successfully!');
+                        } else {
+                            alert('Failed to update Product status.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again.');
+                    });
+            }
+        }
+
+
+
         function deleteProduct(prdId) {
             if (confirm("Are you sure you want to delete this Product?")) {
                 fetch(`/admin/deleteProduct/${prdId}`, { method: 'DELETE' })

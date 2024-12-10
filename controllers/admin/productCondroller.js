@@ -269,6 +269,22 @@ const updateProduct = async (req, res) => {
   }
 };
 
+const editProductStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+    await Product.updateOne({ _id: id }, { status });
+    res.status(200).json({
+      success: true,
+      message: "Product status updated successfully.",
+    });
+  } catch (error) {
+    console.error("Error updating Product status:", error);
+    res.json({ success: false, message: "Failed to update Product status." });
+  }
+};
+
 const deleteProductImage = async (req, res) => {
   const { productId } = req.params;
   const { imagePath } = req.body;
@@ -327,5 +343,6 @@ module.exports = {
   deleteProduct,
   loadUpdateProduct,
   updateProduct,
+  editProductStatus,
   deleteProductImage,
 };
