@@ -488,116 +488,16 @@ const loadProductDetails = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-// const loadProductDetails = async (req, res) => {
-//   const { productId } = req.params;
-//   const { color, variant } = req.query; // Accept query parameters
 
-//   try {
-//     // Fetch the product details for the requested productId
-//     let productDetails = await Product.findOne({ _id: productId });
 
-//     if (!productDetails) {
-//       return res.status(400).json({ message: "Product not found" });
-//     }
+const userAccount  = async(req,res)=>{
 
-//     // Fetch all products with the same name (to group variants and colors)
-//     const relatedProducts = await Product.find({
-//       productName: productDetails.productName,
-//     });
+  res.render("user/userAccount")
 
-//     // Filter products based on the selected variant and color (if provided)
-//     let filteredProducts = relatedProducts;
-//     if (color || variant) {
-//       filteredProducts = relatedProducts.filter((product) => {
-//         return (
-//           (!color || product.color === color) &&
-//           (!variant || product.variant === variant)
-//         );
-//       });
-//     }
+}
 
-//     // Group available colors based on selected variant
-//     const availableVariants = [
-//       ...new Set(relatedProducts.map((product) => product.variant)),
-//     ];
 
-//     const availableColors = [];
-//     availableVariants.forEach((variant) => {
-//       const colorsForVariant = [
-//         ...new Set(
-//           relatedProducts
-//             .filter((product) => product.variant === variant)
-//             .map((product) => product.color)
-//         ),
-//       ];
-//       availableColors.push({ variant, colors: colorsForVariant });
-//     });
 
-//     // Render the product details with available options
-//     res.render("user/productDetails", {
-//       productDetails,
-//       availableVariants,
-//       availableColors,
-//       selectedVariant: variant, // Pass the selected variant to the EJS template
-//     });
-//   } catch (error) {
-//     console.error("Error loading product details:", error);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// };
-
-// const loadProductDetails = async (req, res) => {
-//   const { productId } = req.params;
-//   const { color, variant } = req.query; // Accept query parameters
-
-//   try {
-//     // Fetch the product details for the requested productId
-//     let productDetails = await Product.findOne({ _id: productId });
-
-//     if (!productDetails) {
-//       return res.status(400).json({ message: "Product not found" });
-//     }
-
-//     // Fetch all products with the same name (to group variants and colors)
-//     const relatedProducts = await Product.find({
-//       productName: productDetails.productName,
-//     });
-
-//     // If query parameters are provided, filter the related products
-//     if (color || variant) {
-//       const filteredProduct = relatedProducts.find((product) => {
-//         return (
-//           (!color || product.color === color) &&
-//           (!variant || product.variant === variant)
-//         );
-//       });
-
-//       if (filteredProduct) {
-//         productDetails = filteredProduct;
-//       }
-//     }
-
-//     // Group the available colors and variants for selection
-//     const availableColors = [
-//       ...new Set(relatedProducts.map((product) => product.color)),
-//     ];
-//     const availableVariants = [
-//       ...new Set(relatedProducts.map((product) => product.variant)),
-//     ];
-
-//     // Send the updated product details as JSON
-//     res.json({
-//       productDetails: {
-//         ...productDetails.toObject(),
-//         availableColors,
-//         availableVariants,
-//       },
-//     });
-//   } catch (error) {
-//     console.error("Error loading product details:", error);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// };
 
 const pageNotFount = async (req, res) => {
   try {
@@ -625,6 +525,8 @@ module.exports = {
   loadChangePass,
   changePass,
   logout,
+
+  userAccount,
 
   loadProductDetails,
 };

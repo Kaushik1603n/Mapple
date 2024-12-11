@@ -1,34 +1,4 @@
-#sidebar {
-    width: 280px;
-    /* Increased sidebar width */
-    background-color: #e9ecef;
-    /* Darker background color */
-    text-align: center;
-    /* Center the text inside the sidebar */
-    padding: 20px 0;
-    /* Add some padding to top and bottom */
-}
 
-.app-name {
-    background-color: #ffffff;
-    padding: 10px;
-    color: #464545;
-    font-weight: 600;
-}
-
-#sidebar .nav-link {
-    text-align: center;
-    /* Ensure nav links are also centered */
-    padding: 10px 0;
-    color: #464545;
-    font-weight: bold;
-}
-
-#sidebar .nav-link:hover {
-    background-color: #464545;
-    color: #ffffff;
-    border-radius: 5px;
-}
 
 /* Main Section Styling */
 body {

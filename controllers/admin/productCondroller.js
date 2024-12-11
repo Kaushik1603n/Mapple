@@ -32,11 +32,12 @@ const loadproducts = async (req, res) => {
   }
   try {
     const searchQuery = req.query.search || "";
-    const page = parseInt(req.query.page, 10) || 1; // Default to page 1 if not provided
-    const limit = 5; // Number of products per page
+    const isStatusFilter = req.query.status || "all"; // Default to 'all'
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = 5;
     const skip = (page - 1) * limit;
 
-    // Aggregation pipeline with consistent matching
+    // Initialize the query object
     const query = {
       $or: [
         { productName: new RegExp(searchQuery, "i") }, // Search by product name
@@ -44,8 +45,14 @@ const loadproducts = async (req, res) => {
       ],
     };
 
+    // If a status filter is applied, update the query to filter by status
+    if (isStatusFilter && isStatusFilter !== "all") {
+      query.$and = [{ status: isStatusFilter }];
+    }
+
+    // Perform the aggregation query
     const productsWithCategory = await Product.aggregate([
-      { $match: query }, // Apply search filter
+      { $match: query },
       {
         $lookup: {
           from: "categories",
@@ -57,17 +64,19 @@ const loadproducts = async (req, res) => {
       { $unwind: "$categoryDetails" },
       {
         $addFields: {
-          categoryName: "$categoryDetails.name", // Include category name
+          categoryName: "$categoryDetails.name",
         },
       },
       {
         $project: {
-          categoryDetails: 0, // Exclude the full categoryDetails object
+          categoryDetails: 0,
         },
       },
-      { $skip: skip }, // Skip products for pagination
-      { $limit: limit }, // Limit products for pagination
+      { $skip: skip },
+      { $limit: limit },
     ]);
+
+    console.log("Products:", productsWithCategory);
 
     // Count total documents using the same match criteria
     const totalProducts = await Product.countDocuments(query);
@@ -80,7 +89,9 @@ const loadproducts = async (req, res) => {
       totalPages,
       totalProducts,
       searchQuery,
+      isStatusFilter, // Pass the status filter to the view for active tab highlighting
     });
+
     // res.render("admin/products", { productsWithCategory });
   } catch (error) {
     console.log("products error:", error);
@@ -218,14 +229,13 @@ const updateProduct = async (req, res) => {
       (file) => `/productsImage/${file.filename}`
     );
 
-
     // Check if product already exists
     const isproduct = await Product.findOne({
       productName,
       color,
       variant,
       processor,
-      _id: { $ne: productId }
+      _id: { $ne: productId },
     });
 
     if (isproduct) {

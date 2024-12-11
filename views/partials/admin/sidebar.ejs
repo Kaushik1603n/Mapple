@@ -1,4 +1,4 @@
- <!-- Sidebar -->
+<!-- Sidebar
  <nav class="bg-white p-4 vh-100" id="sidebar">
     <h2 class="text-dark app-name">Mapple</h2>
     <ul class="nav flex-column">
@@ -14,4 +14,226 @@
         <li class="nav-item"><a href="#" class="nav-link ">Manage Admins</a></li>
         <li class="nav-item mt-2"><a href="/admin/logout" class="nav-link text-danger">Logout</a></li>
     </ul>
-</nav>
+</nav> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Sidebar</title>
+    <style>
+        /* Sidebar Styles */
+        #sidebar {
+            width: 280px;
+            background-color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            transition: transform 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+        }
+
+        #sidebar .nav-item {
+            margin: 0.5px;
+        }
+
+        #sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .nav-container {
+            margin: 0 30px;
+        }
+
+        #sidebar .app-name {
+            background-color: #ffffff;
+            padding: 10px;
+            color: #464545;
+            font-weight: 600;
+        }
+
+        #sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px;
+            color: #464545;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        #sidebar .nav-link .active:hover {
+
+            background-color: #464545;
+            color: #ffffff;
+            border-radius: 5px;
+        }
+
+        #sidebar .nav-link i {
+            margin-right: 10px;
+        }
+
+        #sidebar .nav-item strong {
+            color: #464545;
+            font-weight: bold;
+            text-align: left;
+            /* Align header text to the left */
+        }
+
+        .active {
+            background-color: #464545;
+            color: #ffffff !important;
+            border-radius: 5px;
+        }
+
+        /* Main Content Styles */
+        #mainContent {
+            margin-left: 280px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Adjust main content when sidebar is hidden */
+        #sidebar.hidden~#mainContent {
+            margin-left: 0;
+        }
+
+        /* Toggle Button */
+        #toggleSidebar {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1100;
+            display: block;
+            background-color: #464545;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Responsive Behavior */
+        @media (min-width: 768px) {
+            #toggleSidebar {
+                display: none;
+            }
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <button id="toggleSidebar">☰</button>
+    <nav id="sidebar">
+        <h2 class="app-name">Mapple</h2>
+        <div class="nav-container">
+            <ul class="nav flex-column ">
+                <li class="nav-item">
+                    <a href="/admin/dashboard" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    <a href="/admin/category" class="nav-link">
+                        <i class="fas fa-list"></i> Category
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/products" class="nav-link">
+                        <i class="fas fa-box"></i> Products
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-shopping-cart"></i> Orders
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-tag"></i> Coupon
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-images"></i> Banner
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-credit-card"></i> Transaction
+                    </a>
+                </li>
+                <li class="nav-item my-3">
+                    <strong>User Management</strong>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/customer" class="nav-link">
+                        <i class="fas fa-user"></i> Customers
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-user-shield"></i> Manage Admins
+                    </a>
+                </li>
+                <li class="nav-item mt-2">
+                    <a href="/admin/logout" class="nav-link text-danger">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div id="mainContent">
+        <!-- <h1>Welcome to the Admin Panel</h1>
+            <p>This is the main content area. Resize your browser or click the toggle button to see the responsive sidebar in action.</p> -->
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        const toggleSidebarButton = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+
+        toggleSidebarButton.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+        });
+
+
+
+        // side bar active class
+        const sidebarLinks = document.querySelectorAll('.nav-link');
+
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function () {
+                sidebarLinks.forEach(link => link.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Highlight Active Link on Page Load
+        window.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname;
+
+            sidebarLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+
+    </script>
+</body>
+
+</html>

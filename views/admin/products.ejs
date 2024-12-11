@@ -55,10 +55,17 @@
                         </div>
                     </div>
                     <div class="status-tabs mb-4">
-                        <button class="tab btn-outline-primary btn btn-secondary">All</button>
-                        <button class="tab btn btn-outline-primary">Available</button>
-                        <button class="tab btn btn-outline-primary">Out of Stock</button>
+                        <a href="/admin/products?status=all&search=<%= searchQuery %>"
+                            class="tab btn-outline-primary btn btn-secondary ">All</a>
+                        <a href="/admin/products?status=Available&search=<%= searchQuery %>"
+                            class="tab btn btn-outline-primary ">Available</a>
+                        <a href="/admin/products?status=Out of stock&search=<%= searchQuery %>"
+                            class="tab btn btn-outline-primary  ">Out
+                            of Stock</a>
+                        <a href="/admin/products?status=Discontinued&search=<%= searchQuery %>"
+                            class="tab btn btn-outline-primary ">Discontinued</a>
                     </div>
+
 
                     <!-- Product Table -->
                     <div class="table-responsive">
