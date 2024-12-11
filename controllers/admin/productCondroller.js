@@ -217,7 +217,7 @@ const updateProduct = async (req, res) => {
     const imagePaths = req.files.map(
       (file) => `/productsImage/${file.filename}`
     );
-    // console.log(productId);
+
 
     // Check if product already exists
     const isproduct = await Product.findOne({

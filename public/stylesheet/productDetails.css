@@ -249,6 +249,12 @@ input[type="text"] {
     color: #fff;
 }
 
+pre {
+    white-space: pre-wrap; 
+    padding: 0;
+    margin: 0;
+}
+
 /* zoom section */
 
 .zoom-wrapper {

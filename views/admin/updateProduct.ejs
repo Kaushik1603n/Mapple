@@ -131,6 +131,10 @@
                                         <label for="description" class="form-label">Description</label>
                                         <textarea name="description" class="form-control" id="description" rows="3"
                                             placeholder="Enter product description"><%= product.description %></textarea>
+                                        <!-- <label for="description" class="form-label">Description</label>
+                                        <textarea name="description" class="form-control"
+                                            id="description" rows="3"><%= product.description %></textarea> -->
+
                                     </div>
                                 </div>
 
@@ -255,7 +259,16 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script
+        src="https://cdn.tiny.cloud/1/wkrfnuojdmxyunxn2g3og2f4231i3jfuc37wsauemaj2a4u4/tinymce/6/tinymce.min.js"></script>
+    <script>
+        tinymce.init({
+            selector: '#description',
+            plugins: 'lists',
+            toolbar: 'bold italic | bullist numlist | undo redo',
+        });
 
+    </script>
     <script>
         const fileInput = document.getElementById('file-input');
         const imageList = document.getElementById('image-preview-container');
@@ -452,8 +465,11 @@
                 }
 
                 // Validate Description
-                let description = document.getElementById('description');
-                if (description.value.trim() === "") {
+                let descriptionContent = tinymce.get('description').getContent();
+                document.getElementById('description').value = descriptionContent;
+                console.log(description);
+
+                if (description === "") {
                     showError(description, "Description is required.");
                     validForm = false;
                 }

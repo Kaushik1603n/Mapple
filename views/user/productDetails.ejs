@@ -60,17 +60,27 @@
                                     (<%= productDetails.processor %>)
                         </h1>
 
-                        <p class="text-dark fw-bold fs-4">
+                        <p class="text-dark fw-bold fs-3 mb-0">
                             <span>&#8377;</span>
-                             <%= productDetails.salePrice %>
+                            <%= productDetails.salePrice %>
                                 <span class="text-muted fs-6 ms-2" style="text-decoration: line-through;">
                                     <%= productDetails.regularPrice %>
                                 </span>
-                                <span class="text-muted fs-6">(Incl. of all taxes)</span>
                         </p>
+                        <span
+                            class="fs-6 fw-bold <%= productDetails.status === 'Available' ? 'text-success' : 'text-danger' %>">(
+                            <%= productDetails.status %>)
+                        </span>
+                        <div class="rating mb-2">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star"></i>
+                        </div>
 
 
-                        <h6>Available Variants</h6>
+                        <h6 class="mt-3 fw-bold">Available Variants</h6>
                         <div>
                             <% availableVariants.forEach(variant=> { %>
                                 <button
@@ -81,7 +91,7 @@
                                 <% }); %>
                         </div>
 
-                        <h6 class="mt-2">Available Colors</h6>
+                        <h6 class="mt-3 fw-bold">Available Colors</h6>
                         <div>
 
                             <% availableColors.forEach((color)=> { %>
@@ -93,7 +103,8 @@
 
                         </div>
 
-                        <div class="d-flex align-items-center mt-4">
+                        <div
+                            class="<%= productDetails.status === 'Available' ? 'd-flex align-items-center mt-4' : 'd-none' %>">
                             <button class="btn btn-outline-secondary me-2" id="decreaseButton">-</button>
                             <input type="text" value="1" class="form-control text-center w-25 me-2" id="quantityInput"
                                 readonly>
@@ -107,6 +118,11 @@
                     </div>
 
                 </div>
+            </div>
+
+            <div class="container mt-5">
+                <h3>Specifications</h3>
+                <%- productDetails.description %>
             </div>
         </main>
 

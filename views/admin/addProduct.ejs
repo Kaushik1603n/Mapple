@@ -25,7 +25,7 @@
         </div>
         <div class="card mt-4">
           <div class="card-body">
-            <form id="product-form" >
+            <form id="product-form">
               <div class="row g-3">
 
                 <div class="input-row">
@@ -96,10 +96,18 @@
 
                 <div class="input-row">
                   <!-- Description -->
+                  <!-- <div class="col-12">
+                    <div class="col-12">
+                      <label for="description" class="form-label">Description</label>
+                      <textarea name="description" class="form-control" id="description" rows="3"
+                        placeholder="Enter product description"></textarea>
+                    </div>
+                  </div> -->
                   <div class="col-12">
                     <label for="description" class="form-label">Description</label>
-                    <textarea name="description" class="form-control" id="description" rows="3"
-                      placeholder="Enter product description"></textarea>
+                    <textarea name="description" class="form-control" id="description"></textarea>
+                    <!-- <button type="button" onclick="submitForm()">Submit</button> -->
+
                   </div>
                 </div>
 
@@ -203,6 +211,16 @@
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+  <script
+    src="https://cdn.tiny.cloud/1/wkrfnuojdmxyunxn2g3og2f4231i3jfuc37wsauemaj2a4u4/tinymce/6/tinymce.min.js"></script>
+  <script>
+    tinymce.init({
+      selector: '#description',
+      plugins: 'lists',
+      toolbar: 'bold italic | bullist numlist | undo redo',
+    });
+  
+  </script>
 
   <script>
     const fileInput = document.getElementById('file-input');
