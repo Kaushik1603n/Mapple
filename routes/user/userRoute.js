@@ -15,6 +15,12 @@ router.post("/verificationOTP", userController.verifyOTP);
 router.post("/resendOTP", userController.resendOTP);
 router.get("/login", auth.isLogin, userController.loadLogin);
 router.post("/login", userController.login);
+router.get("/forgotPassword", userController.loadforgotPassword);
+router.post("/forgotPassword", userController.forgotPassword);
+router.post("/otpValidation", userController.otpValidation);
+router.post("/otpResend", userController.OtpResend);
+router.get("/changePassword", userController.loadChangePass);
+router.post("/changePassword", userController.changePass);
 router.get("/logout", userController.logout);
 
 

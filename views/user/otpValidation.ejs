@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OTP Validation</title>
   <link rel="stylesheet" href="/stylesheet/login.css">
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.2/dist/sweetalert2.min.css" rel="stylesheet">
+
 </head>
 
 <body>
@@ -24,7 +26,7 @@
             <button class="create-account-btn" type="submit" id="continue-btn" >Continue</button>
             <p class="login-link">
               Don't receive OTP code?
-              <a href="#" id="resend-link" onclick="resendOTP()" style="pointer-events: none; color: gray;">Resend</a>
+              <a href="" id="resend-link" onclick="resendOTP()" style="pointer-events: none; color: gray;">Resend</a>
               <span id="timer"></span>
             </p>
           </form>
@@ -33,6 +35,136 @@
       <img src="/image/lap.webp" alt="Placeholder Image">
     </div>
   </div>
-</body>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.2/dist/sweetalert2.min.js"></script>
 
+  <script>
+    // OTP Form Validation
+    async function validateOTPform() {
+      const otpInput = document.getElementById("otp").value;
+  
+      try {
+        const response = await fetch("/user/otpValidation", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ otp: otpInput }),
+        });
+  
+        const result = await response.json();
+        console.log("Response from server:", result); // Debug log
+  
+        if (result.success) {
+          Swal.fire({
+            icon: "success",
+            title: "OTP verified successfully",
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+            window.location.href = result.redirectUrl; // Ensure this URL is correct
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: result.message || "Something went wrong",
+          });
+        }
+      } catch (error) {
+        console.error("Fetch Error:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Invalid OTP",
+          text: "Please try again",
+        });
+      }
+  
+      return false; // Prevent form submission
+    }
+  
+    // Timer for OTP
+    let countdownInterval;
+  
+    function startTimer(duration) {
+      const timerElement = document.getElementById("timer");
+      const resendLink = document.getElementById("resend-link");
+      const continueButton = document.getElementById("continue-btn");
+  
+      resendLink.style.pointerEvents = "none";
+      resendLink.style.color = "gray";
+  
+      let timeRemaining = duration;
+      timerElement.textContent = ` (00:${timeRemaining < 10 ? '0' : ''}${timeRemaining})`;
+  
+      countdownInterval = setInterval(() => {
+        timeRemaining -= 1;
+        if (timeRemaining >= 0) {
+          timerElement.textContent = ` (00:${timeRemaining < 10 ? '0' : ''}${timeRemaining})`;
+        } else {
+          clearInterval(countdownInterval);
+          timerElement.textContent = "";
+          resendLink.style.pointerEvents = "auto";
+          resendLink.style.color = "blue";
+  
+          // Disable the Continue button after time expires
+          continueButton.disabled = true;
+          continueButton.style.backgroundColor = "gray"; // Optional: visually indicate disabled state
+          continueButton.style.cursor = "not-allowed"; // Change cursor to indicate it's disabled
+        }
+      }, 1000);
+    }
+  
+    // Resend OTP
+    async function resendOTP(event) {
+      event.preventDefault(); // Prevent page refresh or navigation
+  
+      clearInterval(countdownInterval); // Clear previous timer if any
+  
+      try {
+        const response = await fetch("/user/otpResend", {
+          method: "POST",
+        });
+  
+        const result = await response.json();
+        if (result.success) {
+          Swal.fire({
+            icon: "success",
+            title: "OTP Resent",
+            text: "A new OTP has been sent to your email.",
+          });
+          startTimer(60); // Restart the timer for 60 seconds
+  
+          // Enable the Continue button after OTP is resent
+          const continueButton = document.getElementById("continue-btn");
+          continueButton.disabled = false;
+          continueButton.style.backgroundColor = "black"; // Reset background color
+          continueButton.style.cursor = "pointer"; // Reset cursor style
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to resend OTP. Please try again later.",
+          });
+        }
+      } catch (error) {
+        console.error("Fetch Error:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "An error occurred while resending OTP.",
+        });
+      }
+    }
+  
+    // Attach event listener to the resend link
+    document.getElementById("resend-link").addEventListener("click", resendOTP);
+  
+    // Start the timer when the page loads
+    window.onload = function () {
+      startTimer(60); // Start 1-minute countdown
+    };
+  </script>
+  
+  
+</body>
 </html>

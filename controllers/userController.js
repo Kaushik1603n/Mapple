@@ -234,6 +234,169 @@ const login = async (req, res) => {
   }
 };
 
+const loadforgotPassword = async (req, res) => {
+  try {
+    if (req.session.user) {
+      return res.redirect("/user");
+    } else {
+      res.render("user/forgotPassword");
+    }
+  } catch (error) {}
+};
+const forgotPassword = async (req, res) => {
+  if (req.session.user) {
+    return res.redirect("/user");
+  }
+  try {
+    const { email } = req.body;
+    req.session.emailVerify = email;
+    const findUser = await User.findOne({ email });
+    if (!findUser) {
+      return res.render("user/forgotPassword", { message: "User not exists" });
+    }
+
+    const otp = generateOtp();
+    const expirationTime = Date.now() + 15 * 60 * 1000;
+
+    findUser.resetToken = otp;
+    findUser.resetTokenExpiry = expirationTime;
+
+    await findUser.save();
+
+    const emailsent = await sendVerificationEmail(email, otp);
+    if (!emailsent) {
+      return res.json("email-error");
+    }
+
+    req.session.userOtp = otp;
+    console.log("session otp ", req.session.userOtp);
+
+    res.render("user/otpValidation", { email });
+  } catch (error) {}
+};
+
+const otpValidation = async (req, res) => {
+  const { email, otp } = req.body;
+  try {
+    const findUser = await User.findOne({ email });
+
+    if (!findUser) {
+      return res.status(400).send("User not found");
+    }
+
+    if (findUser.resetToken !== otp) {
+      return res.status(400).send("Invalid OTP");
+    }
+
+    if (findUser.resetTokenExpiry < Date.now()) {
+      return res.status(400).send("OTP has expired");
+    }
+    console.log("OTP verified successfully");
+    req.session.emailVerify = email;
+
+    findUser.resetToken = undefined;
+    findUser.resetTokenExpiry = undefined;
+    await findUser.save();
+
+    res.redirect("/user/changePassword");
+  } catch (error) {
+    console.log("error on catch");
+  }
+};
+const OtpResend = async (req, res) => {
+  try {
+    const email = req.session.emailVerify;
+    if (!email) {
+      console.log("email not found");
+      
+      return res
+        .status(400)
+        .json({ success: false, message: "Email not fount in session" });
+    }
+
+    const findUser = await User.findOne({ email });
+    if (!findUser) {
+      console.log("user not found");
+      return res.render("user/forgotPassword", { message: "User not exists" });
+    }
+
+    const otp = generateOtp();
+    const expirationTime = Date.now() + 15 * 60 * 1000;
+
+    findUser.resetToken = otp;
+    findUser.resetTokenExpiry = expirationTime;
+
+    await findUser.save();
+
+    req.session.userOtp = otp;
+    const emailSent = await sendVerificationEmail(email, otp);
+    if (emailSent) {
+      console.log("Resend OTP: ", otp);
+      res
+        .status(200)
+        .json({ success: true, message: "OTP Ressent Successfully" });
+    } else {
+      res
+        .status(500)
+        .json({ success: false, message: "failed to resend OTP try again" });
+    }
+  } catch (error) {
+    console.error("Error resending OTP", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Internal Sever Error Try again" });
+  }
+};
+
+const loadChangePass = async (req, res) => {
+  try {
+    if (req.session.user) {
+      return res.redirect("/user");
+    }
+    // if (!req.session.emailVerify) {
+    //   return res.redirect("/user");
+    // }
+
+    const email = req.session.emailVerify;
+    if (!email) {
+      return res.redirect("/user/forgotPassword");
+    }
+
+    res.render("user/changePassword", { email });
+  } catch (error) {
+    console.error("Error loading Change Password page:", error);
+    res.status(500).send("An error occurred while loading the page.");
+  }
+};
+
+const changePass = async (req, res) => {
+  try {
+    const email = req.session.emailVerify; // Get email from session
+    if (!email) {
+      return res.redirect("/user/forgotPassword"); // Redirect if session expired or invalid
+    }
+
+    const { password } = req.body;
+
+    const passwordHash = await securePassword(password);
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    user.password = passwordHash;
+    await user.save();
+
+    req.session.emailVerify = null;
+
+    res.redirect("/user/login");
+  } catch (error) {
+    console.error("Error updating password:", error);
+    res.status(500).send("An error occurred while updating the password.");
+  }
+};
+
 const googleLogin = async (req, res) => {
   try {
     req.session.user = req.user;
@@ -260,7 +423,6 @@ const logout = async (req, res) => {
   }
 };
 
-
 const loadProductDetails = async (req, res) => {
   const { productId } = req.params;
   const { color, variant } = req.query; // Accept query parameters
@@ -274,7 +436,6 @@ const loadProductDetails = async (req, res) => {
 
     const currentVariant = productDetails.variant;
     const currentColor = productDetails.color;
-  
 
     // Fetch all products with the same name (to group variants and colors)
     const relatedProducts = await Product.find({
@@ -285,8 +446,8 @@ const loadProductDetails = async (req, res) => {
       .filter((product) => product.variant === (variant || currentVariant))
       .map((product) => product.color);
 
-    const activeVariant = (variant || currentVariant)
-    const activeColor = (color || currentVariant)
+    const activeVariant = variant || currentVariant;
+    const activeColor = color || currentVariant;
     // console.log(activeVariant);
 
     // If query parameters are provided, filter the related products
@@ -303,15 +464,13 @@ const loadProductDetails = async (req, res) => {
       }
     }
 
-   
-    
     const availableVariants = [
       ...new Set(relatedProducts.map((product) => product.variant)),
     ];
 
-    const availableColors= variantColors
+    const availableColors = variantColors;
     // console.log(productDetails);
-    
+
     res.render("user/productDetails", {
       productDetails,
       availableColors,
@@ -454,6 +613,12 @@ module.exports = {
   pageNotFount,
   login,
   googleLogin,
+  loadforgotPassword,
+  forgotPassword,
+  otpValidation,
+  OtpResend,
+  loadChangePass,
+  changePass,
   logout,
 
   loadProductDetails,
