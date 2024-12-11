@@ -124,6 +124,67 @@
                 <h3>Specifications</h3>
                 <%- productDetails.description %>
             </div>
+
+            <div class="container mt-5 mb-5">
+                <h3>Reviews</h3>
+                <div class="mb-3">
+                    <span class="text-warning fs-4">★★★★☆</span> (4/5)
+                </div>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <h5>Ashwin</h5>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    </li>
+                    <li class="list-group-item">
+                        <h5>Adharsh</h5>
+                        <p>Vivamus fermentum consectetur ligula vel tristique.</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="container mt-5 mb-5">
+                <h3>Recommended</h3>
+                <div class="row g-5">
+                    <!-- Product Card -->
+                    <% products.forEach(product=> { %>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="card border-0 shadow-lg text-center">
+                                <div class="position-relative">
+                                    <img src="<%= product.productImage[0] %>" class="card-img-top mx-auto pt-3 p-1"
+                                        alt="<%= product.productName %>" style="width: 280px; height: 190px;">
+
+                                    <button class="btn btn-outline-light position-absolute top-0 end-0 m-2 like-btn">
+                                        <span class="like-icon">&#9825;</span>
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <%= product.productName %>
+                                            <%= product.variant %>
+                                    </h5>
+                                    <p class="text-muted mb-2"><span>&#8377;</span>
+                                        <%= product.salePrice.toLocaleString() %>
+                                    </p>
+                                    <div class="rating mb-3">
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star"></i>
+                                    </div>
+                                    <a href="/user/productDetails/<%= product._id %>" class="btn btn-dark w-100">Buy
+                                        Now</a>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+
+                            <div class="text-center mt-4">
+                                <button id="showMoreBtn" class="btn btn-secondary px-4 py-2">Show More</button>
+                            </div>
+                </div>
+            </div>
+
         </main>
 
         <%- include("../../views/partials/user/footer") %>
@@ -213,37 +274,6 @@
                         badge.style.backgroundColor = color; // Set the background color dynamically
                     });
                 });
-
-
-
-                // function updateProductDetails(color, variant) {
-                //     let url = new URL(window.location.href);
-
-                //     if (color) {
-                //         url.searchParams.set('color', color);
-                //     }
-
-                //     if (variant) {
-                //         url.searchParams.set('variant', variant);
-                //     }
-
-                //     window.location.href = url.toString(); // Reload the page with updated query params
-                // }
-
-                // document.addEventListener("DOMContentLoaded", function () {
-                //     // Select all color badges
-                //     const colorBadges = document.querySelectorAll(".colorBadge");
-
-                //     // Attach event listener to each badge
-                //     colorBadges.forEach(badge => {
-                //         badge.addEventListener("click", function () {
-                //             const selectedColor = this.textContent.trim(); // Get the color from the badge
-                //             updateProductDetails(selectedColor, null); // Call the function with the selected color
-                //         });
-                //     });
-                // });
-
-
 
                 // Function to apply zoom functionality on the image
                 function applyZoom(wrapper) {

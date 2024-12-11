@@ -166,6 +166,14 @@ main .container {
     font-weight: bold;
 }
 
+.rating i {
+    color: #f4c150;
+}
+
+.rating i.bi-star {
+    color: #ccc;
+}
+
 /* Storage and Color Options */
 .btn-outline-secondary {
     border-radius: 30px;
@@ -249,11 +257,24 @@ input[type="text"] {
     color: #fff;
 }
 
-pre {
-    white-space: pre-wrap; 
-    padding: 0;
-    margin: 0;
+.like-btn {
+    border: none;
+    background: transparent;
+    color: #ff0000;
+
+    font-size: 1.5rem;
+    transition: color 0.3s ease;
 }
+
+.like-btn:hover {
+    background-color: #ffffff;
+    color: #ff0000;
+}
+
+.like-btn .liked {
+    color: red;
+}
+
 
 /* zoom section */
 

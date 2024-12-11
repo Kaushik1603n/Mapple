@@ -430,6 +430,10 @@ const loadProductDetails = async (req, res) => {
   try {
     let productDetails = await Product.findOne({ _id: productId });
 
+    const products = await Product.aggregate([
+      { $sample: { size: 4 } }, 
+    ]);
+
     if (!productDetails) {
       return res.status(400).json({ message: "Product not found" });
     }
@@ -477,6 +481,7 @@ const loadProductDetails = async (req, res) => {
       availableVariants,
       activeVariant,
       activeColor,
+      products,
     });
   } catch (error) {
     console.error("Error loading product details:", error);
