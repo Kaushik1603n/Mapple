@@ -95,9 +95,9 @@
                         <div>
 
                             <% availableColors.forEach((color)=> { %>
-                                <span class="badge me-2 p-2 colorBadge <% if (activeColor === color) { %>active<% } %>"
-                                    data-color="<%= color %>" onclick="updateProductDetails('<%= color %>', null)">
-                                    <%= color %>
+                                <span class="badge me-2 p-3 colorBadge <% if (activeColor === color) { %>active<% } %>"
+                                    data-color="<%= color %>" onclick="updateProductDetails('<%= color %>', null)"  style=`background-color: ${color};`>
+                                    
                                 </span>
                                 <% }); %>
 
@@ -151,7 +151,7 @@
                             <div class="card border-0 shadow-lg text-center">
                                 <div class="position-relative">
                                     <img src="<%= product.productImage[0] %>" class="card-img-top mx-auto pt-3 p-1"
-                                        alt="<%= product.productName %>" style="width: 280px; height: 190px;">
+                                        alt="<%= product.productName %>" style="width: 280px;">
 
                                     <button class="btn btn-outline-light position-absolute top-0 end-0 m-2 like-btn">
                                         <span class="like-icon">&#9825;</span>
@@ -205,56 +205,40 @@
                 const increaseButton = document.getElementById('increaseButton');
                 const quantityInput = document.getElementById('quantityInput');
 
-                // Set the initial quantity
                 let quantity = 1;
 
-                // Add event listener for the decrease button
                 decreaseButton.addEventListener('click', function () {
                     if (quantity > 1) {
-                        quantity--; // Decrease quantity only if it's greater than 1
-                        quantityInput.value = quantity; // Update the input field
+                        quantity--; 
+                        quantityInput.value = quantity; 
                     }
                 });
 
-                // Add event listener for the increase button
                 increaseButton.addEventListener('click', function () {
-                    quantity++; // Increase quantity
-                    quantityInput.value = quantity; // Update the input field
+                    quantity++; 
+                    quantityInput.value = quantity; 
                 });
 
                 // Select all the storage buttons
                 const storageButtons = document.querySelectorAll('button[data-storage]');
-
                 // Add event listener for each storage button
                 storageButtons.forEach(button => {
                     button.addEventListener('click', function () {
-                        // Remove the 'active' class from all buttons
                         storageButtons.forEach(b => b.classList.remove('active'));
-
-                        // Add the 'active' class to the clicked button
                         button.classList.add('active');
-
-                        // Optionally, store the selected storage size
                         const selectedStorage = button.getAttribute('data-storage');
-                        console.log('Selected Storage:', selectedStorage); // Use this value as needed
+                        console.log('Selected Storage:', selectedStorage); 
                     });
                 });
 
                 // Select all badges
                 const colorBadges = document.querySelectorAll('.badge');
-
-                // Add click event listener to each badge
                 colorBadges.forEach(badge => {
                     badge.addEventListener('click', function () {
-                        // Remove 'active' class from all badges
                         colorBadges.forEach(b => b.classList.remove('active'));
-
-                        // Add 'active' class to the clicked badge
                         this.classList.add('active');
-
-                        // Optionally, you can get the selected color for further use
                         const selectedColor = this.getAttribute('data-color');
-                        console.log('Selected Color:', selectedColor); // Use this value as needed
+                        console.log('Selected Color:', selectedColor); 
                     });
                 });
 
@@ -271,7 +255,7 @@
 
                     badges.forEach((badge) => {
                         const color = badge.getAttribute("data-color");
-                        badge.style.backgroundColor = color; // Set the background color dynamically
+                        badge.style.backgroundColor = color; 
                     });
                 });
 
@@ -309,11 +293,9 @@
                         // Apply zoom functionality to the wrapper
                         applyZoom(wrapper);
 
-                        // Listen for carousel slide events to refresh zoom state
                         const carousel = wrapper.querySelector(".carousel");
                         if (carousel) {
                             carousel.addEventListener("slid.bs.carousel", () => {
-                                // Ensure only the active image is affected
                                 wrapper.querySelectorAll(".zoom-image").forEach(img => {
                                     img.style.transformOrigin = "";
                                     img.classList.remove("zoomed");
@@ -323,7 +305,6 @@
                     });
                 }
 
-                // Call the function to initialize everything
                 initializeZoomCarousel();
             </script>
 </body>

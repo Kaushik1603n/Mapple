@@ -26,9 +26,6 @@ const login = async (req, res) => {
     }
 
     const admin = await Admin.findOne({ email });
-    // console.log(admin);
-    // const passwordHash =  await bcrypt.hash(password, 10)
-    // console.log(passwordHash);
     if (!admin) {
       console.log("admin not found");
 
@@ -89,25 +86,22 @@ const loadCustomer = async (req, res) => {
       $and: [
         {
           $or: [
-            { name: new RegExp(searchQuery, "i") }, // Search by name (case-insensitive)
-            { email: new RegExp(searchQuery, "i") }, // Search by email (case-insensitive)
+            { name: new RegExp(searchQuery, "i") }, 
+            { email: new RegExp(searchQuery, "i") }, 
           ],
         },
       ],
     };
 
-    // Add isBlock filter if specified
     if (isBlockFilter) {
       query.$and.push({ isBlock: isBlockFilter === "true" });
     }
 
-    // Fetch matching users with pagination
-    const totalCustomers = await User.countDocuments(query); // Total number of matching customers
+    const totalCustomers = await User.countDocuments(query); 
     const user = await User.find(query).skip(skip).limit(limit);
 
-    const totalPages = Math.ceil(totalCustomers / limit); // Calculate total pages
+    const totalPages = Math.ceil(totalCustomers / limit); 
 
-    // Render the customer page with required data
     res.render("admin/customer", {
       user,
       searchQuery,
@@ -123,13 +117,11 @@ const loadCustomer = async (req, res) => {
   }
 };
 
-// Update user status route
 const updateCustomerStatus = async (req, res) => {
   const { userId } = req.params;
   const { isBlock } = req.body;
 
   try {
-    // Update the user's `isBlock` status in the database
     const result = await User.findByIdAndUpdate(
       userId,
       { isBlock: Boolean(isBlock) },
@@ -157,11 +149,9 @@ const updateCustomerStatus = async (req, res) => {
 const deleteCustomer = async (req, res) => {
   const { id } = req.params;
   try {
-    // Attempt to delete the user
     const result = await User.findOneAndDelete({ _id: id });
     // console.log(result);
 
-    // If result is null, the user was not found
     if (result) {
       return res
         .status(200)
@@ -186,7 +176,7 @@ const loadAddCustomer = async (req, res) => {
   try {
     const seccess = req.session.successMessage || null;
     req.session.successMessage = null;
-    res.render("admin/addCustomer",{seccess});
+    res.render("admin/addCustomer", { seccess });
   } catch (error) {}
 };
 
@@ -211,16 +201,12 @@ const addCustomer = async (req, res) => {
   try {
     const { name, email, secondaryEmail, phone, status, password } = req.body;
 
-
-
-    // Validate required fields
     if (!name || !email) {
       return res.render("admin/addCustomer", {
         message: "Name and Email are required.",
       });
     }
 
-    // Check if the customer already exists
     const findUser = await User.findOne({ email });
     if (findUser) {
       return res.render("admin/addCustomer", {
@@ -228,13 +214,10 @@ const addCustomer = async (req, res) => {
       });
     }
 
-    // Hash the password if provided
     const passwordHash = password ? await securePassword(password) : null;
 
-    // Determine status
     const isBlock = status === "true";
 
-    // Save the new customer
     const saveUserData = new User({
       name,
       email,
@@ -246,19 +229,16 @@ const addCustomer = async (req, res) => {
 
     await saveUserData.save();
 
-    // Redirect with success message
     req.session.successMessage = "Customer added successfully!";
     return res.redirect("/admin/addCustomer");
   } catch (error) {
     console.error("addCustomer error:", error);
 
-    // Handle error properly
     return res.status(500).render("admin/pageerror", {
       error: "Internal Server Error",
     });
   }
 };
-
 
 const loadUpdateCustomer = async (req, res) => {
   if (!req.session.admin) {
@@ -267,7 +247,6 @@ const loadUpdateCustomer = async (req, res) => {
   const { id } = req.params;
   try {
     const user = await User.find({ _id: id });
-    // console.log(user);
 
     if (user) {
       return res.render("admin/updateCustomer", { user });
@@ -282,22 +261,18 @@ const loadUpdateCustomerPage = async (req, res) => {
 
   try {
     const user = await User.find({ _id: id });
-    // Retrieve success and error messages from the session
     const success = req.session.successMessage || null;
     const message = req.session.errorMessage || null;
 
-    // Clear the session messages to avoid re-displaying them
     req.session.successMessage = null;
     req.session.errorMessage = null;
 
-    // Render the page, passing both success and message (even if null)
     res.render("admin/updateCustomerPage", { success, message, user });
   } catch (error) {
     console.error("Error loading the update customer page:", error);
     res.status(500).send("Internal Server Error");
   }
 };
-
 
 const updateCustomer = async (req, res) => {
   const { _id, name, email, secondaryEmail, phone, status, password } =
@@ -306,7 +281,6 @@ const updateCustomer = async (req, res) => {
     const findUser = await User.findOne({ _id });
 
     if (!findUser) {
-      // req.session.errorMessage = "User not found.";
       return res.redirect("/admin/customer");
     }
 
@@ -314,7 +288,7 @@ const updateCustomer = async (req, res) => {
       ? await securePassword(password)
       : findUser.password;
 
-    const isBlock = status === "true"; // Convert status to Boolean
+    const isBlock = status === "true"; 
     const result = await User.updateOne(
       { _id: _id },
       {
@@ -352,15 +326,15 @@ const loadcategory = async (req, res) => {
       .limit(limit);
 
     const totalCategories = await Category.countDocuments();
-    const totalPages = Math.ceil(totalCategories / limit); // Update to totalPages
+    const totalPages = Math.ceil(totalCategories / limit); 
 
     const successMessage = req.session.successMessage || null;
-    req.session.successMessage = null; // Clear the message after using it
+    req.session.successMessage = null; 
 
     res.render("admin/category", {
       category: categoryData,
       currentPage: page,
-      totalPages: totalPages, // Update to totalPages
+      totalPages: totalPages,
       totalCategories: totalCategories,
       success: successMessage,
     });
@@ -376,7 +350,7 @@ const loadAddCategory = async (req, res) => {
   }
   try {
     const successMessage = req.session.successMessage || null;
-    req.session.successMessage = null; // Clear the message after using it
+    req.session.successMessage = null; 
     res.render("admin/addCategory", { success: successMessage });
   } catch (error) {
     console.log("addCategory error:", error);
@@ -410,7 +384,6 @@ const addCategory = async (req, res) => {
 
     await newCategory.save();
 
-    // Use redirect after successful addition
     req.session.successMessage = "Category added successfully!";
     return res.redirect("/admin/addCategory");
   } catch (error) {
@@ -449,7 +422,7 @@ const editCategory = async (req, res) => {
 
     const booleanValue = categoryStatus === "list";
     const result = await Category.updateOne(
-      { _id: req.body.id }, // Assuming `id` is passed in the form
+      { _id: req.body.id }, 
       { name: trimmedName, description, status: booleanValue }
     );
 

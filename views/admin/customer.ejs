@@ -109,7 +109,6 @@
                                     </li>
                                     <% } %>
 
-                                        <!-- Page number buttons -->
                                         <% for (let i=1; i <=totalPages; i++) { %> <!-- Use totalPages -->
                                             <li class="page-item <%= i === currentPage ? 'active' : '' %>">
                                                 <a class="page-link" href="?page=<%= i %>">
@@ -118,9 +117,7 @@
                                             </li>
                                             <% } %>
 
-                                                <!-- Next button -->
                                                 <% if (currentPage < totalPages) { %>
-                                                    <!-- Ensure currentPage < totalPages -->
                                                     <li class="page-item">
                                                         <a class="page-link" href="?page=<%= currentPage + 1 %>">→</a>
                                                     </li>

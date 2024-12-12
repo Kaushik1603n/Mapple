@@ -145,31 +145,31 @@
                                         <div class="d-flex align-items-center color-error">
                                             <div class="form-check me-2">
                                                 <input class="form-check-input" type="radio" name="color" id="colorDark"
-                                                    value="black" <%=product.color==="black" ? "checked" : "" %> />
-                                                <label class="form-check-label bg-dark rounded-circle" for="colorDark"
+                                                    value="#1D2536" <%=product.color==="#1D2536" ? "checked" : "" %> />
+                                                <label class="form-check-label bg-Midnight rounded-circle" for="colorDark"
                                                     style="width: 20px; height: 20px;"></label>
                                             </div>
                                             <div class="form-check me-2">
-                                                <input class="form-check-input" type="radio" name="color"
-                                                    id="colorWarning" value="yellow" <%=product.color==="yellow"
+                                                <input class="form-check-input " type="radio" name="color"
+                                                    id="colorWarning" value="#C0C0C0" <%=product.color==="#C0C0C0"
                                                     ? "checked" : "" %> />
-                                                <label class="form-check-label bg-warning rounded-circle"
+                                                <label class="form-check-label  rounded-circle bg-silver"
                                                     for="colorWarning" style="width: 20px; height: 20px;"></label>
                                             </div>
                                             <div class="form-check me-2">
                                                 <input class="form-check-input" type="radio" name="color"
-                                                    id="colorSuccess" value="green" <%=product.color==="green"
+                                                    id="colorSuccess" value="#D3C8A1" <%=product.color==="#D3C8A1"
                                                     ? "checked" : "" %>>
-                                                <label class="form-check-label bg-success rounded-circle"
+                                                <label class="form-check-label bg-Starlight rounded-circle"
                                                     for="colorSuccess" style="width: 20px; height: 20px;"></label>
                                             </div>
-                                            <div class="form-check me-2">
+                                            <!-- <div class="form-check me-2">
                                                 <input class="form-check-input" type="radio" name="color"
                                                     id="colorPrimary" value="blue" <%=product.color==="blue" ? "checked"
                                                     : "" %>>
                                                 <label class="form-check-label bg-primary rounded-circle"
                                                     for="colorPrimary" style="width: 20px; height: 20px;"></label>
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </div>
 
@@ -419,7 +419,7 @@
 
                 document.querySelectorAll('.error-message').forEach(msg => msg.remove());
 
-                // Helper function to show error messages
+                // function to show error messages
                 function showError(element, message) {
                     const error = document.createElement('span');
                     error.className = 'error-message';
@@ -516,7 +516,6 @@
                     alert("Please correct the errors before submitting the form.");
                     return;
                 }
-                // Proceed with form submission or further processing
                 console.log("Form validated and ready for submission.");
 
 
@@ -530,23 +529,23 @@
 
                 fetch('/admin/updateProduct', {
                     method: 'PUT',
-                    body: formData, // Do not set Content-Type; the browser handles it
+                    body: formData, 
                 })
                     .then((response) => {
                         if (response.ok) {
                             return response.json();
                         }
-                        throw new Error('Failed to update the product'); // More specific error message
+                        throw new Error('Failed to update the product'); 
                     })
                     .then((data) => {
                         if (data.success) {
-                            showAlert(data.message, "success"); // Display success message
+                            showAlert(data.message, "success"); 
                             setTimeout(() => {
-                                window.location.href = '/admin/products'; // Redirect to the product listing page or relevant page
+                                window.location.href = '/admin/products'; 
                             }, 3100);
                         } else {
                             console.log(data.message);
-                            showAlert(data.message, "danger"); // Display error message
+                            showAlert(data.message, "danger"); 
                         }
                     })
                     .catch((error) => {
@@ -563,9 +562,9 @@
                 fetch(`/admin/deleteProductImage/${productId}`, {
                     method: 'DELETE',
                     headers: {
-                        'Content-Type': 'application/json', // Assuming you may want to send a JSON body
+                        'Content-Type': 'application/json', 
                     },
-                    body: JSON.stringify({ imagePath: imagePath }) // Send the imagePath in the body of the request
+                    body: JSON.stringify({ imagePath: imagePath }) 
                 })
                     .then(response => response.json())
                     .then(data => {
@@ -610,11 +609,8 @@
             const price = parseFloat(document.getElementById('price').value) || 0;
             const offer = parseFloat(document.getElementById('offer').value) || 0;
 
-            // Calculate offer price
             const offerPrice = price - (price * (offer / 100));
-
-            // Update the offer price input
-            document.getElementById('offerPrice').value = offerPrice.toFixed(2);
+            document.getElementById('offerPrice').value = offerPrice.toFixed(0);
         }
         calculateOfferPrice()
 

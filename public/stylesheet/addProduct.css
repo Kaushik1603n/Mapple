@@ -48,6 +48,29 @@ label {
     margin-bottom: 5px;
     color: #333;
 }
+.bg-silver{
+    background-color: #C0C0C0;
+}
+.bg-Midnight{
+    background-color: #1D2536;
+}
+.bg-Starlight{
+    background-color: #D3C8A1;
+}
+.bg-Gray{
+    background-color: #1D1D1F;
+}
+.silver{
+    background-color: #C0C0C0;
+}
+.midnight{
+    background-color: #1D2536;
+}
+.starlight{
+    background-color:lightgoldenrodyellow ;
+}
+
+
 
 input,
 textarea,

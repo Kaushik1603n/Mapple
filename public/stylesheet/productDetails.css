@@ -135,16 +135,39 @@ main .container {
 
 .carousel-inner {
     width: 100%;
-    max-width: 620px;
-    max-height: 375px;
+    max-width: 500px;
+    max-height: 450px;
     overflow: hidden;
+    position: relative;
+    margin: auto;
 }
 
 .carousel-item img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    /* Fits image within the container while maintaining aspect ratio */
+    display: block;
+    /* Removes any inline display issues */
 }
+
+.carousel-control-prev,
+.carousel-control-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    /* background-color: rgba(0, 0, 0, 0.5); */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    z-index: 1;
+}
+
+
 
 .img-thumbnail {
     border: 1px solid #ddd;
@@ -273,6 +296,21 @@ input[type="text"] {
 
 .like-btn .liked {
     color: red;
+}
+
+.position-relative {
+    width: 280px;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.card-img-top {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Ensures the image fills the container while maintaining aspect ratio */
+    display: block;
 }
 
 

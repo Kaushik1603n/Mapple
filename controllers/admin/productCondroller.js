@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-const uploadImages = upload.array("images"); // Define middleware to handle multiple images
+const uploadImages = upload.array("images"); 
 
 const loadproducts = async (req, res) => {
   if (!req.session.admin) {
@@ -32,7 +32,7 @@ const loadproducts = async (req, res) => {
   }
   try {
     const searchQuery = req.query.search || "";
-    const isStatusFilter = req.query.status || "all"; // Default to 'all'
+    const isStatusFilter = req.query.status || "all"; 
     const page = parseInt(req.query.page, 10) || 1;
     const limit = 5;
     const skip = (page - 1) * limit;
@@ -40,17 +40,15 @@ const loadproducts = async (req, res) => {
     // Initialize the query object
     const query = {
       $or: [
-        { productName: new RegExp(searchQuery, "i") }, // Search by product name
-        { processor: new RegExp(searchQuery, "i") }, // Search by processor
+        { productName: new RegExp(searchQuery, "i") },
+        { processor: new RegExp(searchQuery, "i") }, 
       ],
     };
 
-    // If a status filter is applied, update the query to filter by status
     if (isStatusFilter && isStatusFilter !== "all") {
       query.$and = [{ status: isStatusFilter }];
     }
 
-    // Perform the aggregation query
     const productsWithCategory = await Product.aggregate([
       { $match: query },
       {
@@ -78,18 +76,16 @@ const loadproducts = async (req, res) => {
 
     console.log("Products:", productsWithCategory);
 
-    // Count total documents using the same match criteria
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
 
-    // Render the products page with the necessary data
     res.render("admin/products", {
       productsWithCategory,
       currentPage: page,
       totalPages,
       totalProducts,
       searchQuery,
-      isStatusFilter, // Pass the status filter to the view for active tab highlighting
+      isStatusFilter, 
     });
 
     // res.render("admin/products", { productsWithCategory });
@@ -140,7 +136,6 @@ const addProducts = async (req, res) => {
       return res.status(400).json({ message: "Category not found!" });
     }
 
-    // Check if product already exists
     const isproduct = await Product.findOne({
       productName,
       color,
@@ -154,7 +149,7 @@ const addProducts = async (req, res) => {
       return res.json({ success: false, message: "Product already exists" });
     }
 
-    // Create new product if it doesn't exist
+    // create new product if it doesn't exist
     const newProduct = new Product({
       productName,
       stock,
@@ -179,7 +174,6 @@ const addProducts = async (req, res) => {
       });
     }
 
-    // Send success response if product is added successfully
     return res.json({ success: true, message: "Product added successfully!" });
   } catch (error) {
     console.error("Error:", error);
@@ -229,7 +223,6 @@ const updateProduct = async (req, res) => {
       (file) => `/productsImage/${file.filename}`
     );
 
-    // Check if product already exists
     const isproduct = await Product.findOne({
       productName,
       color,
@@ -268,7 +261,7 @@ const updateProduct = async (req, res) => {
     res.json({
       success: true,
       message: "Product updated successfully",
-      product: updatedProduct, // Optionally, return the updated product data
+      product: updatedProduct, 
     });
   } catch (error) {
     console.log(error);
@@ -312,7 +305,6 @@ const deleteProductImage = async (req, res) => {
         .json({ success: false, message: "Product not found" });
     }
 
-    // Send success response
     res.json({ success: true, message: "Image deleted successfully" });
   } catch (error) {
     console.error("Error deleting Product Image:", error);

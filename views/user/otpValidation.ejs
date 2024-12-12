@@ -79,7 +79,7 @@
         });
       }
   
-      return false; // Prevent form submission
+      return false; 
     }
   
     // Timer for OTP
@@ -116,10 +116,9 @@
   
     // Resend OTP
     async function resendOTP(event) {
-      event.preventDefault(); // Prevent page refresh or navigation
+      event.preventDefault(); 
   
-      clearInterval(countdownInterval); // Clear previous timer if any
-  
+      clearInterval(countdownInterval); 
       try {
         const response = await fetch("/user/otpResend", {
           method: "POST",
@@ -132,13 +131,13 @@
             title: "OTP Resent",
             text: "A new OTP has been sent to your email.",
           });
-          startTimer(60); // Restart the timer for 60 seconds
+          startTimer(60);
   
           // Enable the Continue button after OTP is resent
           const continueButton = document.getElementById("continue-btn");
           continueButton.disabled = false;
-          continueButton.style.backgroundColor = "black"; // Reset background color
-          continueButton.style.cursor = "pointer"; // Reset cursor style
+          continueButton.style.backgroundColor = "black"; 
+          continueButton.style.cursor = "pointer"; 
         } else {
           Swal.fire({
             icon: "error",
@@ -156,12 +155,10 @@
       }
     }
   
-    // Attach event listener to the resend link
     document.getElementById("resend-link").addEventListener("click", resendOTP);
   
-    // Start the timer when the page loads
     window.onload = function () {
-      startTimer(60); // Start 1-minute countdown
+      startTimer(60); 
     };
   </script>
   

@@ -43,7 +43,7 @@
         url: "verificationOTP",
         data: { otp: otpInput },
         success: function (response) {
-          console.log("Response from server:", response); // Debug log
+          console.log("Response from server:", response); 
           if (response.success) {
             Swal.fire({
               icon: "success",
@@ -51,7 +51,7 @@
               showConfirmButton: false,
               timer: 1500,
             }).then(() => {
-              window.location.href = response.redirectUrl; // Ensure this URL is correct
+              window.location.href = response.redirectUrl; 
             });
           } else {
             Swal.fire({
@@ -71,7 +71,7 @@
         },
       });
 
-      return false; // Prevent form submission
+      return false; 
     }
 
     // Timer for OTP
@@ -100,20 +100,19 @@
 
           // Disable the Continue button after time expires
           continueButton.disabled = true;
-          continueButton.style.backgroundColor = "gray"; // Optional: visually indicate disabled state
-          continueButton.style.cursor = "not-allowed"; // Change cursor to indicate it's disabled
+          continueButton.style.backgroundColor = "gray";
+          continueButton.style.cursor = "not-allowed"; 
         }
       }, 1000);
     }
 
     // Resend OTP
     function resendOTP() {
-      clearInterval(countdownInterval); // Clear previous timer if any
+      clearInterval(countdownInterval); 
 
-      // AJAX request to resend OTP
       $.ajax({
         type: "POST",
-        url: "resendOTP", // Replace with your actual backend route for resending OTP
+        url: "resendOTP",
         success: function (response) {
           if (response.success) {
             Swal.fire({
@@ -121,12 +120,11 @@
               title: "OTP Resent",
               text: "A new OTP has been sent to your email.",
             });
-            startTimer(60); // Restart the timer for 60 seconds
-            // Enable the Continue button after OTP is resent
+            startTimer(60); 
             const continueButton = document.getElementById("continue-btn");
             continueButton.disabled = false;
-            continueButton.style.backgroundColor = "black"; // Reset background color
-            continueButton.style.cursor = "pointer"; // Reset cursor style
+            continueButton.style.backgroundColor = "black"; 
+            continueButton.style.cursor = "pointer"; 
           } else {
             Swal.fire({
               icon: "error",
@@ -145,9 +143,8 @@
       });
     }
 
-    // Start the timer when the page loads
     window.onload = function () {
-      startTimer(60); // Start 1-minute countdown
+      startTimer(60);
     };
   </script>
 </body>

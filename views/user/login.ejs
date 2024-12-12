@@ -26,7 +26,6 @@
                     </div>
                     <% } %>
                         <button class="create-account-btn" type="submit">Log In</button>
-                        <!-- Changed button text to 'Log In' -->
                         <p class="login-link">
                             <a href="/user/forgotPassword">Forget Password?</a>
                         </p>
@@ -35,7 +34,7 @@
                           </a>
             </form>
             <p class="login-link">
-                Don’t have an account? <a href="/user/signup">Sign up</a> <!-- Updated the signup link -->
+                Don’t have an account? <a href="/user/signup">Sign up</a> 
             </p>
         </div>
         <div class="image-container">
@@ -53,7 +52,7 @@
         const submitform = document.getElementById("submitform");
 
         function emailValidation(e) {
-            const emailval = emailid.value;
+            const emailval = emailid.value.trim();
             const emailpattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
 
             if (!emailpattern.test(emailval)) {
@@ -97,7 +96,6 @@
 
 
 
-        // Automatically hide the alert message after 4 seconds
         window.onload = function () {
             const alertMessage = document.getElementById("alertMessage");
             if (alertMessage) {

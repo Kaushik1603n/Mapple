@@ -78,10 +78,10 @@
                                                         </div>
                                                         <!-- Cover Photo -->
                                                         <!-- <div class="mb-4">
-                                            <label for="coverPhoto" class="form-label fw-bold">Category Cover
-                                                Photo</label>
-                                            <input type="file" id="coverPhoto" name="coverPhoto" class="form-control" />
-                                        </div> -->
+                                                            <label for="coverPhoto" class="form-label fw-bold">Category Cover
+                                                                Photo</label>
+                                                            <input type="file" id="coverPhoto" name="coverPhoto" class="form-control" />
+                                                        </div> -->
                                                         <!-- Buttons -->
                                                         <div class="d-flex justify-content-between">
                                                             <a href="/admin/category" type="button"
@@ -106,7 +106,7 @@
     <script>
         document.querySelector("form").onsubmit = function (event) {
             if (!validateForm()) {
-                event.preventDefault(); // Prevent form submission if validation fails
+                event.preventDefault(); 
             }
         };
 
@@ -118,7 +118,6 @@
             const status = document.getElementById("categoryStatus").value;
             let isValid = true;
 
-            // Validate category
             if (!category) {
                 displayErrorMessage("category-error", "Please enter a category name");
                 isValid = false;
@@ -127,13 +126,11 @@
                 isValid = false;
             }
 
-            // Validate description
             if (!description) {
                 displayErrorMessage("description-error", "Please enter a description");
                 isValid = false;
             }
 
-            // Validate category status
             if (!status) {
                 displayErrorMessage("status-error", "Please select a category status");
                 isValid = false;
@@ -176,90 +173,4 @@
         };
     </script>
 
-    <!-- <script>
-        function handleFormSubmit(event) {
-            event.preventDefault();
-            if (!validateForm()) {
-                return
-            }
-            const name = document.getElementsByName("category")[0].value;
-            const description = document.getElementById("description").value.trim();
-            const status = document.getElementById("categoryStatus").value;
-
-            fetch("/admin/addCategory", {
-                method: "POST",
-                headers: {
-                    'content-type': 'application/json'
-                },
-                body: JSON.stringify({ name, description, status })
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw new Error(err.error);
-                        })
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    location.reload();
-                })
-                .catch(error => { 
-                    if (error.message === "Category already exists") {
-                        Swal.fire({
-                            icon: 'error',
-                            title: "Oops",
-                            text: "Category already exists"
-                        })
-                    }else{
-                        Swal.fire({
-                            icon: 'error',
-                            title: "Oops",
-                            text: "An error occured while adding the category" 
-                        })
-                    }
-                })
-        }
-
-        function validateForm() {
-            clearErrorMessage();
-            const category = document.getElementsByName("category")[0].value.trim();
-            const description = document.getElementById("description").value.trim();
-            const status = document.getElementById("categoryStatus").value;
-            isValid = true;
-
-            if (category === "") {
-                displayErrorMessage("category-error", "Please enter a category")
-                isValid = false;
-            } else if (!/^[a-zA-Z\s]+$/.test(category)) {
-                displayErrorMessage("category-error", "Category name should contain only alphabetic characters");
-                isValid = false;
-            }
-
-            if (description === "") {
-                displayErrorMessage("description-error", "Please enter a description")
-                isValid = false;
-            }
-            if (status === "") {
-                displayErrorMessage("status-error", "Please select a status")
-                isValid = false;
-            }
-            return;
-        }
-
-        function displayErrorMessage(elementId, message) {
-            var errorElements = document.getElementById(elementId);
-            errorElements.innerText = message;
-            errorElements.style.display = "block";
-        }
-
-        function clearErrorMessage() {
-            const errorElements = document.getElementsByClassName("error-message");
-            Array.from(errorElements).forEach((element) => {
-                element.innerText = "";
-                element.style.display = "none"
-            })
-        }
-
-    </script> -->
-</body>
+   </body>

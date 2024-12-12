@@ -9,7 +9,7 @@ const loadHomePage = async (req, res) => {
   try {
     const user = req.session.user;
     const products = await Product.aggregate([
-      { $sample: { size: 8 } }, // Randomly select 8 products
+      { $sample: { size: 8 } }, 
     ]);
     if (user) {
       res.render("user/home", { user: user, products });
@@ -31,27 +31,7 @@ const loadSignup = async (req, res) => {
   }
 };
 
-// const signup = async (req, res) => {
-//   const { name, email, password } = req.body; // Extract googleID properly
-//   try {
-//     const newUser U new user({
-//       name,
-//       email,
-//       password,
-//       // googleID: googleID || undefined, // Include googleID only if provided
-//     });
-//     await newUser.save();
-//     return res.redirect("/user/signup");
-//   } catch (error) {
-//     if (error.code === 11000 && error.keyPattern && error.keyPattern.googleID) {
-//       // Detect duplicate key error for googleID
-//       console.error("Duplicate Google ID error");
-//       return res.status(400).send("Duplicate Google ID error");
-//     }
-//     console.error("Error saving user:", error);
-//     res.status(500).send("Internal server error");
-//   }
-// };
+
 
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -104,14 +84,12 @@ const signup = async (req, res) => {
     if (!emailsent) {
       return res.json("email-error");
     }
-
     req.session.userOtp = otp;
     console.log("session otp ", req.session.userOtp);
 
     req.session.userData = { name, email, password };
 
     // req.session.registerUser=true;
-
     res.redirect("/user/verificationOTP");
     console.log("signUp verification OTP is: ", otp);
   } catch (error) {
@@ -209,7 +187,7 @@ const loadLogin = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
+    req.session.email= email;
     const findUser = await User.findOne({ email: email });
 
     if (!findUser) {
@@ -243,6 +221,7 @@ const loadforgotPassword = async (req, res) => {
     }
   } catch (error) {}
 };
+
 const forgotPassword = async (req, res) => {
   if (req.session.user) {
     return res.redirect("/user");
@@ -425,10 +404,11 @@ const logout = async (req, res) => {
 
 const loadProductDetails = async (req, res) => {
   const { productId } = req.params;
-  const { color, variant } = req.query; // Accept query parameters
+  const { color, variant } = req.query; 
 
   try {
     let productDetails = await Product.findOne({ _id: productId });
+    // const email = req.session.email
 
     const products = await Product.aggregate([
       { $sample: { size: 4 } }, 
@@ -441,7 +421,6 @@ const loadProductDetails = async (req, res) => {
     const currentVariant = productDetails.variant;
     const currentColor = productDetails.color;
 
-    // Fetch all products with the same name (to group variants and colors)
     const relatedProducts = await Product.find({
       productName: productDetails.productName,
     });
@@ -454,7 +433,6 @@ const loadProductDetails = async (req, res) => {
     const activeColor = color || currentVariant;
     // console.log(activeVariant);
 
-    // If query parameters are provided, filter the related products
     if (color || variant) {
       const filteredProduct = relatedProducts.find((product) => {
         return (
@@ -472,8 +450,9 @@ const loadProductDetails = async (req, res) => {
       ...new Set(relatedProducts.map((product) => product.variant)),
     ];
 
-    const availableColors = variantColors;
-    // console.log(productDetails);
+    const availableColors = [...new Set(variantColors)]
+    // const availableColors = ['#1D2536','#C0C0C0','#C0C0C0']
+    // console.log(availableColors);
 
     res.render("user/productDetails", {
       productDetails,

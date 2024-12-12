@@ -96,17 +96,9 @@
 
                 <div class="input-row">
                   <!-- Description -->
-                  <!-- <div class="col-12">
-                    <div class="col-12">
-                      <label for="description" class="form-label">Description</label>
-                      <textarea name="description" class="form-control" id="description" rows="3"
-                        placeholder="Enter product description"></textarea>
-                    </div>
-                  </div> -->
                   <div class="col-12">
                     <label for="description" class="form-label">Description</label>
                     <textarea name="description" class="form-control" id="description"></textarea>
-                    <!-- <button type="button" onclick="submitForm()">Submit</button> -->
 
                   </div>
                 </div>
@@ -117,25 +109,25 @@
                     <label class="form-label d-block">Colors</label>
                     <div class="d-flex align-items-center color-error">
                       <div class="form-check me-2">
-                        <input class="form-check-input" type="radio" name="color" id="colorDark" value="black">
-                        <label class="form-check-label bg-dark rounded-circle" for="colorDark"
+                        <input class="form-check-input" type="radio" name="color" id="colorDark" value="#1D2536">
+                        <label class="form-check-label bg-Midnight rounded-circle" for="colorDark"
                           style="width: 20px; height: 20px;"></label>
                       </div>
                       <div class="form-check me-2">
-                        <input class="form-check-input" type="radio" name="color" id="colorWarning" value="yellow">
-                        <label class="form-check-label bg-warning rounded-circle" for="colorWarning"
+                        <input class="form-check-input" type="radio" name="color" id="colorWarning" value="#C0C0C0">
+                        <label class="form-check-label bg-silver rounded-circle" for="colorWarning"
                           style="width: 20px; height: 20px;"></label>
                       </div>
                       <div class="form-check me-2">
-                        <input class="form-check-input" type="radio" name="color" id="colorSuccess" value="green">
-                        <label class="form-check-label bg-success rounded-circle" for="colorSuccess"
+                        <input class="form-check-input" type="radio" name="color" id="colorSuccess" value="#D3C8A1">
+                        <label class="form-check-label bg-Starlight rounded-circle" for="colorSuccess"
                           style="width: 20px; height: 20px;"></label>
                       </div>
-                      <div class="form-check me-2">
-                        <input class="form-check-input" type="radio" name="color" id="colorPrimary" value="blue">
-                        <label class="form-check-label bg-primary rounded-circle" for="colorPrimary"
+                      <!-- <div class="form-check me-2">
+                        <input class="form-check-input" type="radio" name="color" id="colorPrimary" value="gray">
+                        <label class="form-check-label bg-Gray rounded-circle" for="colorPrimary"
                           style="width: 20px; height: 20px;"></label>
-                      </div>
+                      </div> -->
                     </div>
                   </div>
 
@@ -174,7 +166,6 @@
                     <select class="form-select" name="processor" id="processor">
                       <option selected>M1</option>
                       <option>M2</option>
-                      <option>Intel</option>
                     </select>
                   </div>
 
@@ -219,7 +210,7 @@
       plugins: 'lists',
       toolbar: 'bold italic | bullist numlist | undo redo',
     });
-  
+
   </script>
 
   <script>
@@ -369,26 +360,7 @@
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         let validForm = true;
-        // for (const input of form.elements) {
-        //   console.log(input)
-        //   if (input.value.trim() === "" && input.type !== "file" && input.name !== "colors" && input.className !== "button" && input.className != "remove-btn") {
-        //     validForm = false;
-        //     alert("Please fill out all required fields");
-        //     break;
-        //   }
-        //   if (input.type === "file" && input.value.trim() === "") {
-        //     validForm = false;
-        //     alert("Please select at least one image");
-        //     break;
-        //   }
-
-        //   if (imageArray.length < 3) {
-        //     validForm = false;
-        //     alert("Please select at least 3 images");
-        //     break;
-        //   }
-        // }
-
+      
         document.querySelectorAll('.error-message').forEach(msg => msg.remove());
 
         // Helper function to show error messages
@@ -541,6 +513,9 @@
       }, 3000);
     }
 
+
+    //offer price section
+
     document.getElementById('price').addEventListener('input', calculateOfferPrice);
     document.getElementById('offer').addEventListener('input', calculateOfferPrice);
 
@@ -548,11 +523,8 @@
       const price = parseFloat(document.getElementById('price').value) || 0;
       const offer = parseFloat(document.getElementById('offer').value) || 0;
 
-      // Calculate offer price
       const offerPrice = price - (price * (offer / 100));
-
-      // Update the offer price input
-      document.getElementById('offerPrice').value = offerPrice.toFixed(2);
+      document.getElementById('offerPrice').value = offerPrice.toFixed(0);
     }
     calculateOfferPrice()
 
