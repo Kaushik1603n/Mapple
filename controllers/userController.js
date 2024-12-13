@@ -8,16 +8,75 @@ const Product = require("../models/productSchema");
 const loadHomePage = async (req, res) => {
   try {
     const user = req.session.user;
+    // const products = await Product.aggregate([{ $sample: { size: 8 } }]);
+
     const products = await Product.aggregate([
-      { $sample: { size: 8 } }, 
+      { $sample: { size: 8 } },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "categoryDetails",
+        },
+      },
+      {
+        $addFields: {
+          categoryDetails: { $arrayElemAt: ["$categoryDetails", 0] },
+        },
+      },
+      {
+        $match: {
+          "categoryDetails.status": true,
+        },
+      },
     ]);
+
+    const productCategories = await Product.find().populate({
+      path: "category",
+      match: { status: true },
+    });
+
+    const uniqueCategories = {};
+
+    productCategories.forEach((product) => {
+      if (product.category && product.category.name) {
+        const categoryName = product.category.name;
+
+        if (!uniqueCategories[categoryName]) {
+          uniqueCategories[categoryName] = product.productImage[0];
+        }
+      }
+    });
+
+    const categories = Object.entries(uniqueCategories).map(
+      ([categoryName, productImage]) => ({
+        categoryName,
+        productImage,
+      })
+    );
+
+    // console.log(categories);
+
+    //   const productss = await Product.find()
+    // .populate({
+    //   path: "category",
+    //   match: { status: true }
+    // })
+    // .limit(8)
+    // console.log(productss);
+
     if (user) {
-      res.render("user/home", { user: user, products });
+      res.render("user/home", {
+        user: user,
+        products: products,
+        categories: categories,
+      });
     } else {
-      return res.render("user/home", { products });
+      return res.render("user/home", { products, categories: categories });
     }
   } catch (error) {
-    console.log("home Page Not Fount");
+    console.log("home Page Not Fount", error);
     res.status(500).send("Sever error");
   }
 };
@@ -30,8 +89,6 @@ const loadSignup = async (req, res) => {
     res.status(500).send("Sever error");
   }
 };
-
-
 
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -187,7 +244,7 @@ const loadLogin = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    req.session.email= email;
+    req.session.email = email;
     const findUser = await User.findOne({ email: email });
 
     if (!findUser) {
@@ -287,7 +344,7 @@ const OtpResend = async (req, res) => {
     const email = req.session.emailVerify;
     if (!email) {
       console.log("email not found");
-      
+
       return res
         .status(400)
         .json({ success: false, message: "Email not fount in session" });
@@ -404,15 +461,14 @@ const logout = async (req, res) => {
 
 const loadProductDetails = async (req, res) => {
   const { productId } = req.params;
-  const { color, variant } = req.query; 
+  const { color, variant } = req.query;
+  const user = req.session.user;
 
   try {
     let productDetails = await Product.findOne({ _id: productId });
     // const email = req.session.email
 
-    const products = await Product.aggregate([
-      { $sample: { size: 4 } }, 
-    ]);
+    const products = await Product.aggregate([{ $sample: { size: 4 } }]);
 
     if (!productDetails) {
       return res.status(400).json({ message: "Product not found" });
@@ -430,7 +486,7 @@ const loadProductDetails = async (req, res) => {
       .map((product) => product.color);
 
     const activeVariant = variant || currentVariant;
-    const activeColor = color || currentVariant;
+    const activeColor = color || currentColor;
     // console.log(activeVariant);
 
     if (color || variant) {
@@ -450,7 +506,7 @@ const loadProductDetails = async (req, res) => {
       ...new Set(relatedProducts.map((product) => product.variant)),
     ];
 
-    const availableColors = [...new Set(variantColors)]
+    const availableColors = [...new Set(variantColors)];
     // const availableColors = ['#1D2536','#C0C0C0','#C0C0C0']
     // console.log(availableColors);
 
@@ -461,6 +517,7 @@ const loadProductDetails = async (req, res) => {
       activeVariant,
       activeColor,
       products,
+      user,
     });
   } catch (error) {
     console.error("Error loading product details:", error);
@@ -468,15 +525,13 @@ const loadProductDetails = async (req, res) => {
   }
 };
 
+const userAccount = async (req, res) => {
+  res.render("user/userAccount");
+};
 
-const userAccount  = async(req,res)=>{
-
-  res.render("user/userAccount")
-
-}
-
-
-
+const userAddress = async (req, res) => {
+  res.render("user/address");
+};
 
 const pageNotFount = async (req, res) => {
   try {
@@ -506,6 +561,7 @@ module.exports = {
   logout,
 
   userAccount,
+  userAddress,
 
   loadProductDetails,
 };

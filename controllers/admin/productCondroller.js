@@ -232,7 +232,6 @@ const updateProduct = async (req, res) => {
     });
 
     if (isproduct) {
-      // console.log(isproduct);
       console.log("product already exist");
       return res.json({ success: false, message: "Product already exists" });
     }

@@ -24,66 +24,32 @@
                 <img src="/image/banner.jpg" alt="Banner Image" class="img-fluid banner-image">
             </section>
 
-            <section class="category-section py-5">
-                <div class="container">
-                    <h2 class="category-title text-center mb-4">Category</h2>
-                    <div class="row g-4">
-                        <!-- Category Card 1 -->
-                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                            <div class="card shadow-sm border-0 h-100">
-                                <div class="position-relative">
-                                    <img src="/image/pro.webp" alt="MacBook Pro" class="card-img-top">
 
-                                </div>
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">MacBook Pro</h5>
-                                    <button class="btn btn-dark w-100">Show More</button>
-                                </div>
+
+            <section class="container my-5">
+                <h2 class="text-center mb-4">Category</h2>
+                <div class="row g-5">
+                    <!-- Categories Card -->
+                    <% categories.forEach(category=> { %>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="card border-0 shadow-lg text-center">
+                                <div class="position-relative">
+                                    <img src="<%= category.productImage %>" class="card-img-top mx-auto pt-3 p-1"
+                                        alt="<%= category.categoryName %>">
+                                        
+                                    </div>
+                                    <h5 class="card-title">
+                                        <%= category.categoryName %>
+                                    </h5>
+                                    <div class="card-body">
+                                        
+                                        <a href="#" class="btn btn-dark w-100">Shop</a>
+                                    </div>
                             </div>
                         </div>
+                        <% }); %>
 
-                        <!-- Category Card 2 -->
-                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                            <div class="card shadow-sm border-0 h-100">
-                                <div class="position-relative">
-                                    <img src="/image/pro.webp" alt="MacBook Air" class="card-img-top">
-
-                                </div>
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">MacBook Air</h5>
-                                    <button class="btn btn-dark w-100">Show More</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Category Card 3 -->
-                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                            <div class="card shadow-sm border-0 h-100">
-                                <div class="position-relative">
-                                    <img src="/image/pro.webp" alt="MacBook Pro" class="card-img-top">
-
-                                </div>
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">MacBook Pro</h5>
-                                    <button class="btn btn-dark w-100">Show More</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Category Card 4 -->
-                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                            <div class="card shadow-sm border-0 h-100">
-                                <div class="position-relative">
-                                    <img src="/image/pro.webp" alt="Mac Mini" class="card-img-top">
-
-                                </div>
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Mac Mini</h5>
-                                    <button class="btn btn-dark w-100">Show More</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                           
                 </div>
             </section>
 
@@ -94,9 +60,9 @@
                     <% products.forEach(product=> { %>
                         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                             <div class="card border-0 shadow-lg text-center">
-                                <div class="position-relative" >
+                                <div class="position-relative">
                                     <img src="<%= product.productImage[0] %>" class="card-img-top mx-auto pt-3 p-1"
-                                        alt="<%= product.productName %>" >
+                                        alt="<%= product.productName %>">
 
                                     <button class="btn btn-outline-light position-absolute top-0 end-0 m-2 like-btn">
                                         <span class="like-icon">&#9825;</span>

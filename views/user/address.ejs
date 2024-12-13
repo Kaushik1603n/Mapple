@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Address Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-container h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-custom {
+            background-color: #000;
+            color: #fff;
+            padding: 7px;
+            border-radius: 10px;
+        }
+
+        .btn-custom:hover {
+            background-color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include("../../views/partials/user/sidebar") %>
+        <div class="content">
+            <div class="d-flex justify-content-center align-items-center mt-5">
+                <div class="form-container col-lg-10 col-md-12">
+                    <h3>Shipping Address</h3>
+                    <form>
+                        <div class="mb-3">
+                            <label for="houseAddress" class="form-label">House Address</label>
+                            <input type="text" class="form-control" id="houseAddress"
+                                placeholder="Enter your house address">
+                        </div>
+                        <div class="mb-3">
+                            <label for="streetAddress" class="form-label">Street Address</label>
+                            <input type="text" class="form-control" id="streetAddress"
+                                placeholder="Enter your street address">
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="city" placeholder="City">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="state" class="form-label">State</label>
+                                <input type="text" class="form-control" id="state" placeholder="State">
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-6">
+                                <label for="zipCode" class="form-label">Zip Code</label>
+                                <input type="text" class="form-control" id="zipCode" placeholder="Zip Code">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="country" class="form-label">Country</label>
+                                <input type="text" class="form-control" id="country" placeholder="Country">
+                            </div>
+                        </div>
+                        <div class="d-grid mt-4">
+                            <button type="submit" class=" btn-custom">Change Address</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -27,6 +27,7 @@ router.get("/logout", userController.logout);
 router.get("/productDetails/:productId", userController.loadProductDetails);
 
 router.get("/account", userController.userAccount);
+router.get("/address", userController.userAddress);
 
 router.get(
   "/auth/google",
