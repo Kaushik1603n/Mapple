@@ -4,6 +4,9 @@ const nodemailer = require("nodemailer");
 const env = require("dotenv").config();
 const bcrypt = require("bcrypt");
 const Product = require("../models/productSchema");
+const address = require("../models/addressSchema");
+const { log } = require("console");
+const cart = require("../models/cartSchema");
 
 const loadHomePage = async (req, res) => {
   try {
@@ -142,7 +145,7 @@ const signup = async (req, res) => {
       return res.json("email-error");
     }
     req.session.userOtp = otp;
-    console.log("session otp ", req.session.userOtp);
+    // console.log("session otp ", req.session.userOtp);
 
     req.session.userData = { name, email, password };
 
@@ -187,7 +190,7 @@ const verifyOTP = async (req, res) => {
       await saveUserData.save();
       req.session.user = saveUserData;
 
-      res.json({ success: true, redirectUrl: "/user/login" }); // Absolute URL
+      res.json({ success: true, redirectUrl: "/user/login" });
     } else {
       res
         .status(400)
@@ -525,12 +528,237 @@ const loadProductDetails = async (req, res) => {
   }
 };
 
+const loadUserAccount = async (req, res) => {
+  // const { id } = req.params;
+  const userData = req.session.user;
+  console.log(userData);
+
+  const findUser = await User.findById(userData._id);
+  console.log(findUser);
+
+  res.render("user/userAccount", { userData: findUser || {} });
+};
 const userAccount = async (req, res) => {
-  res.render("user/userAccount");
+  const userData = req.session.user;
+  try {
+    const { name, email, newemail, secondaryEmail, phone } = req.body;
+    // console.log(req.body);
+
+    if (!name || !email || !newemail || !secondaryEmail || !phone) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    const findUser = await User.findOne({ email: email });
+    if (!findUser) {
+      return res.status(400).json({ message: "Account Not Fount" });
+    }
+
+    const checkUser = await User.findOne({
+      email: newemail,
+      _id: { $ne: findUser._id }, // Exclude the current user's _id from this check
+    });
+    if (checkUser) {
+      return res
+        .status(400)
+        .json({ message: "Email is already in use by another account." });
+    }
+
+    findUser.name = name;
+    findUser.email = newemail;
+    findUser.secondaryEmail = secondaryEmail;
+    findUser.phone = phone;
+    await findUser.save();
+
+    const updatedUser = await User.findById(findUser._id);
+
+    res
+      .status(200)
+      .json({ success: "Account updated successfully", userData: updatedUser });
+  } catch (error) {
+    console.error("Error updating user account:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+const accountChangePass = async (req, res) => {
+  const { currentPassword, newPassword, confirmPassword, email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ message: "New password and confirm password do not match" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error updating user account:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 const userAddress = async (req, res) => {
-  res.render("user/address");
+  const userData = req.session.user;
+  try {
+    const userId = userData._id;
+    let userAddress = await address.findOne({ userId: userId });
+    // console.log(userAddress);
+
+    return res.render("user/address", {
+      userAddress: userAddress ? userAddress.address : [],
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to save address." });
+  }
+};
+const addAddress = async (req, res) => {
+  const userData = req.session.user;
+  try {
+    const userId = userData._id;
+    const { ...addressData } = req.body;
+
+    let userAddress = await address.findOne({ userId });
+    console.log(userAddress);
+
+    const addressLimit = userAddress.address.length;
+    console.log(addressLimit);
+
+    if (addressLimit >= 5) {
+      return res.status(400).json({ message: "Only store 5 address" });
+    }
+
+    if (!userAddress) {
+      userAddress = new address({
+        userId,
+        address: [addressData],
+      });
+    } else {
+      userAddress.address.push(addressData);
+    }
+
+    await userAddress.save();
+    return res.status(201).json({ message: "Address saved successfully!" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to save address." });
+  }
+};
+
+const deleteAddress = async (req, res) => {
+  try {
+    const addressId = req.params.id;
+    console.log("hello", addressId);
+    await address.updateOne(
+      { "address._id": addressId },
+      { $pull: { address: { _id: addressId } } }
+    );
+    res.status(200).send({ message: "Address deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting address:", error);
+    res.status(500).send({ error: "Failed to delete address" });
+  }
+};
+
+const editAddress = async (req, res) => {
+  try {
+    const addressId = req.params.id;
+    const updatedData = req.body;
+
+    await address.updateOne(
+      { "address._id": addressId },
+      { $set: { "address.$": updatedData } }
+    );
+
+    res.status(200).send({ message: "Address updated successfully" });
+  } catch (error) {
+    console.error("Error updating address:", error);
+    res.status(500).send({ error: "Failed to update address" });
+  }
+};
+
+const addCart = async (req, res) => {
+  if (!req.session.user) {
+     return res.status(400).json({ success: false, message: "Login first" });
+  }
+  try {
+    const { productId, quantity } = req.body;
+
+    console.log(req.body);
+
+    if (!productId || quantity <= 0) {
+      return res.status(400).json({ success: false, message: "Invalid data" });
+    }
+
+    const userData = req.session.user;
+    const userId = userData._id; 
+    console.log(userId);
+
+    let userCart = await cart.findOne({ userId: userId }); 
+    if (!userCart) {
+      userCart = new cart({ userId: userId, items: [] }); 
+    }
+
+    const existingItem = userCart.items.find(
+      (item) => item.productId.toString() === productId
+    );
+
+    if (existingItem) {
+      // Update the quantity and total price for the existing item
+      existingItem.quantity += quantity;
+      existingItem.totalprice = existingItem.quantity * existingItem.price;
+    } else {
+      // If product is not in the cart, add it
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Product not found" });
+      }
+
+      userCart.items.push({
+        productId: product._id,
+        quantity: quantity,
+        price: product.salePrice,
+        totalprice: product.salePrice * quantity,
+      });
+    }
+
+    // Recalculate the cart's total amount
+    userCart.totalAmount = userCart.items.reduce(
+      (sum, item) => sum + item.totalprice,
+      0
+    );
+
+    // Save the updated cart
+    await userCart.save();
+
+    // Send success response
+    return res
+      .status(200)
+      .json({ success: true, message: "Product added to cart" });
+  } catch (error) {
+    console.error("Error in addCart:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
 };
 
 const pageNotFount = async (req, res) => {
@@ -560,8 +788,14 @@ module.exports = {
   changePass,
   logout,
 
+  loadUserAccount,
   userAccount,
+  accountChangePass,
   userAddress,
+  addAddress,
+  deleteAddress,
+  editAddress,
 
   loadProductDetails,
+  addCart,
 };

@@ -74,7 +74,7 @@ const loadproducts = async (req, res) => {
       { $limit: limit },
     ]);
 
-    console.log("Products:", productsWithCategory);
+    // console.log("Products:", productsWithCategory);
 
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);

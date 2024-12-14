@@ -96,8 +96,9 @@
 
                             <% availableColors.forEach((color)=> { %>
                                 <span class="badge me-2 p-3 colorBadge <% if (activeColor === color) { %>active<% } %>"
-                                    data-color="<%= color %>" onclick="updateProductDetails('<%= color %>', null)"  style=`background-color: ${color};`>
-                                    
+                                    data-color="<%= color %>" onclick="updateProductDetails('<%= color %>', null)"
+                                    style=`background-color: ${color};`>
+
                                 </span>
                                 <% }); %>
 
@@ -112,7 +113,8 @@
                         </div>
 
                         <div class="product-buttons">
-                            <button class="btn btn-primary" id="addToCartButton">Add to Cart</button>
+                            <button class="btn btn-primary" id="addToCartButton"
+                                data-product-id="<%= productDetails._id %>">Add to Cart</button>
                             <button class="btn btn-secondary" id="addToWishlistButton">Add to Wishlist</button>
                         </div>
                     </div>
@@ -209,14 +211,14 @@
 
                 decreaseButton.addEventListener('click', function () {
                     if (quantity > 1) {
-                        quantity--; 
-                        quantityInput.value = quantity; 
+                        quantity--;
+                        quantityInput.value = quantity;
                     }
                 });
 
                 increaseButton.addEventListener('click', function () {
-                    quantity++; 
-                    quantityInput.value = quantity; 
+                    quantity++;
+                    quantityInput.value = quantity;
                 });
 
                 // Select all the storage buttons
@@ -227,7 +229,7 @@
                         storageButtons.forEach(b => b.classList.remove('active'));
                         button.classList.add('active');
                         const selectedStorage = button.getAttribute('data-storage');
-                        console.log('Selected Storage:', selectedStorage); 
+                        console.log('Selected Storage:', selectedStorage);
                     });
                 });
 
@@ -238,7 +240,7 @@
                         colorBadges.forEach(b => b.classList.remove('active'));
                         this.classList.add('active');
                         const selectedColor = this.getAttribute('data-color');
-                        console.log('Selected Color:', selectedColor); 
+                        console.log('Selected Color:', selectedColor);
                     });
                 });
 
@@ -255,7 +257,7 @@
 
                     badges.forEach((badge) => {
                         const color = badge.getAttribute("data-color");
-                        badge.style.backgroundColor = color; 
+                        badge.style.backgroundColor = color;
                     });
                 });
 
@@ -306,6 +308,62 @@
                 }
 
                 initializeZoomCarousel();
+
+
+                document.addEventListener('DOMContentLoaded', () => {
+                    const addToCartButton = document.getElementById('addToCartButton');
+                    const quantityInput = document.getElementById('quantityInput');
+
+                    if (addToCartButton) {
+                        addToCartButton.addEventListener('click', () => {
+
+                            const productId = addToCartButton.getAttribute('data-product-id');
+                            const quantity = parseInt(quantityInput.value, 10);
+
+                            // Validate inputs (optional)
+                            if (!productId || quantity <= 0) {
+                                alert('Invalid product or quantity');
+                                return;
+                            }
+
+                            const cartData = {
+                                productId: productId,
+                                quantity: quantity,
+                            };
+
+                            console.log(cartData);
+
+
+                            fetch('/user/cart', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(cartData),
+                            })
+                                .then(response => {
+                                    console.log(`Response Status: ${response.status}`);
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    console.log("Response Data:", data);
+                                    if (data.success) {
+                                        alert('Product added to cart successfully!');
+                                    } else {
+                                        alert(data.message || 'Failed to add product to cart.');
+                                        
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error('Error adding product to cart:', err);
+                                    alert('Something went wrong. Please try again.');
+                                    window.location.href
+                                });
+
+                        });
+                    }
+                });
+
             </script>
 </body>
 

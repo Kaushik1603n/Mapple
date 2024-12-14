@@ -10,37 +10,49 @@ const addessSchema = new Schema({
   },
   address: [
     {
-      addressType: {
+      homeAddress: {
         type: String,
         required: true,
       },
+      landmark: {
+        type: String,
+        trim: false,
+      },
       name: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      phoneNumber: {
         type: String,
         required: true,
       },
       city: {
         type: String,
         required: true,
-      },
-      landMark: {
-        type: String,
-        required: true,
+        trim: true,
       },
       state: {
         type: String,
         required: true,
+        trim: true,
       },
-      pincode: {
+      zipCode: {
         type: Number,
         required: true,
       },
-      phone: {
+      country: {
         type: String,
         required: true,
+        trim: true,
       },
-      altPhone: {
-        type: String,
-        required: true,
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+      updatedAt: {
+        type: Date,
+        default: Date.now,
       },
     },
   ],

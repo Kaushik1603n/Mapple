@@ -28,27 +28,32 @@
 
                 </div>
             </div>
-            <a href="/user/account" class="mx-2 icon-bg"><i class="fa-solid fa-user"></i></a>
-            <a href="#" class="mx-2 icon-bg"><i class="fa-solid fa-cart-shopping"></i></a>
-            <% if (locals.user) { %>
-                <div class="dropdown">
-                    <a href="#" class="sign-in-link">
-                        <%= locals.user.name %>
-                    </a>
-                    <div class="dropdown-content">
-                        <a href="/user/logout">Logout</a>
-                    </div>
-                </div>
-                <% } else { %>
-                    <a href="/user/login" class="login-button mx-lg-2">Login</a>
-                    <% } %>
-    
+            <% if (locals.user && user._id) { %>
+                <!-- If user is found, show the link -->
+                <a href="/user/account" class="mx-2 icon-bg">
+                    <i class="fa-solid fa-user"></i>
+                </a>
+                <% } %>
+                <a href="#" class="mx-2 icon-bg"><i class="fa-solid fa-cart-shopping"></i></a>
+                    <% if (locals.user) { %>
+                        <div class="dropdown">
+                            <a href="#" class="sign-in-link">
+                                <%= locals.user.name %>
+                            </a>
+                            <div class="dropdown-content">
+                                <a href="/user/logout">Logout</a>
+                            </div>
+                        </div>
+                        <% } else { %>
+                            <a href="/user/login" class="login-button mx-lg-2">Login</a>
+                            <% } %>
 
-                        <button class="navbar-toggler primary" type="button" data-bs-toggle="offcanvas"
-                            data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar"
-                            aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
+
+                                <button class="navbar-toggler primary" type="button" data-bs-toggle="offcanvas"
+                                    data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar"
+                                    aria-label="Toggle navigation">
+                                    <span class="navbar-toggler-icon"></span>
+                                </button>
         </div>
     </nav>
 </header>

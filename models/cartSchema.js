@@ -15,30 +15,64 @@ const cartSchema = new Schema({
         ref: "product",
         required: true,
       },
-      quantity:{
-        type:Number,
-        default:1
+      quantity: {
+        type: Number,
+        default: 1,
       },
-      price:{
-        type:Number,
-        required:true
+      price: {
+        type: Number,
+        required: true,
       },
-      totalprice:{
-        type:Number,
-        required:true
+      totalprice: {
+        type: Number,
+        default: 0,
       },
-      status:{
-        type:String,
-        default:"placed"
+      status: {
+        type: String,
+        enum: ["placed", "shipped", "delivered", "cancelled"],
+        default: "placed",
       },
-      cancellationReason:{
-        type:String, 
-        default:"none"
-      }
-
     },
   ],
+  totalAmount: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  totalActualAmount: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  totalDiscountAmount: {
+    type: Number,
+    default: 0,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-const cart = mongoose.model("cart", cartSchema)
-module.exports= cart;
+cartSchema.pre("save", function (next) {
+  this.items.forEach((item) => {
+    item.totalprice = item.price * item.quantity;
+  });
+
+  this.totalActualAmount = this.items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+  this.totalAmount = this.totalActualAmount - this.totalDiscountAmount;
+
+  this.updatedAt = Date.now();
+
+  next();
+});
+
+const cart = mongoose.model("cart", cartSchema);
+module.exports = cart;

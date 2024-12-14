@@ -26,8 +26,15 @@ router.get("/logout", userController.logout);
 
 router.get("/productDetails/:productId", userController.loadProductDetails);
 
-router.get("/account", userController.userAccount);
+router.get("/account", userController.loadUserAccount);
+router.post("/account", userController.userAccount);
+router.post("/accountChangePass", userController.accountChangePass);
 router.get("/address", userController.userAddress);
+router.post("/addAddress", userController.addAddress);
+router.delete("/address/delete/:id", userController.deleteAddress);
+router.put("/address/edit/:id", userController.editAddress);
+
+router.post("/cart", userController.addCart);
 
 router.get(
   "/auth/google",
