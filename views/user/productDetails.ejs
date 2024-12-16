@@ -68,9 +68,20 @@
                                 </span>
                         </p>
                         <span
-                            class="fs-6 fw-bold <%= productDetails.status === 'Available' ? 'text-success' : 'text-danger' %>">(
-                            <%= productDetails.status %>)
+                            class="fs-6 fw-bold <%= productDetails.status === 'Available' ? 'text-success' : 'text-danger' %>">
+                            (<%= productDetails.status %>)
                         </span>
+                        <div class="fs-6 fw-bold py-1 px-2 rounded 
+                        <% if (productDetails.status === 'Out of stock') { %>
+                            bg-danger text-white
+                        <% } else if (productDetails.quantity < 10) { %>
+                            bg-warning text-dark
+                        <% } else { %>
+                            bg-success text-white
+                        <% } %>" style="display: inline-block; margin-top: 5px;">
+                            Left: <%= productDetails.quantity %>
+                        </div>
+
                         <div class="rating mb-2">
                             <i class="bi bi-star-fill"></i>
                             <i class="bi bi-star-fill"></i>
@@ -113,7 +124,7 @@
                         </div>
 
                         <div class="product-buttons">
-                            <button class="btn btn-primary" id="addToCartButton"
+                            <button class="<%= productDetails.status === 'Available' ? 'btn btn-primary' : 'd-none' %> " id="addToCartButton"
                                 data-product-id="<%= productDetails._id %>">Add to Cart</button>
                             <button class="btn btn-secondary" id="addToWishlistButton">Add to Wishlist</button>
                         </div>
@@ -351,7 +362,7 @@
                                         alert('Product added to cart successfully!');
                                     } else {
                                         alert(data.message || 'Failed to add product to cart.');
-                                        
+
                                     }
                                 })
                                 .catch(err => {

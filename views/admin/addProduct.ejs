@@ -468,6 +468,7 @@
 
 
         if (!validForm) return;
+        
         const formData = removeFromFormData(new FormData(form), 'images');
         imageArray.forEach((imageData, index) => {
           formData.append("images", blobToFile(imageData.file, imageData.file.name || `cropped - ${index}.jpg`));

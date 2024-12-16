@@ -9,6 +9,21 @@ const { log } = require("console");
 const cart = require("../models/cartSchema");
 
 const loadHomePage = async (req, res) => {
+  req.session.user = {
+    _id: "675131e90f4b6249b7e9782c",
+    name: "Kaushik N",
+    email: "kk@gmail.com",
+    phone: "8943548239",
+    password: "$2b$10$.m4kLIpGaRQFS3OruhCbI.fRfZbk8zmFgi1CB8VDgXRzkT0BJqAUq",
+    isBlock: false,
+    wallet: [],
+    orderHistory: [],
+    secondaryEmail: "kk@gmail.com",
+    redeemedUser: [],
+    createAt: "2024-12-05T04:54:01.708Z",
+    searchHistory: [],
+    __v: 0,
+  };
   try {
     const user = req.session.user;
     // const products = await Product.aggregate([{ $sample: { size: 8 } }]);
@@ -531,12 +546,18 @@ const loadProductDetails = async (req, res) => {
 const loadUserAccount = async (req, res) => {
   // const { id } = req.params;
   const userData = req.session.user;
-  console.log(userData);
+  // console.log(userData);
+  if (!req.session.user) {
+    return res.redirect("/user/login");
+  }
+  try {
+    const findUser = await User.findById(userData._id);
+    console.log(findUser);
 
-  const findUser = await User.findById(userData._id);
-  console.log(findUser);
-
-  res.render("user/userAccount", { userData: findUser || {} });
+    res.render("user/userAccount", { userData: findUser || {} });
+  } catch (error) {
+    console.log(error);
+  }
 };
 const userAccount = async (req, res) => {
   const userData = req.session.user;
@@ -635,7 +656,7 @@ const addAddress = async (req, res) => {
     const { ...addressData } = req.body;
 
     let userAddress = await address.findOne({ userId });
-    console.log(userAddress);
+    // console.log(userAddress);
 
     const addressLimit = userAddress.address.length;
     console.log(addressLimit);
@@ -664,7 +685,7 @@ const addAddress = async (req, res) => {
 const deleteAddress = async (req, res) => {
   try {
     const addressId = req.params.id;
-    console.log("hello", addressId);
+    // console.log("hello", addressId);
     await address.updateOne(
       { "address._id": addressId },
       { $pull: { address: { _id: addressId } } }
@@ -695,24 +716,24 @@ const editAddress = async (req, res) => {
 
 const addCart = async (req, res) => {
   if (!req.session.user) {
-     return res.status(400).json({ success: false, message: "Login first" });
+    return res.status(400).json({ success: false, message: "Login first" });
   }
   try {
     const { productId, quantity } = req.body;
 
-    console.log(req.body);
+    // console.lo-g(req.body);
 
     if (!productId || quantity <= 0) {
       return res.status(400).json({ success: false, message: "Invalid data" });
     }
 
     const userData = req.session.user;
-    const userId = userData._id; 
-    console.log(userId);
+    const userId = userData._id;
+    // console.log(userId);
 
-    let userCart = await cart.findOne({ userId: userId }); 
+    let userCart = await cart.findOne({ userId: userId });
     if (!userCart) {
-      userCart = new cart({ userId: userId, items: [] }); 
+      userCart = new cart({ userId: userId, items: [] });
     }
 
     const existingItem = userCart.items.find(
@@ -733,7 +754,7 @@ const addCart = async (req, res) => {
       }
 
       userCart.items.push({
-        productId: product._id,
+        productId: productId,
         quantity: quantity,
         price: product.salePrice,
         totalprice: product.salePrice * quantity,
@@ -758,6 +779,84 @@ const addCart = async (req, res) => {
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
+  }
+};
+
+const loadAddCart = async (req, res) => {
+  const userData = req.session.user;
+  if (!req.session.user) {
+    return res.redirect("/user/login");
+  }
+  try {
+    const userId = userData._id;
+    // const cartItems = await cart.findOne({ userId: userId });
+    // // console.log(cartItems);
+    // const items = cartItems.items;
+    const userCart = await cart.findOne({ userId }).populate("items.productId");
+
+    res.render("user/cart", { userCart });
+  } catch (error) {}
+};
+
+const removeCartItem = async (req, res) => {
+  const { id } = req.params;
+  const userData = req.session.user;
+  const userId = userData._id;
+  try {
+    const cartItems = await cart
+      .findOne({ userId })
+      .populate("items.productId");
+    console.log(cartItems);
+    const updatedItems = cartItems.items.filter(
+      (item) => item._id.toString() !== id
+    );
+    console.log(updatedItems);
+
+    cartItems.items = updatedItems;
+    await cartItems.save();
+
+    res.status(200).json({ message: "Item removed successfully" });
+  } catch (error) {
+    console.error(err);
+    res.status(500).json({ message: "Error removing item from cart" });
+  }
+};
+
+const updatequantity = async (req, res) => {
+  const userData = req.session.user;
+  const userId = userData._id;
+  try {
+    const { itemId, action } = req.body;
+    const cartItems = await cart.findOne({ userId: userId });
+
+    const item = cartItems.items.find((item) => item._id.toString() === itemId);
+
+    if (!item) {
+      return res.status(404).json({ message: "Item not found in cart" });
+    }
+    const product = await Product.findById(item.productId);
+
+    if (action === "increment" && item.quantity >= product.quantity) {
+      return res.status(400).json({ message: "Insufficient stock" });
+    }
+
+    if (action === "increment") {
+      item.quantity += 1;
+    } else if (action === "decrement" && item.quantity > 1) {
+      item.quantity -= 1;
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Quantity cannot be less than 1" });
+    }
+
+    // Save the cart
+    await cartItems.save();
+
+    return res.status(200).json({ quantity: item.quantity });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating quantity" });
   }
 };
 
@@ -798,4 +897,7 @@ module.exports = {
 
   loadProductDetails,
   addCart,
+  loadAddCart,
+  removeCartItem,
+  updatequantity,
 };

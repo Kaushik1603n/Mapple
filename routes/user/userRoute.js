@@ -35,6 +35,9 @@ router.delete("/address/delete/:id", userController.deleteAddress);
 router.put("/address/edit/:id", userController.editAddress);
 
 router.post("/cart", userController.addCart);
+router.get("/cart", userController.loadAddCart);
+router.delete("/cart/remove/:id", userController.removeCartItem);
+router.post("/cart/update-quantity", userController.updatequantity);
 
 router.get(
   "/auth/google",

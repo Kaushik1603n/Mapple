@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Cart Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #fff;
+        }
+
+        h2 {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .cart-table th {
+            background-color: #464545;
+            color: #fff;
+        }
+
+        .cart-table img {
+            width: 50px;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        .cart-table .form-control {
+            text-align: center;
+        }
+
+
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .quantity-control .quantity-display {
+            border: none;
+            background-color: #f8f9fa;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .total-summary {
+            max-width: 40%;
+        }
+
+        .total-summary p {
+            font-size: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .total-summary h5 {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #464545;
+        }
+
+        .apply-coupon {
+            max-width: 50%;
+        }
+
+        .apply-coupon button {
+            background-color: #464545;
+            color: #fff;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .apply-coupon button:hover {
+            background-color: #464545e2;
+        }
+
+        .apply-coupon button:active {
+            background-color: #464545ba;
+            border-color: #333;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .remove-btn {
+            font-size: xx-large;
+            color: red;
+            margin: 0;
+        }
+
+        .remove-btn:hover {
+            color: rgb(192, 0, 0);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .cart-table td img {
+                display: block;
+                margin: 0 auto;
+            }
+
+            .apply-coupon,
+            .total-summary {
+                max-width: 100%;
+            }
+
+            .d-flex {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .apply-coupon input {
+                margin-bottom: 10px;
+            }
+
+            .total-summary {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- <%- include("../../views/partials/user/header") %> -->
+
+    <div class="container my-5 ">
+        <h2 class="text-center mb-4">Your Cart</h2>
+
+        <!-- Cart Table -->
+
+        <div class="table-responsive">
+            <table class="table cart-table">
+                <thead class="table-light table-head">
+                    <tr>
+                        <th>Product Details</th>
+                        <th>Color</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <% if (userCart.items && userCart.items.length> 0) { %>
+                    <% userCart.items.forEach((item,index)=>{ %>
+                        <tbody id="cart-items">
+                            <tr>
+                                <td>
+                                    <img src="<%= item.productId.productImage[0] %>" alt="Product" class="me-2">
+                                    <%= item.productId.productName %>
+                                </td>
+                                <td>
+                                    <!-- <%= item.productId.color %> -->
+                                    <div class="p-3 m-2" style="background-color: <%= item.productId.color %>;"></div>
+                                </td>
+                                <td>
+                                    <%= item.price %>
+                                </td>
+                                <td>
+                                    <div class="input-group quantity-control" style="width: 100px;">
+                                        <button class="btn btn-outline-secondary btn-sm decrement"
+                                            data-item-id="<%= item._id %>">-</button>
+                                        <span class="form-control text-center quantity-display" style="width: 40px;">
+                                            <%= item.quantity %>
+                                        </span>
+                                        <button class="btn btn-outline-secondary btn-sm increment"
+                                            data-item-id="<%= item._id %>">+</button>
+                                    </div>
+                                </td>
+
+                                <td class="total">
+                                    <%= item.totalprice %>
+                                </td>
+                                <td><span class="remove-btn" data-item-id="<%= item._id %>">&times;</span></td>
+                            </tr>
+
+                        </tbody>
+                        <% }) %>
+                            <% } else { %>
+                                <p>No cart item available.</p>
+                                <% } %>
+            </table>
+        </div>
+
+        <div class="row my-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <!-- Apply Coupon Section -->
+                <div class="apply-coupon d-flex align-items-center col-md-5">
+                    <input type="text" class="form-control me-2" placeholder="Your Coupon Number...">
+                    <button class="btn ">Apply</button>
+                </div>
+
+                <!-- Total Summary Section -->
+                <div class=" bg-light col-md-3 total-summary text-center shadow-lg p-3">
+                    <p>Subtotal: <span id="subtotal">300000</span></p>
+                    <p>Delivery: <span id="delivery">0.00</span></p>
+                    <p>Discount: <span id="discount">20000</span></p>
+                    <h5>Total: <span id="total">
+                            <%= userCart.totalAmount %>
+                        </span></h5>
+                    <button class="btn btn-success mt-3">Check Out</button>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        const removeButtons = document.querySelectorAll('.remove-btn');
+
+        // Loop through each remove button and add an event listener
+        removeButtons.forEach(button => {
+            button.addEventListener('click', async function () {
+                const itemId = this.getAttribute('data-item-id');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, remove it!',
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await fetch(`/user/cart/remove/${itemId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                            });
+
+                            if (response.ok) {
+                                this.closest('tr').remove(); // Assuming the <td> is inside a <tr>
+                                Swal.fire('Deleted!', 'Your item has been removed.', 'success')
+                            } else {
+                                Swal.fire('Error!', 'Failed to remove the item.', 'error');
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            Swal.fire('Error!', 'An error occurred while deleting the item.', 'error');
+                        }
+                    }
+                });
+            });
+        });
+
+        // Add event listeners to increment and decrement buttons
+        document.querySelectorAll('.increment, .decrement').forEach(button => {
+            button.addEventListener('click', async function () {
+                const itemId = this.getAttribute('data-item-id');
+                const action = this.classList.contains('increment') ? 'increment' : 'decrement';
+
+                try {
+                    // Send a request to the server to update the quantity
+                    const response = await fetch('/user/cart/update-quantity', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ itemId, action }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Update the quantity display
+                        const quantityDisplay = this.parentElement.querySelector('.quantity-display');
+                        quantityDisplay.textContent = data.quantity;
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: 'Quantity has been updated.',
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: data.message,
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error updating quantity:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'An error occurred while updating the quantity.',
+                    });
+                }
+            });
+        });
+
+
+        // document.querySelectorAll('.quantity-control').forEach((control) => {
+        //     const decrementBtn = control.querySelector('.decrement');
+        //     const incrementBtn = control.querySelector('.increment');
+        //     const quantityDisplay = control.querySelector('.quantity-display');
+
+        //     decrementBtn.addEventListener('click', () => {
+        //         let currentQuantity = parseInt(quantityDisplay.textContent, 10);
+        //         if (currentQuantity > 1) {
+        //             quantityDisplay.textContent = currentQuantity - 1;
+        //         }
+        //     });
+
+        //     incrementBtn.addEventListener('click', () => {
+        //         let currentQuantity = parseInt(quantityDisplay.textContent, 10);
+        //         quantityDisplay.textContent = currentQuantity + 1;
+        //     });
+        // });
+
+
+        // // Get all remove buttons
+        // const removeButtons = document.querySelectorAll('.remove-btn');
+
+        // // Loop through each remove button and add an event listener
+        // removeButtons.forEach(button => {
+        //     button.addEventListener('click', async function () {
+        //         const itemId = this.getAttribute('data-item-id');
+        //         console.log(itemId);
+
+
+        //         try {
+        //             const response = await fetch(`/user/cart/remove/${itemId}`, {
+        //                 method: 'DELETE',
+        //                 headers: {
+        //                     'Content-Type': 'application/json',
+        //                 },
+        //             });
+
+        //             if (response.ok) {
+        //                 // Successfully deleted, you can remove the row from the DOM
+        //                 this.closest('tr').remove(); // Assuming the <td> is inside a <tr>
+        //             } else {
+        //                 alert('Error deleting item');
+        //             }
+        //         } catch (error) {
+        //             console.error('Error:', error);
+        //             alert('An error occurred while deleting the item');
+        //         }
+        //     });
+        // });
+
+
+        // // Add event listeners to increment and decrement buttons
+        // document.querySelectorAll('.increment, .decrement').forEach(button => {
+        //     button.addEventListener('click', async function () {
+        //         const itemId = this.getAttribute('data-item-id'); // Get the item ID
+        //         const action = this.classList.contains('increment') ? 'increment' : 'decrement'; // Determine action
+
+        //         try {
+        //             // Send a request to the server to update the quantity
+        //             const response = await fetch('/user/cart/update-quantity', {
+        //                 method: 'POST',
+        //                 headers: {
+        //                     'Content-Type': 'application/json',
+        //                 },
+        //                 body: JSON.stringify({ itemId, action }),
+        //             });
+
+        //             const data = await response.json();
+
+        //             if (response.ok) {
+        //                 // Update the quantity display
+        //                 const quantityDisplay = this.parentElement.querySelector('.quantity-display');
+        //                 quantityDisplay.textContent = data.quantity;
+        //             } else {
+        //                 alert(data.message); // Show error message
+        //             }
+        //         } catch (error) {
+        //             console.error('Error updating quantity:', error);
+        //             alert('An error occurred while updating quantity');
+        //         }
+        //     });
+        // });
+
+
+
+
+    </script>
+</body>
+
+</html>
