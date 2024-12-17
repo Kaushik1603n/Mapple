@@ -35,6 +35,10 @@ router.patch("/updateProductStatus/:id",productController.editProductStatus)
 router.delete("/deleteProductImage/:productId",productController.deleteProductImage)
 router.delete("/deleteProduct/:id",productController.deleteProduct)
 
+router.get("/orders",adminController.loadOrders)
+router.get("/cancelReturn",adminController.loadCancelReturn);
+router.post("/rejectCancelRequest",adminController.rejectCancelRequest);
+router.post("/acceptRequest",adminController.acceptRequest);
 
 
 

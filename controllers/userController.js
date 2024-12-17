@@ -5,8 +5,10 @@ const env = require("dotenv").config();
 const bcrypt = require("bcrypt");
 const Product = require("../models/productSchema");
 const address = require("../models/addressSchema");
-const { log } = require("console");
 const cart = require("../models/cartSchema");
+const order = require("../models/orderSchema");
+const { log } = require("console");
+const { render } = require("ejs");
 
 const loadHomePage = async (req, res) => {
   req.session.user = {
@@ -552,7 +554,7 @@ const loadUserAccount = async (req, res) => {
   }
   try {
     const findUser = await User.findById(userData._id);
-    console.log(findUser);
+    // console.log(findUser);
 
     res.render("user/userAccount", { userData: findUser || {} });
   } catch (error) {
@@ -659,7 +661,7 @@ const addAddress = async (req, res) => {
     // console.log(userAddress);
 
     const addressLimit = userAddress.address.length;
-    console.log(addressLimit);
+    // console.log(addressLimit);
 
     if (addressLimit >= 5) {
       return res.status(400).json({ message: "Only store 5 address" });
@@ -711,6 +713,77 @@ const editAddress = async (req, res) => {
   } catch (error) {
     console.error("Error updating address:", error);
     res.status(500).send({ error: "Failed to update address" });
+  }
+};
+const loadOrders = async (req, res) => {
+  const userData = req.session.user;
+  const userId = userData._id;
+  try {
+    const orderedItem = await order.find({ userId });
+    // console.log(orderedItem);
+
+    res.render("user/orders", { orders: orderedItem || [] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Failed get Orders" });
+  }
+};
+const loadOrdersDetails = async (req, res) => {
+  const userData = req.session.user;
+  const userId = userData._id;
+  const id = req.params.id;
+  try {
+    const orderDetails = await order.find({ orderId: id });
+    // console.log(orderDetails);
+
+    res.render("user/orderDetails", { orderDetails: orderDetails || [] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Failed get Orders" });
+  }
+};
+const returnProduct = async (req, res) => {
+  const userData = req.session.user;
+  const userId = userData._id;
+  const { itemId, reason } = req.body;
+  try {
+    await order.updateOne(
+      { 'orderedItem._id': itemId },
+      {
+          $set: {
+              'orderedItem.$.status': 'Return Request',
+              'orderedItem.$.reason': reason,
+          },
+      }
+  );
+
+  res.json({ message: 'Your Return request has been sent to the admin for review.' });
+  } catch (error) {
+    console.error('Error processing request:', error);
+    res.status(500).json({ message: 'Failed to send the request.' });
+  }
+};
+const cancelProduct = async (req, res) => {
+  const userData = req.session.user;
+  const userId = userData._id;
+  const { itemId, reason } = req.body;
+  try {
+    const result = await order.updateOne(
+      { 'orderedItem._id': itemId },
+      {
+          $set: {
+              'orderedItem.$.status': 'Cancel Request',
+              'orderedItem.$.reason': reason,
+          },
+      }
+  );
+  // console.log(result);
+  
+
+  res.json({ success: 'Your Cancel request has been sent to the admin for review.' });
+  } catch (error) {
+    console.error('Error processing request:', error);
+    res.status(500).json({ message: 'Failed to send the request.' });
   }
 };
 
@@ -794,7 +867,7 @@ const loadAddCart = async (req, res) => {
     // const items = cartItems.items;
     const userCart = await cart.findOne({ userId }).populate("items.productId");
 
-    res.render("user/cart", { userCart });
+    res.render("user/cart", { userCart: userCart || [] });
   } catch (error) {}
 };
 
@@ -806,11 +879,11 @@ const removeCartItem = async (req, res) => {
     const cartItems = await cart
       .findOne({ userId })
       .populate("items.productId");
-    console.log(cartItems);
+    // console.log(cartItems);
     const updatedItems = cartItems.items.filter(
       (item) => item._id.toString() !== id
     );
-    console.log(updatedItems);
+    // console.log(updatedItems);
 
     cartItems.items = updatedItems;
     await cartItems.save();
@@ -860,6 +933,112 @@ const updatequantity = async (req, res) => {
   }
 };
 
+const loadCheckout = async (req, res) => {
+  const userData = req.session.user;
+  const userId = userData._id;
+  try {
+    let userAddress = await address.findOne({ userId: userId });
+    // console.log(userAddress);
+    const userCart = await cart.findOne({ userId });
+    // console.log(userCart);
+
+    res.render("user/checkOut", { userAddress, userCart });
+  } catch (error) {}
+};
+
+const placeOrder = async (req, res) => {
+  const userData = req.session.user;
+  const userId = userData._id;
+  try {
+    const {
+      orderedItem,
+      deliveryAddress,
+      billingDetails,
+      paymentMethod,
+      status,
+      couponApplied,
+    } = req.body;
+
+    // console.log(orderedItem);
+
+    if (!orderedItem || orderedItem.length === 0) {
+      return res.status(400).json({ error: "Ordered items are required." });
+    }
+    if (!deliveryAddress || !billingDetails || !paymentMethod) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+    let finalAmount = 0;
+    let totalPrice = 0;
+    const orderedProduct = [];
+    for (const item of orderedItem) {
+      const product = await Product.findById(item.product);
+      if (!product) {
+        return res
+          .status(404)
+          .json({ error: `Product with ID ${item.product} not found.` });
+      }
+
+      totalPrice += item.quantity * product.regularPrice;
+      finalAmount += item.quantity * item.price;
+      orderedProduct.push({
+        product: product._id,
+        productName: product.productName,
+        firstImage: product.productImage[0],
+        productColor: product.color,
+        productStorage: product.variant,
+        productProcessor: product.processor,
+        description: product.description,
+        quantity: item.quantity,
+        price: item.price,
+        total: item.quantity * item.price,
+      });
+    }
+    const orderId = ` ORD${Date.now()}`;
+    const newOrder = await order.create({
+      orderId: orderId,
+      userId: userId,
+      orderedItem: orderedProduct,
+      totalPrice,
+      discount: totalPrice - finalAmount,
+      finalAmount,
+      deliveryAddress: deliveryAddress,
+      billingDetails: billingDetails,
+      invoiceDate: new Date(),
+      status: status,
+      couponApplied: couponApplied || false,
+      paymentMethod,
+    });
+
+    if (!newOrder) {
+      return res.status(404).json({ error: "Order not placed" });
+    }
+
+    for (const item of orderedProduct) {
+      // const updatedProduct = await Product.findById(item.product);
+      const updatedProduct = await Product.findByIdAndUpdate(
+        item.product,
+        { $inc: { quantity: -item.quantity } },
+        { new: true }
+      );
+      if (updatedProduct && updatedProduct.quantity === 0) {
+        // If quantity reaches 0, set the status to "out of stock"
+        await Product.findByIdAndUpdate(item.product, {
+          $set: { status: "Out of stock" },
+        });
+        console.log(`Product ${item.product} is now out of stock.`);
+      }
+      // console.log(updatedProduct);
+    }
+
+    await cart.findOneAndDelete({ userId: userId });
+
+    // console.log("success");
+    res.status(404).json({ message: "Order placed successfully" });
+  } catch (error) {
+    console.error("Error creating order:", error);
+    // throw err;
+  }
+};
 const pageNotFount = async (req, res) => {
   try {
     res.render("user/pageNotFount");
@@ -894,10 +1073,17 @@ module.exports = {
   addAddress,
   deleteAddress,
   editAddress,
+  loadOrders,
+  loadOrdersDetails,
+  returnProduct,
+  cancelProduct,
 
   loadProductDetails,
   addCart,
   loadAddCart,
   removeCartItem,
   updatequantity,
+
+  loadCheckout,
+  placeOrder,
 };

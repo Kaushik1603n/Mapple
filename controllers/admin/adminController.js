@@ -3,6 +3,8 @@ const User = require("../../models/userSchema");
 const Category = require("../../models/categorySchema");
 const bcrypt = require("bcrypt");
 const { log } = require("console");
+const product = require("../../models/productSchema");
+const order = require("../../models/orderSchema");
 
 const pageerror = (req, res) => {
   res.render("pageerror");
@@ -86,8 +88,8 @@ const loadCustomer = async (req, res) => {
       $and: [
         {
           $or: [
-            { name: new RegExp(searchQuery, "i") }, 
-            { email: new RegExp(searchQuery, "i") }, 
+            { name: new RegExp(searchQuery, "i") },
+            { email: new RegExp(searchQuery, "i") },
           ],
         },
       ],
@@ -97,10 +99,10 @@ const loadCustomer = async (req, res) => {
       query.$and.push({ isBlock: isBlockFilter === "true" });
     }
 
-    const totalCustomers = await User.countDocuments(query); 
+    const totalCustomers = await User.countDocuments(query);
     const user = await User.find(query).skip(skip).limit(limit);
 
-    const totalPages = Math.ceil(totalCustomers / limit); 
+    const totalPages = Math.ceil(totalCustomers / limit);
 
     res.render("admin/customer", {
       user,
@@ -288,7 +290,7 @@ const updateCustomer = async (req, res) => {
       ? await securePassword(password)
       : findUser.password;
 
-    const isBlock = status === "true"; 
+    const isBlock = status === "true";
     const result = await User.updateOne(
       { _id: _id },
       {
@@ -326,10 +328,10 @@ const loadcategory = async (req, res) => {
       .limit(limit);
 
     const totalCategories = await Category.countDocuments();
-    const totalPages = Math.ceil(totalCategories / limit); 
+    const totalPages = Math.ceil(totalCategories / limit);
 
     const successMessage = req.session.successMessage || null;
-    req.session.successMessage = null; 
+    req.session.successMessage = null;
 
     res.render("admin/category", {
       category: categoryData,
@@ -350,7 +352,7 @@ const loadAddCategory = async (req, res) => {
   }
   try {
     const successMessage = req.session.successMessage || null;
-    req.session.successMessage = null; 
+    req.session.successMessage = null;
     res.render("admin/addCategory", { success: successMessage });
   } catch (error) {
     console.log("addCategory error:", error);
@@ -422,7 +424,7 @@ const editCategory = async (req, res) => {
 
     const booleanValue = categoryStatus === "list";
     const result = await Category.updateOne(
-      { _id: req.body.id }, 
+      { _id: req.body.id },
       { name: trimmedName, description, status: booleanValue }
     );
 
@@ -502,6 +504,152 @@ const loadAddProducts = async (req, res) => {
     res.redirect("/admin/pageerror");
   }
 };
+const loadOrders = async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect("/admin/login");
+  }
+  try {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 5;
+    const skip = (page - 1) * limit;
+
+    const totalOrders = await order.countDocuments();
+
+    const orders = await order.aggregate([
+      { $unwind: "$orderedItem" },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    res.render("admin/orders", {
+      orders,
+      currentPage: page,
+      totalPages,
+      totalOrders,
+    });
+  } catch (error) {
+    console.log("products error:", error);
+    res.redirect("/admin/pageerror");
+  }
+};
+const loadCancelReturn = async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect("/admin/login");
+  }
+  try {
+    const orders = await order.aggregate([
+      // Match documents containing orderedItem with status "Return Request" or "Cancel Request"
+      {
+        $match: {
+          "orderedItem.status": { $in: ["Return Request", "Cancel Request"] },
+        },
+      },
+      // Project to filter only matching orderedItem elements
+      {
+        $project: {
+          orderId: 1, // Include other fields as needed
+          createdAt: 1,
+          orderedItem: {
+            $filter: {
+              input: "$orderedItem", // Array to filter
+              as: "item", // Alias for array element
+              cond: {
+                $in: ["$$item.status", ["Return Request", "Cancel Request"]],
+              }, // Condition to include the element
+            },
+          },
+        },
+      },
+      // Sort the orders by createdAt descending
+      {
+        $sort: { createdAt: -1 },
+      },
+    ]);
+
+    console.log(orders);
+
+    // console.log(orders);
+
+    res.render("admin/cancelReturn", { orders });
+  } catch (error) {
+    console.log("products error:", error);
+    res.redirect("/admin/pageerror");
+  }
+};
+const rejectCancelRequest = async (req, res) => {
+  const { productId, orderId, rejectReason } = req.body;
+  // console.log(req.body);
+
+  try {
+    const updatedOrder = await order.findOneAndUpdate(
+      { _id: orderId, "orderedItem._id": productId },
+      {
+        $set: {
+          "orderedItem.$.status": "pending",
+          "orderedItem.$.rejectionReason": rejectReason,
+        },
+      },
+      { new: true }
+    );
+    // console.log(updatedOrder);
+    res
+      .status(200)
+      .json({ success: true, message: "Cancel request rejected successfully" });
+  } catch (error) {
+    console.log("cancel error:", error);
+    res.redirect("/admin/pageerror");
+  }
+};
+const acceptRequest = async (req, res) => {
+  const { orderId, productId, quantity, itemId, status } = req.body;
+  // console.log(req.body);
+
+  try {
+    let newStatus;
+    if (status == "Cancel Request") newStatus = "Canceled";
+    if (status == "Return Request") newStatus = "Returned";
+    // console.log(newStatus);
+
+    const prdQuantity = parseInt(quantity);
+    const products = await product.findOne({ _id: productId });
+
+    const updatedStatus = await order.findOneAndUpdate(
+      { "orderedItem._id": itemId },
+      {
+        $set: {
+          "orderedItem.$.status": newStatus,
+        },
+      },
+      { new: true }
+    );
+
+    const updatedOrder = await product.findOneAndUpdate(
+      { _id: productId },
+      {
+        $inc: {
+          quantity: prdQuantity,
+        },
+      },
+      { new: true }
+    );
+    // console.log(updatedOrder);
+    res
+      .status(200)
+      .json({ success: true, message: "Request Accept successfully" });
+
+    // if (["Delivered", "Cancel", "Returned"].includes(product.status)) {
+    //   return res.status(400).json({
+    //     message: `Status cannot be updated as it is already '${product.status}'.`,
+    //   });
+    // }
+  } catch (error) {
+    console.log("cancel error:", error);
+    res.redirect("/admin/pageerror");
+  }
+};
 
 const logout = (req, res) => {
   try {
@@ -541,4 +689,9 @@ module.exports = {
   loadAddProducts,
   pageerror,
   logout,
+
+  loadOrders,
+  loadCancelReturn,
+  rejectCancelRequest,
+  acceptRequest,
 };

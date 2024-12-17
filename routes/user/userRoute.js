@@ -33,11 +33,18 @@ router.get("/address", userController.userAddress);
 router.post("/addAddress", userController.addAddress);
 router.delete("/address/delete/:id", userController.deleteAddress);
 router.put("/address/edit/:id", userController.editAddress);
+router.get("/orders", userController.loadOrders);
+router.get("/orderDetails/:id", userController.loadOrdersDetails);
+router.post("/returnProduct", userController.returnProduct);
+router.post("/cancelProduct", userController.cancelProduct);
 
 router.post("/cart", userController.addCart);
 router.get("/cart", userController.loadAddCart);
 router.delete("/cart/remove/:id", userController.removeCartItem);
 router.post("/cart/update-quantity", userController.updatequantity);
+
+router.get("/checkout", userController.loadCheckout);
+router.post("/placeOrder", userController.placeOrder);
 
 router.get(
   "/auth/google",
