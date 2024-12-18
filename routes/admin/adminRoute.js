@@ -39,6 +39,7 @@ router.get("/orders",adminController.loadOrders)
 router.get("/cancelReturn",adminController.loadCancelReturn);
 router.post("/rejectCancelRequest",adminController.rejectCancelRequest);
 router.post("/acceptRequest",adminController.acceptRequest);
+router.patch("/updateOrderStatus/:itemId",adminController.updateOrderStatus);
 
 
 

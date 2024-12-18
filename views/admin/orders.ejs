@@ -106,9 +106,9 @@
                                         <td>₹<%= order.orderedItem.total.toLocaleString() %>
                                         </td>
                                         <td>
-                                            <select class="form-select form-select-sm" aria-label="Status"
-                                                <%=["Delivered", "Cancel" , "Returned" ].includes(order.orderedItem.status)
-                                                ? "disabled" : "" %>>
+                                            <select class="form-select form-select-sm" aria-label="Status" onchange="updateOrderStatus('<%= order.orderedItem._id %>', this.value)"
+                                                <%=["Delivered", "Canceled" , "Returned" ].includes(order.orderedItem.status)
+                                                ? "disabled" : "" %> >
                                                 <option value="pending" <%=order.orderedItem.status==='pending'
                                                     ? 'selected' : '' %>
                                                     >Pending</option>
@@ -182,6 +182,34 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
+        <script>
+              function updateOrderStatus(itemId, status) {
+            if (confirm("Are you sure you want to change the Order status?")) {
+                console.log(itemId,status);
+                
+                fetch(`/admin/updateOrderStatus/${itemId}`, {
+                    method: 'PATCH', // PATCH is appropriate for partial updates
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: status }), // Adjust based on your backend logic
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Order status updated successfully!');
+                        } else {
+                            alert('Failed to update Order status.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again.');
+                    });
+            }
+        }
+
+        </script>
     <!-- <script>
 
         function updateProductStatus(prdId, status) {

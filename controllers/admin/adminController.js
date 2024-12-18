@@ -651,6 +651,31 @@ const acceptRequest = async (req, res) => {
   }
 };
 
+const updateOrderStatus = async (req, res) => {
+  const { itemId } = req.params;
+  const { status } = req.body;
+  // console.log(itemId, status);
+  try {
+    // if (["Delivered", "Cancel", "Returned"].includes(product.status)) {
+    //   return res.status(400).json({
+    //     message: `Status cannot be updated as it is already '${product.status}'.`,
+    //   });
+    // }
+    const updateStatus = await order.findOneAndUpdate(
+      { "orderedItem._id": itemId },
+      {
+        $set: {
+          "orderedItem.$.status": status,
+        },
+      },
+      { new: true }
+    );
+    // console.log(prd);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const logout = (req, res) => {
   try {
     req.session.destroy((err) => {
@@ -694,4 +719,5 @@ module.exports = {
   loadCancelReturn,
   rejectCancelRequest,
   acceptRequest,
+  updateOrderStatus,
 };
