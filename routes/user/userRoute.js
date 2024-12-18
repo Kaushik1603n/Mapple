@@ -8,6 +8,7 @@ const { render } = require("ejs");
 router.get("/pageNotFount", userController.pageNotFount);
 
 router.get("/", userController.loadHomePage);
+router.get("/shop", userController.loadShope);
 router.get("/signup", auth.isLogin, userController.loadSignup);
 router.post("/signup", userController.signup);
 router.get("/verificationOTP", auth.isLogin, userController.loadVerifyOTP);

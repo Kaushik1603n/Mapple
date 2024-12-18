@@ -1,3 +1,120 @@
+<style>
+    * {
+    margin: 0;
+    padding: 0;
+}
+
+    .header-section {
+        position: fixed;
+        z-index: 100;
+    }
+
+    .navbar,
+    .navgb {
+        background: #464545;
+    }
+
+    .navbar-brand,
+    .offcanvas-title {
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .login-button {
+        background-color: #fff;
+        color: #464545;
+        font-size: 14px;
+        padding: 8px 20px;
+        border-radius: 50px;
+        text-decoration: none;
+        transition: 0.3s background-color;
+    }
+
+    .login-button:hover {
+        background-color: #f1f1f1cb;
+    }
+
+    .navbar-toggler {
+        border: none;
+        font-size: 1.25rem;
+    }
+
+    .navbar-toggler:focus,
+    .btn-close:focus {
+        box-shadow: none;
+        outline: none;
+    }
+
+    .navbar-toggler-icon,
+    .btn-close {
+        background-color: #a5a5a5;
+        border-radius: 5px
+    }
+
+    .navbar-toggler-icon:hover,
+    .btn-close:hover {
+        background-color: #dfdfdf;
+    }
+
+    .nav-link {
+        color: #fff;
+        font-weight: 500;
+
+    }
+
+    .nav-link:hover {
+        color: #fff;
+    }
+
+    .icon-bg {
+        color: #fff;
+    }
+
+    /* Style for the logged-in user */
+    .sign-in-link {
+        font-size: 16px;
+        color: #007bff;
+        text-decoration: none;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+
+    .sign-in-link:hover {
+        background-color: #e2e6ea;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        min-width: 100px;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+    /* Style for the login button (when the user is not logged in) */
+    .login-button {
+        font-size: 16px;
+        color: #ffffff;
+        background-color: #007bff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+
+    .login-button:hover {
+        background-color: #0056b3;
+    }
+</style>
 <header class="header-section">
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
@@ -15,7 +132,7 @@
                             <a class="nav-link mx-lg-2 " aria-current="page" href="/user">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link mx-lg-2" href="#">Shop</a>
+                            <a class="nav-link mx-lg-2" href="/user/shop">Shop</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link mx-lg-2" href="#">About Us</a>
@@ -34,7 +151,7 @@
                     <i class="fa-solid fa-user"></i>
                 </a>
                 <% } %>
-                <a href="/user/cart" class="mx-2 icon-bg"><i class="fa-solid fa-cart-shopping"></i></a>
+                    <a href="/user/cart" class="mx-2 icon-bg"><i class="fa-solid fa-cart-shopping"></i></a>
                     <% if (locals.user) { %>
                         <div class="dropdown">
                             <a href="#" class="sign-in-link">

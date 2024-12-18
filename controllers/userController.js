@@ -101,6 +101,87 @@ const loadHomePage = async (req, res) => {
   }
 };
 
+const loadShope = async (req, res) => {
+  const user = req.session.user;
+  try {
+    const { search, variant, sortOption, priceRange } = req.query; // Get search query and variant from the URL
+    let filter = {}; // Initialize filter
+
+    if (search) {
+      filter = {
+        $or: [
+          { productName: new RegExp(search, "i") },
+          { processor: new RegExp(search, "i") },
+        ],
+      };
+    }
+
+    if (variant) {
+      if (Array.isArray(variant)) {
+        filter.variant = { $in: variant };
+      } else {
+        filter.variant = variant;
+      }
+    }
+
+    if (priceRange) {
+      const ranges = Array.isArray(priceRange) ? priceRange : [priceRange];
+
+      // Parse price ranges into filter conditions
+      const priceConditions = ranges.map((range) => {
+        const [min, max] = range.split("-").map(Number); // Convert "50k-75k" to [50000, 75000]
+        return { salePrice: { $gte: min , $lte: max  } }; // Assuming prices are in thousands
+      });
+
+      // Combine price conditions with $or
+      filter.$or = [...(filter.$or || []), ...priceConditions];
+      // console.log(priceConditions);
+    }
+    
+
+    let sort = {};
+    if (sortOption === "lowToHigh") {
+      sort = { salePrice: 1 };
+    } else if (sortOption === "highToLow") {
+      sort = { salePrice: -1 };
+    } else if (sortOption === "aToZ") {
+      sort = { productName: -1 };
+    } else if (sortOption === "zToA") {
+      sort = { productName: 1 };
+    } else {
+      sort = { createdAt: -1 };
+    }
+// console.log(priceRange);
+
+    const allProduct = await Product.find(filter)
+      .populate("category")
+      .sort(sort);
+
+    if (user) {
+      res.render("user/shop", {
+        user: user,
+        allProduct: allProduct,
+        variant:variant || [],
+        search,
+        sortOption: sortOption || {},
+        priceRange:priceRange||[]
+
+      });
+    } else {
+      res.render("user/shop", {
+        allProduct: allProduct,
+        variant: variant || [],
+        search,
+        sortOption: sortOption || {},
+        priceRange:priceRange||[]
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 const loadSignup = async (req, res) => {
   try {
     return res.render("user/signup");
@@ -748,19 +829,21 @@ const returnProduct = async (req, res) => {
   const { itemId, reason } = req.body;
   try {
     await order.updateOne(
-      { 'orderedItem._id': itemId },
+      { "orderedItem._id": itemId },
       {
-          $set: {
-              'orderedItem.$.status': 'Return Request',
-              'orderedItem.$.reason': reason,
-          },
+        $set: {
+          "orderedItem.$.status": "Return Request",
+          "orderedItem.$.reason": reason,
+        },
       }
-  );
+    );
 
-  res.json({ message: 'Your Return request has been sent to the admin for review.' });
+    res.json({
+      message: "Your Return request has been sent to the admin for review.",
+    });
   } catch (error) {
-    console.error('Error processing request:', error);
-    res.status(500).json({ message: 'Failed to send the request.' });
+    console.error("Error processing request:", error);
+    res.status(500).json({ message: "Failed to send the request." });
   }
 };
 const cancelProduct = async (req, res) => {
@@ -769,21 +852,22 @@ const cancelProduct = async (req, res) => {
   const { itemId, reason } = req.body;
   try {
     const result = await order.updateOne(
-      { 'orderedItem._id': itemId },
+      { "orderedItem._id": itemId },
       {
-          $set: {
-              'orderedItem.$.status': 'Cancel Request',
-              'orderedItem.$.reason': reason,
-          },
+        $set: {
+          "orderedItem.$.status": "Cancel Request",
+          "orderedItem.$.reason": reason,
+        },
       }
-  );
-  // console.log(result);
-  
+    );
+    // console.log(result);
 
-  res.json({ success: 'Your Cancel request has been sent to the admin for review.' });
+    res.json({
+      success: "Your Cancel request has been sent to the admin for review.",
+    });
   } catch (error) {
-    console.error('Error processing request:', error);
-    res.status(500).json({ message: 'Failed to send the request.' });
+    console.error("Error processing request:", error);
+    res.status(500).json({ message: "Failed to send the request." });
   }
 };
 
@@ -1049,6 +1133,7 @@ const pageNotFount = async (req, res) => {
 
 module.exports = {
   loadHomePage,
+  loadShope,
   loadSignup,
   signup,
   loadVerifyOTP,
