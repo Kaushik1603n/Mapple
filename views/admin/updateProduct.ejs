@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/stylesheet/addProduct.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
 
 </head>
 
@@ -22,12 +24,12 @@
 
                 <div class="d-flex justify-content-between align-items-center p-2 mb-2 flex-wrap head-container">
                     <nav aria-label="breadcrumb" class="p-1 m-0">
-                      <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item text-secondary"><a href="/admin/products">Products</a></li>
-                        <li class="breadcrumb-item text-dark fw-bold" aria-current="page">Edit Product</li>
-                      </ol>
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item text-secondary"><a href="/admin/products">Products</a></li>
+                            <li class="breadcrumb-item text-dark fw-bold" aria-current="page">Edit Product</li>
+                        </ol>
                     </nav>
-                  </div>
+                </div>
                 <div class="card mt-4">
                     <div class="card-body">
                         <form id="product-form" enctype="multipart/form-data">
@@ -151,8 +153,8 @@
                                             <div class="form-check me-2">
                                                 <input class="form-check-input" type="radio" name="color" id="colorDark"
                                                     value="#1D2536" <%=product.color==="#1D2536" ? "checked" : "" %> />
-                                                <label class="form-check-label bg-Midnight rounded-circle" for="colorDark"
-                                                    style="width: 20px; height: 20px;"></label>
+                                                <label class="form-check-label bg-Midnight rounded-circle"
+                                                    for="colorDark" style="width: 20px; height: 20px;"></label>
                                             </div>
                                             <div class="form-check me-2">
                                                 <input class="form-check-input " type="radio" name="color"
@@ -266,6 +268,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <script
         src="https://cdn.tiny.cloud/1/wkrfnuojdmxyunxn2g3og2f4231i3jfuc37wsauemaj2a4u4/tinymce/6/tinymce.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         tinymce.init({
             selector: '#description',
@@ -482,7 +486,7 @@
                 // Validate Images
                 let fileInput = document.getElementById('file-input');
                 let imageCount = `<%= product.productImage.length %>`
-                if (imageArray.length + imageCount < 3) { 
+                if (imageArray.length + imageCount < 3) {
                     showError(fileInput, "Please upload at least 3 images.");
                     validForm = false;
                 }
@@ -518,9 +522,15 @@
 
                 // Final Submission
                 if (!validForm) {
-                    alert("Please correct the errors before submitting the form.");
+                    Swal.fire({
+                        title: 'Form Error!',
+                        text: 'Please correct the errors before submitting the form.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
                     return;
                 }
+
                 console.log("Form validated and ready for submission.");
 
 
@@ -534,23 +544,23 @@
 
                 fetch('/admin/updateProduct', {
                     method: 'PUT',
-                    body: formData, 
+                    body: formData,
                 })
                     .then((response) => {
                         if (response.ok) {
                             return response.json();
                         }
-                        throw new Error('Failed to update the product'); 
+                        throw new Error('Failed to update the product');
                     })
                     .then((data) => {
                         if (data.success) {
-                            showAlert(data.message, "success"); 
+                            showAlert(data.message, "success");
                             setTimeout(() => {
-                                window.location.href = '/admin/products'; 
+                                window.location.href = '/admin/products';
                             }, 3100);
                         } else {
                             console.log(data.message);
-                            showAlert(data.message, "danger"); 
+                            showAlert(data.message, "danger");
                         }
                     })
                     .catch((error) => {
@@ -567,9 +577,9 @@
                 fetch(`/admin/deleteProductImage/${productId}`, {
                     method: 'DELETE',
                     headers: {
-                        'Content-Type': 'application/json', 
+                        'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ imagePath: imagePath }) 
+                    body: JSON.stringify({ imagePath: imagePath })
                 })
                     .then(response => response.json())
                     .then(data => {

@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Account</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
 </head>
 
 <body>
@@ -154,13 +156,13 @@
                                             <label for="new-password" class="form-label">New Password</label>
                                             <div id="error2" class="error-msg text-danger"></div>
                                             <input type="password" class="form-control fw-bold" id="password"
-                                                name="password" placeholder="Password..." >
+                                                name="password" placeholder="Password...">
                                         </div>
                                         <div class="col-lg-6 my-2">
                                             <label for="cpassword" class="form-label">Confirm Password</label>
                                             <div id="error3" class="error-msg text-danger"></div>
                                             <input type="password" class="form-control fw-bold" id="confirm-password"
-                                                name="confirm-password" placeholder="Confirm Password..." >
+                                                name="confirm-password" placeholder="Confirm Password...">
                                         </div>
                                     </div>
 
@@ -176,7 +178,7 @@
 
 
         </div>
-
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener("DOMContentLoaded", () => {
                 const form = document.getElementById("accountForm");
@@ -255,14 +257,32 @@
 
                         const result = await response.json();
                         if (response.ok) {
-                            alert(result.message || "Account updated successfully!");
-                            window.location.reload();
+                            Swal.fire({
+                                title: 'Success!',
+                                text: result.message || "Account updated successfully!",
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.reload(); // Reload the page after confirmation
+                            });
                         } else {
-                            alert(result.message || "An error occurred while updating the account.");
+                            Swal.fire({
+                                title: 'Error!',
+                                text: result.message || "An error occurred while updating the account.",
+                                icon: 'error',
+                                confirmButtonText: 'Try Again'
+                            });
                         }
+
                     } catch (error) {
                         console.error("Error:", error);
-                        alert("Something went wrong. Please try again.");
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Something went wrong. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+
                     }
                 });
             });
@@ -284,10 +304,10 @@
                         formIsValid = false;
                     }
 
-                    const alpha = /[a-zA-Z]/; 
-                    const digit = /\d/;       
-                    const error3 = document.getElementById("error2"); 
-                    const error4 = document.getElementById("error3"); 
+                    const alpha = /[a-zA-Z]/;
+                    const digit = /\d/;
+                    const error3 = document.getElementById("error2");
+                    const error4 = document.getElementById("error3");
 
                     // New Password Validation
                     if (newPassword.length < 8) {
@@ -338,14 +358,32 @@
 
                         const result = await response.json();
                         if (response.ok) {
-                            alert(result.message || "Password updated successfully!");
-                            window.location.reload();  // Reload the page or redirect as needed
+                            Swal.fire({
+                                title: 'Success!',
+                                text: result.message || "Password updated successfully!",
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.reload();  // Reload the page after the user clicks 'OK'
+                            });
                         } else {
-                            alert(result.message || "An error occurred while updating the password.");
+                            Swal.fire({
+                                title: 'Error!',
+                                text: result.message || "An error occurred while updating the password.",
+                                icon: 'error',
+                                confirmButtonText: 'Try Again'
+                            });
                         }
+
                     } catch (error) {
                         console.error("Error:", error);
-                        alert("Something went wrong. Please try again.");
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Something went wrong. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+
                     }
                 });
             });

@@ -8,6 +8,8 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
 
     <style>
         /* Custom Styles */
@@ -331,17 +333,25 @@
                                     </table>
                                 </div>
 
-                            
+
             </div>
         </div>
 
         <!-- Bootstrap Bundle with Popper -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
         <script>
             function processReturn(itemId) {
                 const reason = document.getElementById(`returnReason${itemId}`).value;
                 if (!reason) {
-                    alert("Please provide a reason for the return.");
+                    Swal.fire({
+                        title: 'Input Required!',
+                        text: 'Please provide a reason for the return.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+
                     return;
                 }
 
@@ -355,12 +365,25 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        alert(data.message || "Product return processed successfully.");
-                        location.reload(); // Optionally reload the page or update the UI
+                        Swal.fire({
+                            title: 'Success!',
+                            text: data.message || "Product return processed successfully.",
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            location.reload(); // Reload the page after the user clicks "OK"
+                        });
+
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert("An error occurred while processing the return.");
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while processing the return.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+
                     });
             }
             function cancelProducts(itemId) {
@@ -369,7 +392,13 @@
                 const reason = reasonInput ? reasonInput.value.trim() : '';
 
                 if (!reason) {
-                    alert("Please provide a reason for the cancellation.");
+                    Swal.fire({
+                        title: 'Input Required!',
+                        text: 'Please provide a reason for the cancellation.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+
                     return;
                 }
 
@@ -387,15 +416,33 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert(data.success || " products cancelled successfully.");
-                            location.reload();
+                            Swal.fire({
+                                title: 'Success!',
+                                text: data.success || "Products cancelled successfully.",
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                location.reload(); // Reload the page after the user clicks "OK"
+                            });
                         } else {
-                            alert(data.message || "Failed to cancel the products.");
+                            Swal.fire({
+                                title: 'Error!',
+                                text: data.message || "Failed to cancel the products.",
+                                icon: 'error',
+                                confirmButtonText: 'Try Again'
+                            });
                         }
+
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert("An error occurred while cancelling all products.");
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while cancelling all products.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+
                     });
             }
         </script>

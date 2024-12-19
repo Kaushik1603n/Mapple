@@ -465,13 +465,15 @@ const deleteCategory = async (req, res) => {
     // console.log(result);
 
     if (result) {
-      res
-        .status(200)
-        .json({ success: true, message: "Category deleted successfully." });
+      res.status(200).json({
+        success: true,
+        message: "Category deleted successfully.",
+      });
     } else {
-      return res
-        .status(404)
-        .json({ success: false, message: "Category not found." });
+      res.status(404).json({
+        success: false,
+        message: "Category not found.",
+      });
     }
   } catch (error) {
     console.error("Error deleting category:", error);
@@ -670,7 +672,18 @@ const updateOrderStatus = async (req, res) => {
       },
       { new: true }
     );
-    // console.log(prd);
+    if (updateStatus) {
+      res.status(200).json({
+        success: true,
+        message: "Order status updated successfully!",
+        data: updateStatus,
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: "Order not found or status update failed.",
+      });
+    }
   } catch (error) {
     console.log(error);
   }

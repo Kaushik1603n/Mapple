@@ -9,6 +9,7 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/stylesheet/customer.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
         #alertBox {
             position: fixed;
@@ -37,7 +38,7 @@
             </div>
             <!-- Main Content -->
             <div class="container-fluid p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4 p-2 bg-white">
+                <!-- <div class="d-flex justify-content-between align-items-center mb-4 p-2 bg-white">
                     <form action="" method="GET" class="d-flex">
                         <input type="text" name="search" class="form-control me-2" placeholder="Search" value="">
                         <button type="submit" class="btn btn-outline-primary">Search</button>
@@ -46,16 +47,14 @@
                         <button class="btn btn-outline-primary me-2">Select Date</button>
                         <button class="btn btn-outline-secondary">Filters</button>
                     </div>
-                </div>
+                </div> -->
 
 
                 <!-- Orders Table -->
                 <div class="main-content">
                     <div class="header d-flex justify-content-between align-items-center mb-4">
                         <h2>Orders</h2>
-                        <div class="header-actions d-flex gap-2">
-                            <a href="/admin/addProduct" class="btn btn-dark">+ Add Product</a>
-                        </div>
+                        
                     </div>
                     <!-- <div class="status-tabs mb-4">
                         <a href="/admin/orders"
@@ -110,7 +109,7 @@
                                                 <div class="form-select form-select-sm" aria-label="Status">
                                                     <%= product.status %>
                                                 </div>
-                                                
+
                                             </td>
                                             <td>
                                                 <%= new Date(order.invoiceDate).toLocaleDateString() %>
@@ -190,8 +189,8 @@
                 </div>
 
 
-                
-             
+
+
             </div>
 
     </div>
@@ -199,6 +198,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         function submitRejectForm(productId) {
             // Get the form and rejection reason
@@ -225,21 +226,38 @@
                 .then(data => {
                     // Handle success response
                     if (data.success) {
-                        alert('Cancel request rejected successfully.');
-                        location.reload();
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Cancel request rejected successfully.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            location.reload(); // Reload the page after confirmation
+                        });
                     } else {
-                        alert('Error rejecting cancel request: ' + data.message);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Error rejecting cancel request: ' + data.message,
+                            icon: 'error',
+                            confirmButtonText: 'Try Again'
+                        });
                     }
+
                 })
                 .catch(error => {
                     // Handle error
                     console.error('Error:', error);
-                    alert('An error occurred while processing your request.');
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred while processing your request. Please try again later.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                 });
         }
 
-        function submitAcceptForm(orderId, productId, quantity, itemId,status) {
-            console.log(orderId, productId, quantity,status);
+        function submitAcceptForm(orderId, productId, quantity, itemId, status) {
+            console.log(orderId, productId, quantity, status);
             const data = {
                 orderId: orderId,
                 productId: productId,
@@ -257,16 +275,33 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Accept request successfully.');
-                        location.reload();
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Accept request processed successfully.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            location.reload(); // Reload the page after confirmation
+                        });
                     } else {
-                        alert('Error  Accept request: ' + data.message);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Error processing accept request: ' + data.message,
+                            icon: 'error',
+                            confirmButtonText: 'Try Again'
+                        });
                     }
+
                 })
                 .catch(error => {
                     // Handle error
                     console.error('Error:', error);
-                    alert('An error occurred while processing your request.');
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred while processing your request. Please try again later.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                 });
 
         }
