@@ -2,22 +2,46 @@ const { error } = require("console");
 const Admin = require("../models/adminSchema");
 const User = require("../models/userSchema");
 
+// const userAuth = (req, res, next) => {
+//   if (req.session.user) {
+//     User.findById(req.session.user._id)
+//       .then((data) => {
+//         if (data && !data.isBlock) {
+//           next();
+//         } else {
+//           res.redirect("/user/login");
+//         }
+//       })
+//       .catch((error) => {
+//         console.log("Error in user auth middleware");
+//         res.status(500).send("Internal sever Error");
+//       });
+//   } else {
+//     res.redirect("/user/login");
+//   }
+// };
+
 const userAuth = (req, res, next) => {
   if (req.session.user) {
-    User.findById(req.session.user)
+    User.findById(req.session.user._id)
       .then((data) => {
-        if (data && !data.isBlock) {
-          next();
+        if (data) {
+          if (!data.isBlock) {
+            return next();
+          } else {
+            req.session.user=null;
+            return res.redirect("/user/login");
+          }
         } else {
-          res.redirect("/user/login");
+          return res.redirect("/user/login");
         }
       })
       .catch((error) => {
-        console.log("Error in user auth middleware");
-        res.status(500).send("Internal sever Error");
+        console.log("Error in user auth middleware:", error);
+        return res.status(500).send("Internal server error");
       });
   } else {
-    res.redirect("/user/login");
+    return res.redirect("/user/login");
   }
 };
 
@@ -48,7 +72,6 @@ const storeSessionEmail = (req, res, next) => {
   if (req.user) {
     req.session.user = req.user;
     // console.log(req.user.name);
-     
   }
   next();
 };

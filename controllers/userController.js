@@ -11,21 +11,6 @@ const { log } = require("console");
 const { render } = require("ejs");
 
 const loadHomePage = async (req, res) => {
-  req.session.user = {
-    _id: "675131e90f4b6249b7e9782c",
-    name: "Kaushik N",
-    email: "kk@gmail.com",
-    phone: "8943548239",
-    password: "$2b$10$.m4kLIpGaRQFS3OruhCbI.fRfZbk8zmFgi1CB8VDgXRzkT0BJqAUq",
-    isBlock: false,
-    wallet: [],
-    orderHistory: [],
-    secondaryEmail: "kk@gmail.com",
-    redeemedUser: [],
-    createAt: "2024-12-05T04:54:01.708Z",
-    searchHistory: [],
-    __v: 0,
-  };
   try {
     const user = req.session.user;
     // const products = await Product.aggregate([{ $sample: { size: 8 } }]);
@@ -130,14 +115,13 @@ const loadShope = async (req, res) => {
       // Parse price ranges into filter conditions
       const priceConditions = ranges.map((range) => {
         const [min, max] = range.split("-").map(Number); // Convert "50k-75k" to [50000, 75000]
-        return { salePrice: { $gte: min , $lte: max  } }; // Assuming prices are in thousands
+        return { salePrice: { $gte: min, $lte: max } }; // Assuming prices are in thousands
       });
 
       // Combine price conditions with $or
       filter.$or = [...(filter.$or || []), ...priceConditions];
       // console.log(priceConditions);
     }
-    
 
     let sort = {};
     if (sortOption === "lowToHigh") {
@@ -151,7 +135,7 @@ const loadShope = async (req, res) => {
     } else {
       sort = { createdAt: -1 };
     }
-// console.log(priceRange);
+    // console.log(priceRange);
 
     const allProduct = await Product.find(filter)
       .populate("category")
@@ -161,11 +145,10 @@ const loadShope = async (req, res) => {
       res.render("user/shop", {
         user: user,
         allProduct: allProduct,
-        variant:variant || [],
+        variant: variant || [],
         search,
         sortOption: sortOption || {},
-        priceRange:priceRange||[]
-
+        priceRange: priceRange || [],
       });
     } else {
       res.render("user/shop", {
@@ -173,7 +156,7 @@ const loadShope = async (req, res) => {
         variant: variant || [],
         search,
         sortOption: sortOption || {},
-        priceRange:priceRange||[]
+        priceRange: priceRange || [],
       });
     }
   } catch (error) {
@@ -739,14 +722,10 @@ const addAddress = async (req, res) => {
     const { ...addressData } = req.body;
 
     let userAddress = await address.findOne({ userId });
-    // console.log(userAddress);
+    console.log(userData);
+    console.log(userId);
 
-    const addressLimit = userAddress.address.length;
     // console.log(addressLimit);
-
-    if (addressLimit >= 5) {
-      return res.status(400).json({ message: "Only store 5 address" });
-    }
 
     if (!userAddress) {
       userAddress = new address({
@@ -754,6 +733,10 @@ const addAddress = async (req, res) => {
         address: [addressData],
       });
     } else {
+      const addressLimit = userAddress.address.length;
+      if (addressLimit >= 5) {
+        return res.status(400).json({ message: "Only store 5 address" });
+      }
       userAddress.address.push(addressData);
     }
 

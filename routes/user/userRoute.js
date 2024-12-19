@@ -8,7 +8,7 @@ const { render } = require("ejs");
 router.get("/pageNotFount", userController.pageNotFount);
 
 router.get("/", userController.loadHomePage);
-router.get("/shop", userController.loadShope);
+router.get("/shop" ,userController.loadShope);
 router.get("/signup", auth.isLogin, userController.loadSignup);
 router.post("/signup", userController.signup);
 router.get("/verificationOTP", auth.isLogin, userController.loadVerifyOTP);
@@ -27,25 +27,25 @@ router.get("/logout", userController.logout);
 
 router.get("/productDetails/:productId", userController.loadProductDetails);
 
-router.get("/account", userController.loadUserAccount);
+router.get("/account",auth.userAuth , userController.loadUserAccount);
 router.post("/account", userController.userAccount);
 router.post("/accountChangePass", userController.accountChangePass);
-router.get("/address", userController.userAddress);
+router.get("/address",auth.userAuth, userController.userAddress);
 router.post("/addAddress", userController.addAddress);
 router.delete("/address/delete/:id", userController.deleteAddress);
 router.put("/address/edit/:id", userController.editAddress);
-router.get("/orders", userController.loadOrders);
-router.get("/orderDetails/:id", userController.loadOrdersDetails);
+router.get("/orders",auth.userAuth, userController.loadOrders);
+router.get("/orderDetails/:id",auth.userAuth, userController.loadOrdersDetails);
 router.post("/returnProduct", userController.returnProduct);
 router.post("/cancelProduct", userController.cancelProduct);
 
 router.post("/cart", userController.addCart);
-router.get("/cart", userController.loadAddCart);
+router.get("/cart",auth.userAuth, userController.loadAddCart);
 router.delete("/cart/remove/:id", userController.removeCartItem);
 router.post("/cart/update-quantity", userController.updatequantity);
 
-router.get("/checkout", userController.loadCheckout);
-router.post("/placeOrder", userController.placeOrder);
+router.get("/checkout",auth.userAuth, userController.loadCheckout);
+router.post("/placeOrder",auth.userAuth, userController.placeOrder);
 
 router.get(
   "/auth/google",

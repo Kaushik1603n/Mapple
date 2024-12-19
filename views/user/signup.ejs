@@ -10,39 +10,40 @@
 </head>
 
 <body>
-  <% if (locals.message && locals.message.length > 0) { %>
-    <div id="alertMessage" class="alert alert-danger alert-dismissible fade show my-2" role="alert" style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1050; text-align: center;">
-        <%= locals.message %>
+  <% if (locals.message && locals.message.length> 0) { %>
+    <div id="alertMessage" class="alert alert-danger alert-dismissible fade show my-2" role="alert"
+      style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1050; text-align: center;">
+      <%= locals.message %>
     </div>
     <% } %>
-  </div>
-  <div class="container">
-    <div class="form-container">
-      <h1>Create an account</h1>
-      <p>Enter your details below</p>
-      <form id="submitform" action="signup" method="POST">
-        <div id="error1" class="error-msg"></div>
-        <input type="text" name="name" id="name" placeholder="Full Name">
-        <div id="error2" class="error-msg"></div>
-        <input type="email" name="email" id="email" placeholder="Email">
-        <div id="error3" class="error-msg"></div>
-        <input type="password" name="password" id="password" placeholder="Password">
-        <div id="error4" class="error-msg"></div>
-        <input type="password" name="cpassword" id="cpassword" placeholder="Confirm Password">
-       
+      </div>
+      <div class="container">
+        <div class="form-container">
+          <h1>Create an account</h1>
+          <p>Enter your details below</p>
+          <form id="submitform" action="signup" method="POST">
+            <div id="error1" class="error-msg"></div>
+            <input type="text" name="name" id="name" placeholder="Full Name">
+            <div id="error2" class="error-msg"></div>
+            <input type="email" name="email" id="email" placeholder="Email">
+            <div id="error3" class="error-msg"></div>
+            <input type="password" name="password" id="password" placeholder="Password">
+            <div id="error4" class="error-msg"></div>
+            <input type="password" name="cpassword" id="cpassword" placeholder="Confirm Password">
+
             <button class="create-account-btn" type="submit">Create Account</button>
             <a href="/user/auth/google" class="google-signup-btn" type="button">
               <img src="/image/Google_Icon.webp" alt="Google Logo"> Sign up with Google
             </a>
-      </form>
-      <p class="login-link">
-        Already have an account? <a href="/user/login">Log in</a> <!-- Dynamic login link -->
-      </p>
-    </div>
-    <div class="image-container">
-      <img src="/image/lap.webp" alt="Placeholder Image"> <!-- Dynamic image path -->
-    </div>
-  </div>
+          </form>
+          <p class="login-link">
+            Already have an account? <a href="/user/login">Log in</a> <!-- Dynamic login link -->
+          </p>
+        </div>
+        <div class="image-container">
+          <img src="/image/lap.webp" alt="Placeholder Image"> <!-- Dynamic image path -->
+        </div>
+      </div>
 </body>
 
 <script>
@@ -58,6 +59,8 @@
   const error4 = document.getElementById("error4");
 
   const submitform = document.getElementById("submitform");
+  const submitButton = document.querySelector("#submitform button[type='submit']");
+
 
 
   function nameValidation(e) {
@@ -125,7 +128,17 @@
       }
       if (error1.innerHTML || error2.innerHTML || error3.innerHTML || error4.innerHTML) {
         e.preventDefault();
+        return
       }
+
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerText = "Submitting...";
+        submitButton.style.backgroundColor = "#cccccc"; 
+        submitButton.style.color = "#ffffff"; 
+        submitButton.style.cursor = "not-allowed";
+      }
+
 
 
     })
@@ -134,13 +147,14 @@
 </script>
 <script>
   window.onload = function () {
-      const alertMessage = document.getElementById("alertMessage");
-      if (alertMessage) {
-          setTimeout(() => {
-              alertMessage.classList.remove("show");
-              alertMessage.classList.add("d-none");
-          }, 4000);
-      }
+    const alertMessage = document.getElementById("alertMessage");
+    if (alertMessage) {
+      setTimeout(() => {
+        alertMessage.classList.remove("show");
+        alertMessage.classList.add("d-none");
+      }, 4000);
+    }
   };
 </script>
+
 </html>

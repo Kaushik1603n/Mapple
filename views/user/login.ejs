@@ -31,10 +31,10 @@
                         </p>
                         <a href="/user/auth/google" class="google-signup-btn" type="button">
                             <img src="/image/Google_Icon.webp" alt="Google Logo"> Sign up with Google
-                          </a>
+                        </a>
             </form>
             <p class="login-link">
-                Don’t have an account? <a href="/user/signup">Sign up</a> 
+                Don’t have an account? <a href="/user/signup">Sign up</a>
             </p>
         </div>
         <div class="image-container">
@@ -50,6 +50,7 @@
         const error2 = document.getElementById("error2");
 
         const submitform = document.getElementById("submitform");
+        const submitButton = document.querySelector("#submitform button[type='submit']");
 
         function emailValidation(e) {
             const emailval = emailid.value.trim();
@@ -81,18 +82,26 @@
 
         }
         document.addEventListener("DOMContentLoaded", function () {
-    submitform.addEventListener("submit", function (e) {
-      emailValidation();
-      passwordValidation();
+            submitform.addEventListener("submit", function (e) {
+                emailValidation();
+                passwordValidation();
 
-      if ( !emailid || !passwordid || !error1 || !error2 || !submitform) {
-        console.log("One or More elements not found");
-      }
-      if (error1.innerHTML || error2.innerHTML ) {
-        e.preventDefault();
-      }
-    })
-  })
+                if (!emailid || !passwordid || !error1 || !error2 || !submitform) {
+                    console.log("One or More elements not found");
+                }
+                if (error1.innerHTML || error2.innerHTML) {
+                    e.preventDefault();
+                    return
+                }
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.innerText = "Submitting...";
+                    submitButton.style.backgroundColor = "#cccccc";
+                    submitButton.style.color = "#ffffff";
+                    submitButton.style.cursor = "not-allowed";
+                }
+            })
+        })
 
 
 

@@ -27,9 +27,9 @@
                     <% } %>
                         <button class="create-account-btn" type="submit">Log In</button>
                         <!-- Changed button text to 'Log In' -->
-                        <p class="login-link">
+                        <!-- <p class="login-link">
                             <a href="#">Forget Password?</a>
-                        </p>
+                        </p> -->
 
             </form>
 
@@ -48,6 +48,8 @@
         const error2 = document.getElementById("error2");
 
         const submitform = document.getElementById("submitform");
+        const submitButton = document.querySelector("#submitform button[type='submit']");
+
 
         function emailValidation(e) {
             const emailval = emailid.value;
@@ -88,6 +90,14 @@
                 }
                 if (error1.innerHTML || error2.innerHTML) {
                     e.preventDefault();
+                    return
+                }
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.innerText = "Submitting...";
+                    submitButton.style.backgroundColor = "#cccccc";
+                    submitButton.style.color = "#ffffff";
+                    submitButton.style.cursor = "not-allowed";
                 }
             })
         })
