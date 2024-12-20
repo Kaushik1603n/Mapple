@@ -199,7 +199,7 @@
                             <h6>Price</h6>
                             <div>
                                 <input type="checkbox" class="priceRange-checkbox" id="100000-150000" name="priceRange"
-                                value="100000-150000" <%=priceRange.includes('100000-150000') ? 'checked' : '' %>>
+                                    value="100000-150000" <%=priceRange.includes('100000-150000') ? 'checked' : '' %>>
                                 <label for="100000-150000">₹1,00,000 - ₹1,50,000</label>
                             </div>
                             <div>
@@ -224,8 +224,9 @@
                     <div class="d-flex justify-content-between align-items-center my-4 p-2 rounded  shadow-lg">
                         <!-- Search Bar -->
                         <div class="d-flex flex-fill ">
-                            <form id="searchForm" action="/user/shop" method="get" class="d-flex w-100 m-0 p-0 flex-column">
-                                <div class="d-flex mb-2 mx-2 pt-2" >
+                            <form id="searchForm" action="/user/shop" method="get"
+                                class="d-flex w-100 m-0 p-0 flex-column">
+                                <div class="d-flex mb-2 mx-2 pt-2">
                                     <input type="text" class="form-control me-2 " name="search"
                                         placeholder="Search products" aria-label="Search" value="<%= search || '' %>">
                                     <button class="btn btn-dark px-3" type="submit">Search</button>
@@ -281,17 +282,39 @@
                                         <% } %>
                     </div>
 
+                    <div class="d-flex justify-content-between align-items-center flex-wrap mx-5 my-4">
+                        <p class="mb-2 mb-md-0">Showing <%= (currentPage - 1) * 4 + 1 %> to <%= Math.min(currentPage *
+                                    4, totalProducts) %> of <%= totalProducts %>
+                        </p>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0">
+                                <% if (currentPage> 1) { %>
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                            href="?search=<%= search %>&sortOption=<%= sortOption %>&page=<%= currentPage - 1 %>">←</a>
+                                    </li>
+                                    <% } %>
+                                        <% for (let i=1; i <=totalPages; i++) { %>
+                                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                                <a class="page-link"
+                                                    href="?search=<%= search %>&sortOption=<%= sortOption %>&page=<%= i %>">
+                                                    <%= i %>
+                                                </a>
+                                            </li>
+                                            <% } %>
+                                                <% if (currentPage < totalPages) { %>
+                                                    <li class="page-item">
+                                                        <a class="page-link"
+                                                            href="?search=<%= search %>&sortOption=<%= sortOption %>&page=<%= currentPage + 1 %>">→</a>
+                                                    </li>
+                                                    <% } %>
+                            </ul>
+                        </nav>
 
-                    <!-- Pagination -->
-                    <nav class="mt-4">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">...</a></li>
-                            <li class="page-item"><a class="page-link" href="#">12</a></li>
-                        </ul>
-                    </nav>
+                    </div>
+
+
+
                 </main>
             </div>
         </div>

@@ -27,6 +27,14 @@ const cartSchema = new Schema({
         type: Number,
         default: 0,
       },
+      regularPrice: {
+        type: Number,
+        default: 0,
+      },
+      discount: {
+        type: Number,
+        default: 0,
+      },
       status: {
         type: String,
         enum: ["placed", "shipped", "delivered", "cancelled"],
@@ -67,7 +75,11 @@ cartSchema.pre("save", function (next) {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  this.totalAmount = this.totalActualAmount - this.totalDiscountAmount;
+  this.totalAmount = this.items.reduce(
+    (sum, item) => sum + item.regularPrice * item.quantity,
+    0
+  );
+  this.totalDiscountAmount = this.totalAmount - this.totalActualAmount;
 
   this.updatedAt = Date.now();
 

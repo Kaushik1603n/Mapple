@@ -73,7 +73,7 @@
                             class="fs-6 fw-bold <%= productDetails.status === 'Available' ? 'text-success' : 'text-danger' %>">
                             (<%= productDetails.status %>)
                         </span>
-                        <div class="fs-6 fw-bold py-1 px-2 rounded 
+                        <div id="productQuantity" class="fs-6 fw-bold py-1 px-2 rounded  
                         <% if (productDetails.status === 'Out of stock') { %>
                             bg-danger text-white
                         <% } else if (productDetails.quantity < 10) { %>
@@ -142,19 +142,26 @@
 
             <div class="container mt-5 mb-5">
                 <h3>Reviews</h3>
-                <div class="mb-3">
-                    <span class="text-warning fs-4">★★★★☆</span> (4/5)
-                </div>
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        <h5>Ashwin</h5>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                    </li>
-                    <li class="list-group-item">
-                        <h5>Adharsh</h5>
-                        <p>Vivamus fermentum consectetur ligula vel tristique.</p>
-                    </li>
-                </ul>
+                <% allReview.forEach((review,index)=>{ %>
+                    <div class="rating mb-2">
+                        <% for(i=1;i<=review.rating; i++) { %>
+                            <i class="bi bi-star-fill"></i>
+                            <% } %>(<%= review.rating %>/5)
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <h5>
+                                <%= review.user.name %>
+                            </h5>
+                            <p> <b>
+                                    <%= review.reviewTittle %> :
+                                </b>
+                                <%= review.reviewText %>
+                            </p>
+                        </li>
+
+                    </ul>
+                    <% }) %>
             </div>
 
             <div class="container mt-5 mb-5">
@@ -222,19 +229,28 @@
                 const increaseButton = document.getElementById('increaseButton');
                 const quantityInput = document.getElementById('quantityInput');
 
+                const productQuantityText = document.getElementById("productQuantity").innerText;
+                const productQuantity = parseInt(productQuantityText.replace("Left: ", ""), 10);
                 let quantity = 1;
 
                 decreaseButton.addEventListener('click', function () {
+                    // if (productQuantity >= quantity) {
                     if (quantity > 1) {
                         quantity--;
                         quantityInput.value = quantity;
                     }
+                    // }
                 });
 
                 increaseButton.addEventListener('click', function () {
-                    quantity++;
-                    quantityInput.value = quantity;
+                    if (productQuantity > quantity) {
+                        if (productQuantity) {
+                            quantity++;
+                            quantityInput.value = quantity;
+                        }
+                    }
                 });
+
 
                 // Select all the storage buttons
                 const storageButtons = document.querySelectorAll('button[data-storage]');

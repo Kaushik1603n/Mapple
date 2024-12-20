@@ -7,6 +7,7 @@ const Product = require("../models/productSchema");
 const address = require("../models/addressSchema");
 const cart = require("../models/cartSchema");
 const order = require("../models/orderSchema");
+const Review = require("../models/reviewSchema");
 const { log } = require("console");
 const { render } = require("ejs");
 
@@ -90,7 +91,11 @@ const loadShope = async (req, res) => {
   const user = req.session.user;
   try {
     const { search, variant, sortOption, priceRange } = req.query; // Get search query and variant from the URL
-    let filter = {}; // Initialize filter
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = 8;
+    const skip = (page - 1) * limit;
+
+    let filter = {};
 
     if (search) {
       filter = {
@@ -139,7 +144,11 @@ const loadShope = async (req, res) => {
 
     const allProduct = await Product.find(filter)
       .populate("category")
-      .sort(sort);
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+    const totalProducts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalProducts / limit);
 
     if (user) {
       res.render("user/shop", {
@@ -149,6 +158,9 @@ const loadShope = async (req, res) => {
         search,
         sortOption: sortOption || {},
         priceRange: priceRange || [],
+        totalProducts,
+        totalPages,
+        currentPage: page,
       });
     } else {
       res.render("user/shop", {
@@ -157,6 +169,9 @@ const loadShope = async (req, res) => {
         search,
         sortOption: sortOption || {},
         priceRange: priceRange || [],
+        totalProducts,
+        totalPages,
+        currentPage: page,
       });
     }
   } catch (error) {
@@ -550,6 +565,11 @@ const loadProductDetails = async (req, res) => {
 
   try {
     let productDetails = await Product.findOne({ _id: productId });
+    let allReview = await Review.find({ product: productId }).populate(
+      "user",
+      "name email"
+    );
+
     // const email = req.session.email
 
     const products = await Product.aggregate([{ $sample: { size: 4 } }]);
@@ -601,6 +621,7 @@ const loadProductDetails = async (req, res) => {
       activeVariant,
       activeColor,
       products,
+      allReview: allReview || [],
       user,
     });
   } catch (error) {
@@ -854,14 +875,45 @@ const cancelProduct = async (req, res) => {
   }
 };
 
+const productReview = async (req, res) => {
+  const userData = req.session.user;
+  const userId = userData._id;
+  try {
+    const { title, rating, comments, productId } = req.body;
+
+    if (!title || !rating || !comments || !productId) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    if (rating < 1 || rating > 5) {
+      return res
+        .status(400)
+        .json({ message: "Rating must be between 1 and 5." });
+    }
+
+    const addReview = await Review.create({
+      product: productId,
+      user: userId,
+      reviewTittle: title,
+      rating: rating,
+      reviewText: comments,
+    });
+
+    res
+      .status(200)
+      .json({ success: true, message: "Review submitted successfully!" });
+  } catch (error) {
+    console.error("Error handling review submission:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const addCart = async (req, res) => {
   if (!req.session.user) {
     return res.status(400).json({ success: false, message: "Login first" });
   }
   try {
     const { productId, quantity } = req.body;
-
-    // console.lo-g(req.body);
 
     if (!productId || quantity <= 0) {
       return res.status(400).json({ success: false, message: "Invalid data" });
@@ -879,11 +931,19 @@ const addCart = async (req, res) => {
     const existingItem = userCart.items.find(
       (item) => item.productId.toString() === productId
     );
+    const product = await Product.findById(productId);
 
     if (existingItem) {
-      // Update the quantity and total price for the existing item
-      existingItem.quantity += quantity;
-      existingItem.totalprice = existingItem.quantity * existingItem.price;
+      const totalStock = product.quantity;
+
+      if (existingItem.quantity + quantity <= totalStock) {
+        existingItem.quantity += quantity;
+        existingItem.totalprice = existingItem.quantity * existingItem.price;
+      } else {
+        return res
+          .status(404)
+          .json({ success: false, message: "Stock out Product" });
+      }
     } else {
       // If product is not in the cart, add it
       const product = await Product.findById(productId);
@@ -897,7 +957,10 @@ const addCart = async (req, res) => {
         productId: productId,
         quantity: quantity,
         price: product.salePrice,
+        regularPrice: product.regularPrice,
         totalprice: product.salePrice * quantity,
+        discount:
+          product.regularPrice * quantity - product.salePrice * quantity,
       });
     }
 
@@ -1056,8 +1119,12 @@ const placeOrder = async (req, res) => {
         productProcessor: product.processor,
         description: product.description,
         quantity: item.quantity,
+        regularPrice: product.regularPrice,
+        regularTotal: product.regularPrice * item.quantity,
         price: item.price,
         total: item.quantity * item.price,
+        discount:
+        product.regularPrice * item.quantity - item.quantity * product.price,
       });
     }
     const orderId = ` ORD${Date.now()}`;
@@ -1145,6 +1212,7 @@ module.exports = {
   loadOrdersDetails,
   returnProduct,
   cancelProduct,
+  productReview,
 
   loadProductDetails,
   addCart,

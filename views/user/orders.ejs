@@ -74,7 +74,7 @@
         <!-- Content -->
         <div class="content p-3">
             <div class="container my-4 mt-5">
-                <div class="table-container bg-light">
+                <div class="table-container bg-light shadow-lg">
                     <!-- Table Header -->
                     <h3 class="mb-4 text-center">Order History</h3>
 
@@ -84,10 +84,10 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Product Count</th>
-                                    <th>Status</th>
+                                    <th>orderId</th>
                                     <th>Date</th>
                                     <th>Total</th>
-                                    <th>Rate & Review</th>
+                                    <th>Discount</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -100,15 +100,15 @@
                                                 <%= order.orderedItem.length %> Product
                                             </td>
                                             <td class="status-inprogress">
-                                                <%= order.status %>
+                                                <%= order.orderId %>
                                             </td>
                                             <td>
                                                 <%= order.createdAt.toLocaleString() %>
                                             </td>
-                                            <td>₹ <%= order.finalAmount %>
+                                            <td>₹<%= order.finalAmount.toLocaleString()  %>
                                             </td>
                                             <td class="rate-product">
-                                                <a href="#"><i class="fas fa-star me-1"></i>Rate Product</a>
+                                               <b><%= order.discount.toLocaleString()  %></b> 
                                             </td>
                                         </tr>
                                         <% }) %>

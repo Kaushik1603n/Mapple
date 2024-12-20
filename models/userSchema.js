@@ -34,7 +34,7 @@ const userSchema = new Schema({
   },
   isAdmin: {
     type: Boolean,
-    deflate: false,
+    default: false,
   },
   resetToken: { type: String },
   resetTokenExpiry: { type: Date },

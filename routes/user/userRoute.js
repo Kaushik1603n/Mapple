@@ -38,6 +38,7 @@ router.get("/orders",auth.userAuth, userController.loadOrders);
 router.get("/orderDetails/:id",auth.userAuth, userController.loadOrdersDetails);
 router.post("/returnProduct", userController.returnProduct);
 router.post("/cancelProduct", userController.cancelProduct);
+router.post("/productReview", userController.productReview);
 
 router.post("/cart", userController.addCart);
 router.get("/cart",auth.userAuth, userController.loadAddCart);

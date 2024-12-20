@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const product = require("./productSchema")
-const product = require("./userSchema")
+const user = require("./userSchema")
 
 const reviewSchema = new Schema(
   {
@@ -12,7 +12,7 @@ const reviewSchema = new Schema(
     },
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User', // Reference to the User model
+      ref: 'user',
       required: true,
     },
     rating: {
@@ -21,10 +21,14 @@ const reviewSchema = new Schema(
       min: 1, // Minimum rating of 1
       max: 5, // Maximum rating of 5
     },
+    reviewTittle: {
+      type: String,
+      required: true,
+    },
     reviewText: {
       type: String,
       required: true,
-      minlength: 3, // Minimum length for the review text
+      minlength: 1, // Minimum length for the review text
       maxlength: 1000, // Maximum length for the review text
     },
     createdAt: {
