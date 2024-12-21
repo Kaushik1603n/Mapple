@@ -37,7 +37,6 @@ const loadproducts = async (req, res) => {
     const limit = 5;
     const skip = (page - 1) * limit;
 
-    // Initialize the query object
     const query = {
       $or: [
         { productName: new RegExp(searchQuery, "i") },
@@ -149,7 +148,6 @@ const addProducts = async (req, res) => {
       return res.json({ success: false, message: "Product already exists" });
     }
 
-    // create new product if it doesn't exist
     const newProduct = new Product({
       productName,
       stock,

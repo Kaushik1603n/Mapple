@@ -543,29 +543,26 @@ const loadCancelReturn = async (req, res) => {
   }
   try {
     const orders = await order.aggregate([
-      // Match documents containing orderedItem with status "Return Request" or "Cancel Request"
       {
         $match: {
           "orderedItem.status": { $in: ["Return Request", "Cancel Request"] },
         },
       },
-      // Project to filter only matching orderedItem elements
       {
         $project: {
-          orderId: 1, // Include other fields as needed
+          orderId: 1, 
           createdAt: 1,
           orderedItem: {
             $filter: {
-              input: "$orderedItem", // Array to filter
-              as: "item", // Alias for array element
+              input: "$orderedItem",
+              as: "item",
               cond: {
                 $in: ["$$item.status", ["Return Request", "Cancel Request"]],
-              }, // Condition to include the element
+              }, 
             },
           },
         },
       },
-      // Sort the orders by createdAt descending
       {
         $sort: { createdAt: -1 },
       },
@@ -605,6 +602,8 @@ const rejectCancelRequest = async (req, res) => {
     res.redirect("/admin/pageerror");
   }
 };
+
+
 const acceptRequest = async (req, res) => {
   const { orderId, productId, quantity, itemId, status } = req.body;
   // console.log(req.body);

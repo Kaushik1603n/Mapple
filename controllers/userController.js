@@ -506,9 +506,9 @@ const loadChangePass = async (req, res) => {
 
 const changePass = async (req, res) => {
   try {
-    const email = req.session.emailVerify; // Get email from session
+    const email = req.session.emailVerify; 
     if (!email) {
-      return res.redirect("/user/forgotPassword"); // Redirect if session expired or invalid
+      return res.redirect("/user/forgotPassword"); 
     }
 
     const { password } = req.body;
@@ -535,7 +535,6 @@ const changePass = async (req, res) => {
 const googleLogin = async (req, res) => {
   try {
     req.session.user = req.user;
-    // console.log(req.user.name);
 
     res.redirect("/user");
   } catch (error) {
@@ -569,8 +568,6 @@ const loadProductDetails = async (req, res) => {
       "user",
       "name email"
     );
-
-    // const email = req.session.email
 
     const products = await Product.aggregate([{ $sample: { size: 4 } }]);
 
@@ -646,6 +643,7 @@ const loadUserAccount = async (req, res) => {
     console.log(error);
   }
 };
+
 const userAccount = async (req, res) => {
   const userData = req.session.user;
   try {
@@ -663,7 +661,7 @@ const userAccount = async (req, res) => {
 
     const checkUser = await User.findOne({
       email: newemail,
-      _id: { $ne: findUser._id }, // Exclude the current user's _id from this check
+      _id: { $ne: findUser._id }, 
     });
     if (checkUser) {
       return res
@@ -964,16 +962,14 @@ const addCart = async (req, res) => {
       });
     }
 
-    // Recalculate the cart's total amount
     userCart.totalAmount = userCart.items.reduce(
       (sum, item) => sum + item.totalprice,
       0
     );
 
-    // Save the updated cart
     await userCart.save();
 
-    // Send success response
+    // success response
     return res
       .status(200)
       .json({ success: true, message: "Product added to cart" });
@@ -1053,7 +1049,6 @@ const updatequantity = async (req, res) => {
         .json({ message: "Quantity cannot be less than 1" });
     }
 
-    // Save the cart
     await cartItems.save();
 
     return res.status(200).json({ quantity: item.quantity });
@@ -1101,9 +1096,13 @@ const placeOrder = async (req, res) => {
     let totalPrice = 0;
     const orderedProduct = [];
     for (const item of orderedItem) {
-      const product = await Product.findById(item.product);
+      const product = await Product.findById(item.product); // product means productId
       if (!product) {
-        return res
+        const deleteCartItem = await cart.updateOne(
+          { "items.productId": item.product }, 
+          { $pull: { "items": { "productId": item.product } } }
+      );
+              return res
           .status(404)
           .json({ error: `Product with ID ${item.product} not found.` });
       }
@@ -1155,7 +1154,6 @@ const placeOrder = async (req, res) => {
         { new: true }
       );
       if (updatedProduct && updatedProduct.quantity === 0) {
-        // If quantity reaches 0, set the status to "out of stock"
         await Product.findByIdAndUpdate(item.product, {
           $set: { status: "Out of stock" },
         });
@@ -1170,7 +1168,6 @@ const placeOrder = async (req, res) => {
     res.status(404).json({ message: "Order placed successfully" });
   } catch (error) {
     console.error("Error creating order:", error);
-    // throw err;
   }
 };
 const pageNotFount = async (req, res) => {

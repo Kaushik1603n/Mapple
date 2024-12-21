@@ -17,6 +17,21 @@
             background-color: #f8f9fa;
         }
 
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb-item a {
+            color: #6c757d;
+            text-decoration: none;
+        }
+
+        .breadcrumb-item.active {
+            color: #000;
+        }
+
         .order-container {
             background-color: #fff;
             border-radius: 8px;
@@ -63,6 +78,16 @@
     <%- include("../../views/partials/user/sidebar") %>
 
         <div class="content p-4">
+            <div class="row">
+                <div class="col-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item text-secondary"><a href="/user/orders">Orders</a></li>
+                            <li class="breadcrumb-item text-dark fw-bold" aria-current="page">Orders details</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
             <!-- Order Container -->
             <div class="order-container m-0 bg-light p-4">
                 <!-- Order Details -->
@@ -541,7 +566,8 @@
                                             </tr>
                                             <tr>
                                                 <td><strong>Discount:</strong></td>
-                                                <td>-<%= item.discount||  (item.regularTotal - item.total).toLocaleString()  %>
+                                                <td>-<%= item.discount|| (item.regularTotal -
+                                                        item.total).toLocaleString() %>
                                                 </td>
                                             </tr>
                                             <tr>

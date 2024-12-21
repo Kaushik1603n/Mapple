@@ -50,6 +50,11 @@
       color: #000;
       padding: 10px 15px;
     }
+    .sidebar h5 a {
+      display: block;
+      text-decoration: none;
+      color: #ffffff;
+    }
 
     .sidebar ul li a:hover {
       background-color: #ddd;
@@ -95,7 +100,7 @@
   <!-- Sidebar -->
   <div id="sidebar" class="sidebar bg-light  p-3">
     <div class="sidebar-header bg-secondary text-white ">
-      <h5 class="m-0 ">Account Details</h5>
+      <h5 class="m-0 "><a href="/user">Account Details</a></h5>
       <button id="close-btn" class="btn btn-sm btn-light">
         <i class="bi bi-x"></i>
       </button>
@@ -108,7 +113,7 @@
       <li><a href="#"><i class="bi bi-cart me-2"></i>Shopping Cart</a></li>
       <li><a href="#"><i class="bi bi-heart me-2"></i>Wishlist</a></li>
       <li><a href="/user/address"><i class="bi bi-geo-alt me-2"></i>Address</a></li>
-      <li><a href="#" class="text-danger"><i class="bi bi-box-arrow-right me-2"></i>Log-out</a></li>
+      <li><a href="/user/logout" class="text-danger"><i class="bi bi-box-arrow-right me-2"></i>Log-out</a></li>
     </ul>
   </div>
 
