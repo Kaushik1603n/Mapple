@@ -36,28 +36,36 @@
             <div class="col-md-12">
                 <div class="bg-white p-4 rounded border">
                     <h5 class="mb-3">Delivery Address</h5>
-                    <% if (userAddress.address && userAddress.address.length> 0) { %>
-                        <% userAddress.address.forEach((addr, index)=> { %>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="address" id="address<%= index %>"
-                                    value="<%= index %>">
-                                <label class="form-check-label" for="address<%= index %>">
-                                    <%= addr.name %>, <%= addr.homeAddress %>, <%= addr.landmark %>, pin <%=
-                                                    addr.zipCode %>,
-                                                    <%= addr.city %>, <%= addr.state %>, <%= addr.country %>, <%=
-                                                                    addr.phoneNumber %>
-                                </label>
-                                <input type="hidden" id="addressData<%= index %>" data-name="<%= addr.name %>"
-                                    data-phoneNumber="<%= addr.phoneNumber %>"
-                                    data-homeAddress="<%= addr.homeAddress %>" data-landmark="<%= addr.landmark %>"
-                                    data-city="<%= addr.city %>" data-state="<%= addr.state %>"
-                                    data-zipCode="<%= addr.zipCode %>" data-country="<%= addr.country %>">
-                            </div>
-                            <% }); %>
-                                <% } else { %>
-                                    <p>No address available.</p>
-                                    <% } %>
-                                        <!-- <button class="btn btn-dark mt-3" id="addAddressBtn">Add Address</button> -->
+
+                    <% if (userAddress) { %>
+                        <% if (userAddress.address && userAddress.address.length> 0) { %>
+                            <% userAddress.address.forEach((addr, index)=> { %>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="address" id="address<%= index %>"
+                                        value="<%= index %>">
+                                    <label class="form-check-label" for="address<%= index %>">
+                                        <%= addr.name %>, <%= addr.homeAddress %>, <%= addr.landmark %>, pin <%=
+                                                        addr.zipCode %>,
+                                                        <%= addr.city %>, <%= addr.state %>, <%= addr.country %>, <%=
+                                                                        addr.phoneNumber %>
+                                    </label>
+                                    <input type="hidden" id="addressData<%= index %>" data-name="<%= addr.name %>"
+                                        data-phoneNumber="<%= addr.phoneNumber %>"
+                                        data-homeAddress="<%= addr.homeAddress %>" data-landmark="<%= addr.landmark %>"
+                                        data-city="<%= addr.city %>" data-state="<%= addr.state %>"
+                                        data-zipCode="<%= addr.zipCode %>" data-country="<%= addr.country %>">
+                                </div>
+                                <% }); %>
+                                    <% } else { %>
+                                        <p>No address available.</p>
+                                        <% } %>
+                                            <% } else { %>
+                                                <div class="form-check">
+                                                    <p>No address available.</p>
+                                                    <a href="/user/address" class="btn bg-secondary text-white">Add address</a>
+                                                </div>
+                                                <% } %>
+                                                    <!-- <button class="btn btn-dark mt-3" id="addAddressBtn">Add Address</button> -->
                 </div>
 
             </div>

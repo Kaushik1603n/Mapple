@@ -207,7 +207,9 @@
                                 text: 'Order status updated successfully!',
                                 icon: 'success',
                                 confirmButtonText: 'OK'
-                            });
+                            }).then(()=>{
+                                window.location.reload()
+                            })
                         } else {
                             Swal.fire({
                                 title: 'Error!',

@@ -8,8 +8,9 @@ const address = require("../models/addressSchema");
 const cart = require("../models/cartSchema");
 const order = require("../models/orderSchema");
 const Review = require("../models/reviewSchema");
-const { log } = require("console");
+const { log, error } = require("console");
 const { render } = require("ejs");
+const wishlist = require("../models/wishlistSchema");
 
 const loadHomePage = async (req, res) => {
   try {
@@ -73,13 +74,20 @@ const loadHomePage = async (req, res) => {
     // console.log(productss);
 
     if (user) {
+      const wishlistItems = await wishlist.find({ userId: user._id });
+
       res.render("user/home", {
         user: user,
         products: products,
         categories: categories,
+        wishlistItems: wishlistItems || [],
       });
     } else {
-      return res.render("user/home", { products, categories: categories });
+      return res.render("user/home", {
+        products,
+        categories: categories,
+        wishlistItems: [],
+      });
     }
   } catch (error) {
     console.log("home Page Not Fount", error);
@@ -506,9 +514,9 @@ const loadChangePass = async (req, res) => {
 
 const changePass = async (req, res) => {
   try {
-    const email = req.session.emailVerify; 
+    const email = req.session.emailVerify;
     if (!email) {
-      return res.redirect("/user/forgotPassword"); 
+      return res.redirect("/user/forgotPassword");
     }
 
     const { password } = req.body;
@@ -661,7 +669,7 @@ const userAccount = async (req, res) => {
 
     const checkUser = await User.findOne({
       email: newemail,
-      _id: { $ne: findUser._id }, 
+      _id: { $ne: findUser._id },
     });
     if (checkUser) {
       return res
@@ -906,6 +914,48 @@ const productReview = async (req, res) => {
   }
 };
 
+const loadWishList = async (req, res) => {
+  const userData = req.session.user;
+  const userId = userData._id;
+  try {
+    const wishlistItems = await wishlist.find({ userId: userId });
+    console.log(wishlistItems);
+
+    const allProduct = [];
+
+    for (const item of wishlistItems) {
+      for (const product of item.product) {
+        const wishlistProduct = await Product.findById(product.productId);
+        allProduct.push(wishlistProduct);
+      }
+    }
+
+    res.render("user/wishlist", { allProduct });
+  } catch (error) {}
+};
+
+const removeWishList = async (req, res) => {
+  const { id } = req.params;
+  const userData = req.session.user;
+  const userId = userData._id;
+
+  try {
+    const result = await wishlist.updateOne(
+      { userId: userId },
+      { $pull: { product: { productId: id } } }
+    );
+
+    if (result.modifiedCount > 0) {
+      return res.status(200).json({ message: "Product removed successfully" });
+    } else {
+      return res.status(400).json({ message: "Failed to remove product" });
+    }
+  } catch (error) {
+    console.error("Error removing product:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const addCart = async (req, res) => {
   if (!req.session.user) {
     return res.status(400).json({ success: false, message: "Login first" });
@@ -1099,10 +1149,10 @@ const placeOrder = async (req, res) => {
       const product = await Product.findById(item.product); // product means productId
       if (!product) {
         const deleteCartItem = await cart.updateOne(
-          { "items.productId": item.product }, 
-          { $pull: { "items": { "productId": item.product } } }
-      );
-              return res
+          { "items.productId": item.product },
+          { $pull: { items: { productId: item.product } } }
+        );
+        return res
           .status(404)
           .json({ error: `Product with ID ${item.product} not found.` });
       }
@@ -1123,7 +1173,7 @@ const placeOrder = async (req, res) => {
         price: item.price,
         total: item.quantity * item.price,
         discount:
-        product.regularPrice * item.quantity - item.quantity * product.price,
+          product.regularPrice * item.quantity - item.quantity * product.price,
       });
     }
     const orderId = ` ORD${Date.now()}`;
@@ -1170,6 +1220,58 @@ const placeOrder = async (req, res) => {
     console.error("Error creating order:", error);
   }
 };
+
+const addWishlist = async (req, res) => {
+  if (!req.session.user) {
+    return res.status(404).json({ error: "Login First" });
+  }
+  const userData = req.session.user;
+  const userId = userData._id;
+  try {
+    const { productId, liked } = req.body;
+    // console.log(req.body);
+
+    const findUser = await wishlist.findOne({ userId: userId });
+    // console.log(findUser);
+
+    if (liked) {
+      if (findUser) {
+        const addWishlist = await wishlist.updateOne(
+          { userId: userId },
+          {
+            $push: {
+              product: {
+                productId: productId,
+              },
+            },
+          }
+        );
+      } else {
+        const addWishlistItems = await wishlist.create({
+          userId: userId,
+          product: [
+            {
+              productId: productId,
+            },
+          ],
+        });
+      }
+    } else {
+      const unlikeItem = await wishlist.updateOne(
+        { userId: userId },
+        {
+          $pull: {
+            product: { productId: productId },
+          },
+        }
+      );
+      return res.status(200).json({ message: "successfully removed" });
+    }
+
+    res.status(200).json({ message: "success fully completed" });
+  } catch (error) {}
+};
+
 const pageNotFount = async (req, res) => {
   try {
     res.render("user/pageNotFount");
@@ -1210,6 +1312,8 @@ module.exports = {
   returnProduct,
   cancelProduct,
   productReview,
+  loadWishList,
+  removeWishList,
 
   loadProductDetails,
   addCart,
@@ -1219,4 +1323,6 @@ module.exports = {
 
   loadCheckout,
   placeOrder,
+
+  addWishlist,
 };

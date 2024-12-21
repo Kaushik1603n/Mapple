@@ -175,7 +175,8 @@
                                     <img src="<%= product.productImage[0] %>" class="card-img-top mx-auto pt-3 p-1"
                                         alt="<%= product.productName %>" style="width: 280px;">
 
-                                    <button class="btn btn-outline-light position-absolute top-0 end-0 m-2 like-btn">
+                                    <button class="btn btn-outline-light position-absolute top-0 end-0 m-2 like-btn"
+                                        data-id="<%= product._id %>">
                                         <span class="like-icon">&#9825;</span>
                                     </button>
                                 </div>
@@ -216,7 +217,63 @@
                 integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
                 crossorigin="anonymous"></script>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    const likeButtons = document.querySelectorAll(".like-btn");
 
+                    const likedProducts = {};
+
+                    likeButtons.forEach((button) => {
+                        button.addEventListener("click", (event) => {
+                            const productId = event.target.closest(".like-btn").getAttribute("data-id");
+                            const likeIcon = button.querySelector(".like-icon");
+
+                            // if (likedProducts[productId]) {
+                            //     likedProducts[productId] = false;
+                            //     likeIcon.textContent = "♡"; 
+                            //     likeIcon.style.color = ""; 
+                            // } else {
+                            //     likedProducts[productId] = true;
+                            //     likeIcon.textContent = "♥";
+                            //     likeIcon.style.color = "red"; 
+                            // }
+
+                            const isLiked = !likedProducts[productId];
+                            likedProducts[productId] = isLiked;
+
+                            likeIcon.textContent = isLiked ? "♥" : "♡";
+                            likeIcon.style.color = isLiked ? "red" : "";
+
+                            console.log(`ProductId : ${productId} liked: ${likedProducts[productId]}`);
+
+                            fetch("/user/wishlist", {
+                                method: "POST",
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    productId,
+                                    liked: isLiked
+                                }),
+                            })
+                                .then(response => {
+                                    return response.json().then(data => {
+                                        if (response.ok) {
+                                            console.log("Success: " + data.message);
+                                        } else {
+                                            alert("Failed: " + data.error || "An error occurred");
+                                        }
+                                    });
+                                }).catch(error => {
+                                    console.error('Error:', error);
+                                    alert("Failed: Network error or server unavailable.");
+
+                                });
+                        });
+                    });
+                });
+
+            </script>
             <script>
                 // Function to switch to a specific slide in the carousel
                 function switchToSlide(slideIndex) {

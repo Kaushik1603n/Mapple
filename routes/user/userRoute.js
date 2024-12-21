@@ -39,6 +39,9 @@ router.get("/orderDetails/:id",auth.userAuth, userController.loadOrdersDetails);
 router.post("/returnProduct", userController.returnProduct);
 router.post("/cancelProduct", userController.cancelProduct);
 router.post("/productReview", userController.productReview);
+router.post("/wishlist", userController.addWishlist);
+router.get("/wishlist", userController.loadWishList);
+router.delete("/removeproduct/:id", userController.removeWishList);
 
 router.post("/cart", userController.addCart);
 router.get("/cart",auth.userAuth, userController.loadAddCart);
@@ -47,6 +50,7 @@ router.post("/cart/update-quantity", userController.updatequantity);
 
 router.get("/checkout",auth.userAuth, userController.loadCheckout);
 router.post("/placeOrder",auth.userAuth, userController.placeOrder);
+
 
 router.get(
   "/auth/google",
