@@ -11,6 +11,7 @@ const Review = require("../models/reviewSchema");
 const { log, error } = require("console");
 const { render } = require("ejs");
 const wishlist = require("../models/wishlistSchema");
+const Wallet = require("../models/walletSchema");
 
 const loadHomePage = async (req, res) => {
   try {
@@ -919,7 +920,7 @@ const loadWishList = async (req, res) => {
   const userId = userData._id;
   try {
     const wishlistItems = await wishlist.find({ userId: userId });
-    console.log(wishlistItems);
+    // console.log(wishlistItems);
 
     const allProduct = [];
 
@@ -954,6 +955,47 @@ const removeWishList = async (req, res) => {
     console.error("Error removing product:", error);
     res.status(500).json({ message: "Internal server error" });
   }
+};
+
+const loadWallet = async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/user");
+  }
+  const userData = req.session.user;
+  try {
+    const user = await Wallet.findOne({ user: userData._id }).populate("user");
+    console.log(user);
+
+    res.render("user/wallet", { user });
+  } catch (error) {}
+};
+
+const addMoney = async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/user");
+  }
+  const userData = req.session.user;
+  const { amount } = req.body;
+  try {
+    console.log(amount);
+
+    let userwallet = await Wallet.findOne({ user: userData._id });
+    if (!userwallet) {
+      userwallet = new Wallet({ user: userData._id, transactions: [] });
+    }
+    console.log(userwallet.balance);
+
+    userwallet.balance = Number(userwallet.balance) + Number(amount);
+
+    userwallet.transactions.push({
+      transactionType: "deposit",
+      amount: amount,
+      description: "nothing",
+    });
+
+    await userwallet.save();
+    res.status(200).json({ success: true, message: "successfully added" });
+  } catch (error) {}
 };
 
 const addCart = async (req, res) => {
@@ -1134,7 +1176,7 @@ const placeOrder = async (req, res) => {
       couponApplied,
     } = req.body;
 
-    // console.log(orderedItem);
+    console.log(paymentMethod);
 
     if (!orderedItem || orderedItem.length === 0) {
       return res.status(400).json({ error: "Ordered items are required." });
@@ -1176,6 +1218,38 @@ const placeOrder = async (req, res) => {
           product.regularPrice * item.quantity - item.quantity * product.price,
       });
     }
+
+    if (paymentMethod == "wallet") {
+      let userwallet = await Wallet.findOne({ user: userId });
+
+      if (!userwallet) {
+        return res.status(404).json({ error: `insufficient balance` });
+      }
+      console.log(finalAmount);
+
+      if (userwallet.balance < finalAmount) {
+        return res.status(404).json({ error: `insufficient balance` });
+      }
+      const amountToDebit = finalAmount;
+      userwallet.balance = Number(userwallet.balance) - amountToDebit;
+      console.log("Updated Wallet Balance:", userwallet.balance);
+
+      userwallet.transactions.push({
+        transactionType: "withdrawal",
+        amount: amountToDebit,
+        description: "wallet using payment",
+      });
+
+      try {
+        await userwallet.save();
+        console.log("Order completed using wallet Successfully");
+      } catch (error) {
+        console.error("Error Order place using Wallet:", error);
+      }
+
+
+    }
+
     const orderId = ` ORD${Date.now()}`;
     const newOrder = await order.create({
       orderId: orderId,
@@ -1314,6 +1388,8 @@ module.exports = {
   productReview,
   loadWishList,
   removeWishList,
+  loadWallet,
+  addMoney,
 
   loadProductDetails,
   addCart,

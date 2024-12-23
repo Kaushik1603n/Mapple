@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WishList</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.4/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .wallet-container {
+            text-align: center;
+        }
+
+        .wallet-icon {
+            font-size: 60px;
+            color: rgb(0, 0, 0);
+        }
+
+        .add-money-btn {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <%- include("../../views/partials/user/sidebar") %>
+
+        <!-- Content -->
+        <div class="content p-5 pt-2">
+            <% if(user) { %>
+                <div class="container d-flex justify-content-center align-items-center ">
+                    <div class="wallet-container">
+                        <div class="wallet-icon">
+                            <!-- Wallet Icon -->
+                            <i class="bi bi-wallet2"></i>
+                        </div>
+                        <h5 class="mt-3">My Wallet Balance</h5>
+                        <h3 class="mt-3"><strong>₹<%= user.balance.toLocaleString() %> </strong></h5>
+                            <button class="btn btn-secondary add-money-btn" data-bs-toggle="modal"
+                                data-bs-target="#addMoneyModal">Add Money</button>
+                    </div>
+                </div>
+                <!-- Modal -->
+                <div class="modal fade" id="addMoneyModal" tabindex="-1" aria-labelledby="addMoneyModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <!-- Modal Header -->
+                            <div class="modal-header bg-secondary text-white">
+                                <h5 class="modal-title" id="addMoneyModalLabel"><i class="bi bi-wallet2 me-2"></i>Add
+                                    Money
+                                    to Wallet</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+
+                            <!-- Modal Body -->
+                            <div class="modal-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="amount" class="form-label fw-bold">Enter Amount</label>
+                                        <input type="number" class="form-control" id="amount" placeholder="Enter amount"
+                                            required>
+                                    </div>
+                                    <!-- <div class="mb-3">
+                            <label for="paymentMethod" class="form-label fw-bold">Select Payment Method</label>
+                            <select class="form-select" id="paymentMethod" required>
+                                <option value="" disabled selected>Choose a payment method</option>
+                                <option value="credit-card">Credit Card</option>
+                                <option value="debit-card">Debit Card</option>
+                                <option value="net-banking">Net Banking</option>
+                            </select>
+                        </div> -->
+                                </form>
+                            </div>
+
+                            <!-- Modal Footer -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-secondary" onclick="handleAddMoney()">Add
+                                    Money</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } else { %>
+                    <div class="container d-flex justify-content-center align-items-center ">
+                        <div class="wallet-container">
+                            <div class="wallet-icon">
+                                <!-- Wallet Icon -->
+                                <i class="bi bi-wallet2"></i>
+                            </div>
+                            <h5 class="mt-3">My Wallet Balance</h5>
+                            <h3 class="mt-3"><strong>₹0</strong></h5>
+                                <button class="btn btn-secondary add-money-btn" data-bs-toggle="modal"
+                                    data-bs-target="#addMoneyModal">Add Money</button>
+                        </div>
+                    </div>
+                    <!-- Modal -->
+                    <div class="modal fade" id="addMoneyModal" tabindex="-1" aria-labelledby="addMoneyModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <!-- Modal Header -->
+                                <div class="modal-header bg-secondary text-white">
+                                    <h5 class="modal-title" id="addMoneyModalLabel"><i
+                                            class="bi bi-wallet2 me-2"></i>Add
+                                        Money
+                                        to Wallet</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+
+                                <!-- Modal Body -->
+                                <div class="modal-body">
+                                    <form>
+                                        <div class="mb-3">
+                                            <label for="amount" class="form-label fw-bold">Enter Amount</label>
+                                            <input type="number" class="form-control" id="amount"
+                                                placeholder="Enter amount" required>
+                                        </div>
+                                        <!-- <div class="mb-3">
+                                <label for="paymentMethod" class="form-label fw-bold">Select Payment Method</label>
+                                <select class="form-select" id="paymentMethod" required>
+                                    <option value="" disabled selected>Choose a payment method</option>
+                                    <option value="credit-card">Credit Card</option>
+                                    <option value="debit-card">Debit Card</option>
+                                    <option value="net-banking">Net Banking</option>
+                                </select>
+                            </div> -->
+                                    </form>
+                                </div>
+
+                                <!-- Modal Footer -->
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-secondary" onclick="handleAddMoney()">Add
+                                        Money</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% } %>
+
+                        <!-- Transaction Table -->
+                        <table class="table table-hover table-bordered text-center align-middle mt-5">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Transaction ID</th>
+                                    <th>Date</th>
+                                    <th>Withdrawal</th>
+                                    <th>Deposit</th>
+                                </tr>
+                            </thead>
+                            <% if(user) { %>
+                                <% user.transactions.forEach((transaction)=>{ %>
+                            <tbody>
+                                <tr>
+                                    <td><%= transaction._id %></td>
+                                    <td><%= transaction.date.toISOString().slice(0, 10) %></td>
+                                    <td>
+                                        <% if(transaction.transactionType==='withdrawal') { %>
+                                           <b  class="text-danger"> -<%= transaction.amount %></b></td>
+                                            <% } %>-
+                                    </td>
+                                    <td><% if(transaction.transactionType==='deposit') { %>
+                                       <b class="text-success"> +<%= transaction.amount %></b></td>
+                                        <% } %>-
+                                </tr>
+                            </tbody>
+                            <% }) %>
+                            <% } %>
+                        </table>
+        </div>
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.4/dist/sweetalert2.min.js"></script>
+        <script>
+            function handleAddMoney() {
+                const amount = document.getElementById("amount").value;
+
+                if (!amount) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Please fill in all fields before proceeding!",
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: `₹${amount} has been added `,
+                });
+
+                // Close the modal after a delay
+                // setTimeout(() => {
+                //     const modal = document.getElementById("addMoneyModal");
+                //     const modalInstance = bootstrap.Modal.getInstance(modal);
+                //     modalInstance.hide();
+                // }, 2000);
+
+                if (amount) {
+                    fetch("/user/addmoney", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ amount }),
+                    }).then((response) => {
+                        if (response.ok) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Money Added successfully!',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                const modal = document.getElementById("addMoneyModal");
+                                if (modal) {
+                                    const modalInstance = bootstrap.Modal.getInstance(modal);
+                                    if (modalInstance) modalInstance.hide();
+                                }
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Failed to add Money.',
+                                icon: 'error',
+                                confirmButtonText: 'Try Again'
+                            });
+                        }
+                    }).catch(error => {
+                        console.error("Error:", error);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+
+                    });
+                }
+
+
+            }
+        </script>
+
+</body>
+
+</html>

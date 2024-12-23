@@ -203,11 +203,11 @@
 
                 <!-- Total Summary Section -->
                 <div class=" bg-light col-md-3 total-summary text-center shadow-lg p-3">
-                    <p>Subtotal: <span id="subtotal">300000</span></p>
+                    <p>Subtotal: <span id="subtotal"><%= userCart.totalAmount %></span></p>
                     <p>Delivery: <span id="delivery">0.00</span></p>
-                    <p>Discount: <span id="discount">20000</span></p>
+                    <p>Discount: <span id="discount"><%= userCart.totalDiscountAmount %></span></p>
                     <h5>Total: <span id="total">
-                            <%= userCart.totalAmount %>
+                            <%= userCart.totalActualAmount %>
                         </span></h5>
                     <a href="/user/checkout" class="btn btn-success mt-3">Check Out</a href="/user/ckeckOut">
                 </div>

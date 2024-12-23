@@ -165,10 +165,10 @@
                 <% if (userCart) { %>
                     <div class="order-summary">
                         <h5 class="mb-3">Order Summary</h5>
-                        <p>Sub-total: <span class="float-end">₹1,43,996</span></p>
+                        <p>Sub-total: <span class="float-end">₹<%= userCart.totalAmount %></span></p>
                         <p>Shipping: <span class="float-end">Free</span></p>
-                        <p>Discount: <span class="float-end text-success">-₹1,999</span></p>
-                        <p>Tax: <span class="float-end">₹1,599</span></p>
+                        <p>Discount: <span class="float-end text-success">-₹<%= userCart.totalDiscountAmount %></span></p>
+                        <!-- <p>Tax: <span class="float-end">₹1,599</span></p> -->
                         <hr>
                         <p><strong>Total: <span class="float-end">₹<%= userCart.totalActualAmount %></span></strong></p>
                         <button class="btn btn-dark w-100" id="placeOrderBtn">Place Order</button>

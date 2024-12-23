@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const { log } = require("console");
 const product = require("../../models/productSchema");
 const order = require("../../models/orderSchema");
+const Wallet = require("../../models/walletSchema");
 
 const pageerror = (req, res) => {
   res.render("pageerror");
@@ -550,7 +551,7 @@ const loadCancelReturn = async (req, res) => {
       },
       {
         $project: {
-          orderId: 1, 
+          orderId: 1,
           createdAt: 1,
           orderedItem: {
             $filter: {
@@ -558,7 +559,7 @@ const loadCancelReturn = async (req, res) => {
               as: "item",
               cond: {
                 $in: ["$$item.status", ["Return Request", "Cancel Request"]],
-              }, 
+              },
             },
           },
         },
@@ -603,10 +604,10 @@ const rejectCancelRequest = async (req, res) => {
   }
 };
 
-
 const acceptRequest = async (req, res) => {
   const { orderId, productId, quantity, itemId, status } = req.body;
   // console.log(req.body);
+  const userData = req.session.user;
 
   try {
     let newStatus;
@@ -626,6 +627,36 @@ const acceptRequest = async (req, res) => {
       },
       { new: true }
     );
+
+    // console.log("Order Status Updated:", updatedStatus);
+    if (status == "Return Request" && updatedStatus) {
+      let userwallet = await Wallet.findOne({ user: userData._id });
+      // console.log("User Wallet Found:", userwallet);
+
+      if (!userwallet) {
+        userwallet = new Wallet({ user: userData._id, transactions: [] });
+        // console.log("New Wallet Created:", userwallet);
+      }
+
+      const amountToAdd = Number(products.salePrice) * Number(quantity);
+      // console.log("Amount to Add:", amountToAdd);
+
+      userwallet.balance = Number(userwallet.balance) + amountToAdd;
+      console.log("Updated Wallet Balance:", userwallet.balance);
+
+      userwallet.transactions.push({
+        transactionType: "deposit",
+        amount: amountToAdd,
+        description: "Refund for canceled order",
+      });
+
+      try {
+        await userwallet.save();
+        console.log("Wallet Updated Successfully");
+      } catch (error) {
+        console.error("Error Saving Wallet:", error);
+      }
+    }
 
     const updatedOrder = await product.findOneAndUpdate(
       { _id: productId },
@@ -688,6 +719,10 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+const loadCoupon = async (req,res)=>{
+  res.render("admin/coupon")
+}
+
 const logout = (req, res) => {
   try {
     req.session.destroy((err) => {
@@ -732,4 +767,6 @@ module.exports = {
   rejectCancelRequest,
   acceptRequest,
   updateOrderStatus,
+
+  loadCoupon,
 };

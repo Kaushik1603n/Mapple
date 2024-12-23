@@ -44,12 +44,11 @@ const userSchema = new Schema({
   //     ref: "Cart",
   //   },
   // ],
-  wallet: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "whishlist",
-    },
-  ],
+  wallet: {
+    type: Schema.Types.ObjectId,
+    ref: "Wallet",  // Capitalized to match the model name
+  },
+ 
   orderHistory: [
     {
       type: Schema.Types.ObjectId,
