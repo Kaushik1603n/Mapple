@@ -154,6 +154,10 @@ const orderSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    couponDiscount: {
+      type: Number,
+      default: false,
+    },
     trackingId: {
       type: String,
     },

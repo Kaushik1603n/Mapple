@@ -62,7 +62,8 @@
                                             <% } else { %>
                                                 <div class="form-check">
                                                     <p>No address available.</p>
-                                                    <a href="/user/address" class="btn bg-secondary text-white">Add address</a>
+                                                    <a href="/user/address" class="btn bg-secondary text-white">Add
+                                                        address</a>
                                                 </div>
                                                 <% } %>
                                                     <!-- <button class="btn btn-dark mt-3" id="addAddressBtn">Add Address</button> -->
@@ -139,7 +140,7 @@
 
             <!-- Payment Method & Order Summary -->
             <div class="col-md-4">
-                <div class="payment-method mb-4">
+                <div class="payment-method mb-3">
                     <h5 class="mb-3">Payment Method</h5>
                     <form>
                         <div class="form-check">
@@ -162,15 +163,34 @@
                         </div>
                     </form>
                 </div>
+
+                <div class="apply-coupon d-flex align-items-center ">
+                    <input type="text" class="form-control me-2" id="couponCode" value="<%= couponCode %>"
+                        placeholder="Enter Coupon Code">
+                    <!-- <% if (couponCode && couponCode.length>3) { %> -->
+                    <!-- <% } else { %> -->
+                    <!-- <% } %> -->
+                    <button id="removeCouponBtn" class="btn btn-danger my-1" onclick="remove_coupon()"
+                        style="display: none;">Remove</button>
+                    <button id="applyCouponBtn" class="btn btn-primary my-1">Apply</button>
+                </div>
+                <p id="couponMessage" class="text-success m-3"></p>
+                <p id="couponMessageFalse" class="text-danger m-3"></p>
+
                 <% if (userCart) { %>
                     <div class="order-summary">
                         <h5 class="mb-3">Order Summary</h5>
                         <p>Sub-total: <span class="float-end">₹<%= userCart.totalAmount %></span></p>
                         <p>Shipping: <span class="float-end">Free</span></p>
-                        <p>Discount: <span class="float-end text-success">-₹<%= userCart.totalDiscountAmount %></span></p>
+                        <p>Coupon Discount: <span class="float-end text-success" id="discountAmount"></span>
+                        <p>Discount: <span class="float-end text-success">-₹<%= userCart.totalDiscountAmount %></span>
+                        </p>
                         <!-- <p>Tax: <span class="float-end">₹1,599</span></p> -->
                         <hr>
-                        <p><strong>Total: <span class="float-end">₹<%= userCart.totalActualAmount %></span></strong></p>
+                        <p><strong>Total: <span class="float-end" id="totalAmount">₹<%= userCart.totalActualAmount %>
+                                </span></strong></p>
+                        <span class="float-end" id="totalActualAmount" hidden>₹<%= userCart.totalActualAmount %>
+                        </span>
                         <button class="btn btn-dark w-100" id="placeOrderBtn">Place Order</button>
                         <input type="hidden" value="<%= JSON.stringify(userCart) %>" id="cartData">
                     </div>
@@ -343,6 +363,10 @@
             const userCart = JSON.parse(document.getElementById('cartData').value);
             // console.log(userCart);
 
+            const discountAmount = document.getElementById("discountAmount").textContent;
+            const totalAmount = document.getElementById("totalAmount").textContent;
+
+            // alert( totalAmount)
 
             // Combine all data
             const orderData = {
@@ -353,12 +377,13 @@
                 })),
                 totalPrice: userCart.totalPrice,
                 discount: userCart.discount || 0,
-                finalAmount: userCart.finalAmount,
+                couponDiscount: discountAmount || 0,
+                finalTotalAmount: totalAmount || userCart.finalAmount,
                 deliveryAddress,
                 billingDetails,
                 paymentMethod,
                 status: "pending", // Default status
-                couponApplied: userCart.couponApplied || false,
+                couponApplied: discountAmount !== "" ? true : false,
             };
 
 
@@ -388,6 +413,73 @@
                     Swal.fire('Error!', 'An error occurred. Please try again.', 'error');
                 });
         });
+
+    </script>
+    <script>
+        //coupon management 
+        document.getElementById("applyCouponBtn").addEventListener("click", () => {
+            const couponCode = document.getElementById("couponCode").value;
+            const totalAmount = parseFloat(document.getElementById("totalAmount").textContent.replace(/[^\d.-]/g, ""));
+
+            fetch("/user/applyCoupon", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ couponCode, totalAmount }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        // alert("success", data.finalAmount)
+                        document.getElementById("couponMessage").textContent = data.message;
+                        document.getElementById("discountAmount").textContent = `₹${data.discount.toFixed(0)}`;
+                        document.getElementById("totalAmount").textContent = `₹${data.finalAmount.toFixed(0)}`;
+                        document.getElementById("removeCouponBtn").style.display = "block"
+                        document.getElementById("applyCouponBtn").style.display = "none"
+                        document.getElementById("couponMessageFalse").textContent = null
+
+                    } else {
+                        // alert("faild")
+                        document.getElementById("couponMessage").textContent = null;
+                        document.getElementById("couponMessageFalse").textContent = data.message;
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    alert("Server issue");
+                });
+
+        });
+
+        function remove_coupon() {
+            const couponCode = document.getElementById("couponCode").value;
+            const totalAmount = parseFloat(document.getElementById("totalActualAmount").textContent.replace(/[^\d.-]/g, ""));
+
+            fetch("/user/removeCoupon", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ couponCode, totalAmount }),
+            }).then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        document.getElementById("removeCouponBtn").style.display = "none"
+                        document.getElementById("applyCouponBtn").style.display = "block"
+                        document.getElementById("couponMessage").textContent = data.message;
+                        document.getElementById("discountAmount").textContent = `-`;
+                        document.getElementById("totalAmount").textContent = `₹${data.totalAmount.toFixed(0)}`;
+                        document.getElementById("couponCode").value = null;
+                        document.getElementById("couponMessageFalse").textContent = null
+
+                    } else {
+                        // alert("faild")
+                        document.getElementById("couponMessage").textContent = null;
+                        document.getElementById("couponMessageFalse").textContent = data.message;
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    alert("Server issue");
+                });
+        }
 
     </script>
 

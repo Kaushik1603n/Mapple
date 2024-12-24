@@ -52,6 +52,8 @@ router.post("/cart/update-quantity", userController.updatequantity);
 
 router.get("/checkout",auth.userAuth, userController.loadCheckout);
 router.post("/placeOrder",auth.userAuth, userController.placeOrder);
+router.post("/applyCoupon",auth.userAuth, userController.applyCoupon);
+router.post("/removeCoupon",auth.userAuth, userController.removeCoupon);
 
 
 router.get(

@@ -12,6 +12,7 @@ const { log, error } = require("console");
 const { render } = require("ejs");
 const wishlist = require("../models/wishlistSchema");
 const Wallet = require("../models/walletSchema");
+const coupon = require("../models/couponSchema");
 
 const loadHomePage = async (req, res) => {
   try {
@@ -1155,11 +1156,14 @@ const loadCheckout = async (req, res) => {
   const userId = userData._id;
   try {
     let userAddress = await address.findOne({ userId: userId });
-    // console.log(userAddress);
+    let userCoupon = await coupon.findOne({ userId: userId });
+    // console.log(userCoupon);
+    const couponCode = req.session.couponCode;
+    console.log(couponCode);
     const userCart = await cart.findOne({ userId });
     // console.log(userCart);
 
-    res.render("user/checkOut", { userAddress, userCart });
+    res.render("user/checkOut", { userAddress, userCart, couponCode });
   } catch (error) {}
 };
 
@@ -1174,9 +1178,14 @@ const placeOrder = async (req, res) => {
       paymentMethod,
       status,
       couponApplied,
+      couponDiscount,
+      finalTotalAmount,
     } = req.body;
+    const couponDisc = parseFloat(couponDiscount.replace(/[^\d.-]/g, ""));
+    const totalAmounts = parseFloat(finalTotalAmount.replace(/[^\d.-]/g, ""));
 
-    console.log(paymentMethod);
+    // const couponCode = req.session.couponCode
+    // console.log(couponCode);
 
     if (!orderedItem || orderedItem.length === 0) {
       return res.status(400).json({ error: "Ordered items are required." });
@@ -1184,6 +1193,9 @@ const placeOrder = async (req, res) => {
     if (!deliveryAddress || !billingDetails || !paymentMethod) {
       return res.status(400).json({ message: "All fields are required." });
     }
+    const couponPercentage=req.session.couponDiscount;
+    console.log(couponPercentage);
+    
     let finalAmount = 0;
     let totalPrice = 0;
     const orderedProduct = [];
@@ -1211,9 +1223,9 @@ const placeOrder = async (req, res) => {
         description: product.description,
         quantity: item.quantity,
         regularPrice: product.regularPrice,
-        regularTotal: product.regularPrice * item.quantity,
+        regularTotal : product.regularPrice * item.quantity ,
         price: item.price,
-        total: item.quantity * item.price,
+        total: item.quantity * item.price * (1 - (couponPercentage || 0) / 100),
         discount:
           product.regularPrice * item.quantity - item.quantity * product.price,
       });
@@ -1246,8 +1258,6 @@ const placeOrder = async (req, res) => {
       } catch (error) {
         console.error("Error Order place using Wallet:", error);
       }
-
-
     }
 
     const orderId = ` ORD${Date.now()}`;
@@ -1256,13 +1266,14 @@ const placeOrder = async (req, res) => {
       userId: userId,
       orderedItem: orderedProduct,
       totalPrice,
-      discount: totalPrice - finalAmount,
-      finalAmount,
+      discount: totalPrice - finalAmount + couponDisc,
+      finalAmount: finalAmount - couponDisc,
       deliveryAddress: deliveryAddress,
       billingDetails: billingDetails,
       invoiceDate: new Date(),
       status: status,
       couponApplied: couponApplied || false,
+      couponDiscount: couponDisc,
       paymentMethod,
     });
 
@@ -1295,6 +1306,99 @@ const placeOrder = async (req, res) => {
   }
 };
 
+const applyCoupon = async (req, res) => {
+  const { couponCode, totalAmount } = req.body;
+  const userData = req.session.user;
+  try {
+    const findcoupon = await coupon.findOne({
+      couponCode: couponCode,
+      isList: true,
+    });
+
+    if (!findcoupon) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Invalid or expired coupon." });
+    }
+    req.session.couponCode = couponCode;
+    req.session.couponDiscount = findcoupon.discount;
+    // console.log(req.session.couponDiscount);
+    
+
+    if (findcoupon.userId.includes(userData._id)) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Coupon already used." });
+   
+    } else {
+      findcoupon.userId.push(userData._id);
+      await findcoupon.save();
+    }
+
+    if (findcoupon.expiryDate < new Date()) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Coupon has expired." });
+    }
+
+    if (totalAmount < findcoupon.mininumParchase) {
+      return res.status(400).json({
+        success: false,
+        message: `Minimum order value must be ₹${findcoupon.mininumParchase} to apply this coupon.`,
+      });
+    }
+
+    let discount = 0;
+    if (findcoupon) {
+      discount = Math.min(
+        (findcoupon.discount / 100) * totalAmount,
+        findcoupon.maxDiscount || Infinity
+      );
+    }
+    const finalAmount = totalAmount - discount;
+
+    res.status(200).json({
+      success: true,
+      message: "Coupon applied successfully!",
+      discount,
+      finalAmount,
+    });
+  } catch (error) {}
+};
+
+const removeCoupon = async (req, res) => {
+  const { couponCode, totalAmount } = req.body;
+  const userData = req.session.user;
+  
+  try {
+    const findcoupon = await coupon.findOne({ couponCode: couponCode });
+
+    if (findcoupon) {
+      const userIdToRemove = userData._id.toString();
+
+      findcoupon.userId = findcoupon.userId.filter(
+        (id) => id.toString() !== userIdToRemove
+      );
+
+      await findcoupon.save();
+      req.session.couponCode = null;
+
+      return res.status(200).json({
+        success: true,
+        message: "Coupon removed successfully",
+        couponCode,
+        totalAmount,
+      });
+    } else {
+      console.log("Coupon not found.");
+      return res.status(404).json({ message: "Coupon not found" });
+    }
+  } catch (error) {
+    console.error("Error while removing coupon:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const addWishlist = async (req, res) => {
   if (!req.session.user) {
     return res.status(404).json({ error: "Login First" });
@@ -1303,10 +1407,8 @@ const addWishlist = async (req, res) => {
   const userId = userData._id;
   try {
     const { productId, liked } = req.body;
-    // console.log(req.body);
 
     const findUser = await wishlist.findOne({ userId: userId });
-    // console.log(findUser);
 
     if (liked) {
       if (findUser) {
@@ -1399,6 +1501,8 @@ module.exports = {
 
   loadCheckout,
   placeOrder,
+  applyCoupon,
+  removeCoupon,
 
   addWishlist,
 };
