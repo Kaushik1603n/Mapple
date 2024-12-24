@@ -36,6 +36,11 @@ router.delete("/deleteProductImage/:productId",productController.deleteProductIm
 router.delete("/deleteProduct/:id",productController.deleteProduct)
 
 router.get("/coupon",adminController.loadCoupon)
+router.get("/addCoupon",adminController.loadAddCoupon)
+router.post("/addcoupon",adminController.addCoupon)
+router.get("/updateCoupon/:id",adminController.loadUpdateCoupon)
+router.post("/updatecoupon",adminController.updateCoupon)
+router.delete("/deleteCoupon/:id",adminController.deleteCoupon)
 
 router.get("/orders",adminController.loadOrders)
 router.get("/cancelReturn",adminController.loadCancelReturn);

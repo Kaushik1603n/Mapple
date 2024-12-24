@@ -8,26 +8,43 @@ const couponSchema = new Schema({
     required: true,
     unique: true,
   },
-  createAt:{
+  couponCode: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  discription: {
+    type: String,
+    required: true,
+  },
+  discount: {
+    type: Number,
+    required: true,
+  },
+  maxDiscount: {
+    type: Number,
+    required: true,
+  },
+  mininumParchase: {
+    type: Number,
+    default: 0,
+  },
+  startDate:{
     type:Date,
     default:Date.now,    
     required:true,
   },
-  expireOn:{
+  endDate:{
     type:Date,
     required:true,
   },
-  offerPrice: {
-    type: Number,
-    required: true,
-  },
-  mininumPrice: {
-    type: Number,
-    default: 0,
-  },
   isList: {
     type: Boolean,
-    required: true,
+    default:true,
+  },
+  userLimit: {
+    type: Number,
+    default:null,
   },
   userId:[{
     type:mongoose.Schema.Types.ObjectId,
