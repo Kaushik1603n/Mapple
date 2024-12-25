@@ -13,6 +13,7 @@ const { render } = require("ejs");
 const wishlist = require("../models/wishlistSchema");
 const Wallet = require("../models/walletSchema");
 const coupon = require("../models/couponSchema");
+const Razorpay = require("razorpay");
 
 const loadHomePage = async (req, res) => {
   try {
@@ -1159,9 +1160,7 @@ const loadCheckout = async (req, res) => {
     let userCoupon = await coupon.findOne({ userId: userId });
     // console.log(userCoupon);
     const couponCode = req.session.couponCode;
-    console.log(couponCode);
     const userCart = await cart.findOne({ userId });
-    // console.log(userCart);
 
     res.render("user/checkOut", { userAddress, userCart, couponCode });
   } catch (error) {}
@@ -1181,11 +1180,13 @@ const placeOrder = async (req, res) => {
       couponDiscount,
       finalTotalAmount,
     } = req.body;
-    const couponDisc = parseFloat(couponDiscount.replace(/[^\d.-]/g, ""));
-    const totalAmounts = parseFloat(finalTotalAmount.replace(/[^\d.-]/g, ""));
+    const couponDisc =
+      parseFloat(((couponDiscount || "0") + "").replace(/[^\d.-]/g, "")) || 0;
+    // console.log("couponDiscount:", couponDiscount, "couponDisc:", couponDisc);
+    const totalAmounts =
+      parseFloat(((finalTotalAmount || "0") + "").replace(/[^\d.-]/g, "")) || 0;
 
     // const couponCode = req.session.couponCode
-    // console.log(couponCode);
 
     if (!orderedItem || orderedItem.length === 0) {
       return res.status(400).json({ error: "Ordered items are required." });
@@ -1193,9 +1194,9 @@ const placeOrder = async (req, res) => {
     if (!deliveryAddress || !billingDetails || !paymentMethod) {
       return res.status(400).json({ message: "All fields are required." });
     }
-    const couponPercentage=req.session.couponDiscount;
-    console.log(couponPercentage);
-    
+    const couponPercentage = req.session.couponDiscount;
+    // console.log(couponPercentage);
+
     let finalAmount = 0;
     let totalPrice = 0;
     const orderedProduct = [];
@@ -1223,13 +1224,39 @@ const placeOrder = async (req, res) => {
         description: product.description,
         quantity: item.quantity,
         regularPrice: product.regularPrice,
-        regularTotal : product.regularPrice * item.quantity ,
+        regularTotal: product.regularPrice * item.quantity,
         price: item.price,
         total: item.quantity * item.price * (1 - (couponPercentage || 0) / 100),
         discount:
           product.regularPrice * item.quantity - item.quantity * product.price,
       });
     }
+
+    // console.log(paymentMethod);
+    // if (paymentMethod == "upi") {
+    //   console.log(paymentMethod);
+
+    //   const razorpayInstance = new Razorpay({
+    //     key_id: process.env.RZP_KEY_ID,
+    //     key_secret: process.env.RZP_TEST_KEY_ID,
+    //   });
+    //   const discount = couponDisc ?? 0;
+    //   console.log((finalAmount - discount) * 100);
+
+    //   const amount = (finalAmount - discount) * 100;
+    //   const currency = "INR";
+
+    //   try {
+    //     const order = await razorpayInstance.orders.create({
+    //       amount,
+    //       currency,
+    //     });
+    //    return res.json({ orderId: order.id,amount });
+    //   } catch (error) {
+    //     console.error(error);
+    //     res.status(500).send("Error creating order");
+    //   }
+    // }
 
     if (paymentMethod == "wallet") {
       let userwallet = await Wallet.findOne({ user: userId });
@@ -1306,6 +1333,90 @@ const placeOrder = async (req, res) => {
   }
 };
 
+const verifyPayment = async (req, res) => {
+  const userData = req.session.user;
+  const userId = userData._id;
+  const {
+    orderedItem,
+    deliveryAddress,
+    billingDetails,
+    paymentMethod,
+    status,
+    couponApplied,
+    couponDiscount,
+    finalTotalAmount,
+  } = req.body;
+  const couponDisc =
+    parseFloat(((couponDiscount || "0") + "").replace(/[^\d.-]/g, "")) || 0;
+  const totalAmounts =
+    parseFloat(((finalTotalAmount || "0") + "").replace(/[^\d.-]/g, "")) || 0;
+
+
+  if (!orderedItem || orderedItem.length === 0) {
+    return res.status(400).json({ error: "Ordered items are required." });
+  }
+  if (!deliveryAddress || !billingDetails || !paymentMethod) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+  const couponPercentage = req.session.couponDiscount;
+
+  let finalAmount = 0;
+  let totalPrice = 0;
+  const orderedProduct = [];
+  for (const item of orderedItem) {
+    const product = await Product.findById(item.product); // product means productId
+    if (!product) {
+      const deleteCartItem = await cart.updateOne(
+        { "items.productId": item.product },
+        { $pull: { items: { productId: item.product } } }
+      );
+      return res
+        .status(404)
+        .json({ error: `Product with ID ${item.product} not found.` });
+    }
+
+    totalPrice += item.quantity * product.regularPrice;
+    finalAmount += item.quantity * item.price;
+    orderedProduct.push({
+      product: product._id,
+      productName: product.productName,
+      firstImage: product.productImage[0],
+      productColor: product.color,
+      productStorage: product.variant,
+      productProcessor: product.processor,
+      description: product.description,
+      quantity: item.quantity,
+      regularPrice: product.regularPrice,
+      regularTotal: product.regularPrice * item.quantity,
+      price: item.price,
+      total: item.quantity * item.price * (1 - (couponPercentage || 0) / 100),
+      discount:
+        product.regularPrice * item.quantity - item.quantity * product.price,
+    });
+  }
+
+  const razorpayInstance = new Razorpay({
+    key_id: process.env.RZP_KEY_ID,
+    key_secret: process.env.RZP_TEST_KEY_ID,
+  });
+  const discount = couponDisc ?? 0;
+  console.log((finalAmount - discount) * 100);
+
+  const amount = (finalAmount - discount) * 100;
+  const currency = "INR";
+
+  try {
+    const order = await razorpayInstance.orders.create({
+      amount,
+      currency,
+    });
+    return res.json({ orderId: order.id, amount });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error creating order");
+  }
+};
+
 const applyCoupon = async (req, res) => {
   const { couponCode, totalAmount } = req.body;
   const userData = req.session.user;
@@ -1323,13 +1434,11 @@ const applyCoupon = async (req, res) => {
     req.session.couponCode = couponCode;
     req.session.couponDiscount = findcoupon.discount;
     // console.log(req.session.couponDiscount);
-    
 
     if (findcoupon.userId.includes(userData._id)) {
       return res
         .status(404)
         .json({ success: false, message: "Coupon already used." });
-   
     } else {
       findcoupon.userId.push(userData._id);
       await findcoupon.save();
@@ -1369,7 +1478,7 @@ const applyCoupon = async (req, res) => {
 const removeCoupon = async (req, res) => {
   const { couponCode, totalAmount } = req.body;
   const userData = req.session.user;
-  
+
   try {
     const findcoupon = await coupon.findOne({ couponCode: couponCode });
 
@@ -1501,6 +1610,7 @@ module.exports = {
 
   loadCheckout,
   placeOrder,
+  verifyPayment,
   applyCoupon,
   removeCoupon,
 
