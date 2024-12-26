@@ -67,9 +67,9 @@ const cartSchema = new Schema({
 });
 
 cartSchema.pre("save", function (next) {
-  this.items.forEach((item) => {
-    item.totalprice = item.price * item.quantity;
-  });
+  // this.items.forEach((item) => {
+  //   item.totalprice = item.price * item.quantity;
+  // });
 
   this.totalActualAmount = this.items.reduce(
     (sum, item) => sum + item.price * item.quantity,

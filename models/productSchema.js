@@ -62,6 +62,10 @@ const productSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    specialOffer: {
+      type: Boolean,
+      default: false,
+    },
     status: {
       type: String,
       enum: ["Available", "Out of stock", "Discountinued"],

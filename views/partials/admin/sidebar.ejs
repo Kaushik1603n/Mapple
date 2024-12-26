@@ -34,7 +34,7 @@
             position: fixed;
             top: 0;
             left: 0;
-            height: 100vh;
+            /* height: 100vh; */
             z-index: 1000;
         }
 
@@ -52,7 +52,7 @@
 
         #sidebar .app-name {
             background-color: #ffffff;
-            padding: 10px;
+            padding: 5px;
             color: #464545;
             font-weight: 600;
         }
@@ -68,6 +68,12 @@
         }
 
         #sidebar .nav-link .active:hover {
+
+            background-color: #464545;
+            color: #ffffff;
+            border-radius: 5px;
+        }
+        #sidebar .nav-link:hover {
 
             background-color: #464545;
             color: #ffffff;
@@ -170,6 +176,12 @@
                         <i class="fas fa-images"></i> Banner
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="/admin/offers" class="nav-link">
+                        <i class="fas fa-gift"></i> Offers
+                    </a>
+                </li>
+                
                 <li class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="fas fa-credit-card"></i> Transaction

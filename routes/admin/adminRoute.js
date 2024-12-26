@@ -48,6 +48,10 @@ router.post("/rejectCancelRequest",adminController.rejectCancelRequest);
 router.post("/acceptRequest",adminController.acceptRequest);
 router.patch("/updateOrderStatus/:itemId",adminController.updateOrderStatus);
 
+router.get("/offers",adminController.loadOffers)
+router.get("/addOffer",adminController.loadAddOffers)
+router.post("/addOffer",adminController.addOffers)
+router.put("/update-Offer-status/:id",adminController.updateOffersStatus)
 
 
 

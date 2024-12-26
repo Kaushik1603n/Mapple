@@ -14,6 +14,7 @@ const wishlist = require("../models/wishlistSchema");
 const Wallet = require("../models/walletSchema");
 const coupon = require("../models/couponSchema");
 const Razorpay = require("razorpay");
+const Offer = require("../models/offerSchema");
 
 const loadHomePage = async (req, res) => {
   try {
@@ -574,7 +575,46 @@ const loadProductDetails = async (req, res) => {
   const user = req.session.user;
 
   try {
-    let productDetails = await Product.findOne({ _id: productId });
+    let productDetails = await Product.findOne({ _id: productId }).populate(
+      "category"
+    );
+
+    const productName = `${productDetails.productName} ${productDetails.variant} ${productDetails.processor} ${productDetails.color}`;
+
+    const findPrdOffer = await Offer.findOne({ productCategory: productName });
+    const findCatOffer = await Offer.findOne({
+      productCategory: productDetails.category.name,
+    });
+    let productOffer;
+    let cattegoryOffer;
+    if (findPrdOffer) {
+      productOffer = findPrdOffer.offer;
+    }
+    
+    
+    if(findCatOffer){
+      cattegoryOffer=findCatOffer.offer;
+    }
+
+    const productCategoryOffer = (productOffer || 0) + (cattegoryOffer || 0);
+    // console.log(productCategoryOffer);
+    
+
+    // console.log(productOffer);
+
+    // if (findPrdOffer && findCatOffer) {
+    //   if (findPrdOffer.offer >= findCatOffer.offer) {
+    //     productCategory = findPrdOffer.offer;
+    //   } else {
+    //     productCategory=findCatOffer.offer
+    //   }
+    // } else if (findPrdOffer) {
+    //   productCategory = findPrdOffer.offer;
+    // } else if (findCatOffer) {
+    //   productCategory = findCatOffer.offer;
+    // }
+    // console.log(productCategory);
+
     let allReview = await Review.find({ product: productId }).populate(
       "user",
       "name email"
@@ -621,6 +661,8 @@ const loadProductDetails = async (req, res) => {
     const availableColors = [...new Set(variantColors)];
     // const availableColors = ['#1D2536','#C0C0C0','#C0C0C0']
     // console.log(availableColors);
+    console.log(productCategoryOffer);
+    
 
     res.render("user/productDetails", {
       productDetails,
@@ -630,6 +672,7 @@ const loadProductDetails = async (req, res) => {
       activeColor,
       products,
       allReview: allReview || [],
+      productOffer:productCategoryOffer,
       user,
     });
   } catch (error) {
@@ -1023,8 +1066,24 @@ const addCart = async (req, res) => {
     const existingItem = userCart.items.find(
       (item) => item.productId.toString() === productId
     );
-    const product = await Product.findById(productId);
+    const product = await Product.findById(productId).populate("category");
 
+    const productCategory = product.category.name;
+    let findcategoryOffer={offer:0}
+    const categoryOffer = await Offer.findOne({productCategory:productCategory})
+    if(categoryOffer){
+      findcategoryOffer=categoryOffer
+    }
+    
+    let findOffer = { offer: 0 };
+    if (product.specialOffer) {
+      findOffer = await Offer.findOne({ productCategoryID: product._id });
+    }
+    // console.log((findcategoryOffer.offer || 0),(findOffer.offer|| 0));
+    findOffer.offer =( findcategoryOffer.offer || 0)+(findOffer.offer || 0);
+    // console.log(findOffer.offer);
+    
+    const hasOffer = findOffer && findOffer.offer > 0;
     if (existingItem) {
       const totalStock = product.quantity;
 
@@ -1044,15 +1103,27 @@ const addCart = async (req, res) => {
           .status(404)
           .json({ success: false, message: "Product not found" });
       }
+      // const findPrdOffer = await Offer.findOne({ productCategory: productName });
+      // const findCatOffer = await Offer.findOne({
+      //   productCategory: productDetails.category.name,
+      // });
 
       userCart.items.push({
         productId: productId,
         quantity: quantity,
-        price: product.salePrice,
         regularPrice: product.regularPrice,
-        totalprice: product.salePrice * quantity,
-        discount:
-          product.regularPrice * quantity - product.salePrice * quantity,
+        price: hasOffer
+          ? product.regularPrice -
+            (product.regularPrice * findOffer.offer) / 100
+          : product.salePrice || product.regularPrice, // Apply sale price or fallback to regular price
+        totalprice: hasOffer
+          ? product.regularPrice * quantity -
+            (product.regularPrice * quantity * findOffer.offer) / 100
+          : (product.salePrice || product.regularPrice) * quantity, // Apply total price logic
+        discount: hasOffer
+          ? (product.regularPrice * quantity * findOffer.offer) / 100
+          : product.regularPrice * quantity -
+            (product.salePrice || product.regularPrice) * quantity, // Discount logic
       });
     }
 
@@ -1350,7 +1421,6 @@ const verifyPayment = async (req, res) => {
     parseFloat(((couponDiscount || "0") + "").replace(/[^\d.-]/g, "")) || 0;
   const totalAmounts =
     parseFloat(((finalTotalAmount || "0") + "").replace(/[^\d.-]/g, "")) || 0;
-
 
   if (!orderedItem || orderedItem.length === 0) {
     return res.status(400).json({ error: "Ordered items are required." });

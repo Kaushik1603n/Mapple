@@ -7,6 +7,7 @@ const product = require("../../models/productSchema");
 const order = require("../../models/orderSchema");
 const Wallet = require("../../models/walletSchema");
 const coupon = require("../../models/couponSchema");
+const Offer = require("../../models/offerSchema");
 
 const pageerror = (req, res) => {
   res.render("pageerror");
@@ -885,29 +886,180 @@ const deleteCoupon = async (req, res) => {
     const result = await coupon.findByIdAndDelete(id);
     if (!result) {
       return res.status(404).json({
-          success: false,
-          message: "Coupon not found.",
+        success: false,
+        message: "Coupon not found.",
       });
-  }
+    }
 
-  res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "Coupon deleted successfully.",
-  });
+    });
   } catch (error) {
     console.error("Error deleting coupon:", error);
     res.status(500).json({
-        success: false,
-        message: "An error occurred while deleting the coupon.",
+      success: false,
+      message: "An error occurred while deleting the coupon.",
     });
   }
 };
+
+const loadOffers = async (req, res) => {
+  try {
+    const allOffers = await Offer.find();
+    res.render("admin/offers",{allOffers});
+  } catch (error) {}
+};
+
+const loadAddOffers = async (req, res) => {
+  try {
+    const allProduct = await product.find({ isBlock: false });
+    const allCategory = await Category.find({ status: true });
+
+    for (const product of allProduct) {
+      product.productName =
+        product.productName +
+        " " +
+        product.variant +
+        " " +
+        product.processor +
+        " " +
+        product.color;
+      product.description = "";
+    }
+    res.render("admin/addOffer", { allProduct, allCategory });
+  } catch (error) {}
+};
+
+const addOffers = async (req, res) => {
+  // console.log(product);
+  const {
+    offers,
+    productCategory,
+    title,
+    description,
+    offer,
+    startDate,
+    endDate,
+    status,
+  } = req.body;
+
+  // console.log(productCategory);
+
+  const [productName, model] = productCategory.split(" ");
+  const [prdname, prdseries, varient, processor, color] =
+    productCategory.split(" ");
+  const products = [productName, model].join(" ");
+  // console.log(prdname, prdseries, varient, processor, color);
+  console.log(products, varient, color);
+
+  try {
+    const findOffer = await Offer.find({ productCategory: productCategory });
+
+    if (findOffer.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "An offer already exists for this product / category.",
+      });
+    }
+
+    let productDetails;
+    let categoryDetails;
+
+    let productCategoryID;
+
+    if (offers === "product") {
+      let productDetails = await product.findOne({
+        productName: products,
+        variant: varient,
+        color: color,
+      });
+      // console.log(productDetails);
+
+      productCategoryID = productDetails._id;
+    } else {
+      categoryDetails = await Category.findOne({ name: productCategory });
+      productCategoryID = categoryDetails._id;
+    }
+    if (offers === "product") {
+      const productStatus = await product.findOneAndUpdate(
+        { _id: productCategoryID },
+        { $set: { specialOffer: true } }
+      );
+    }
+    // console.log(productStatus);
+
+    const addOffer = await Offer.create({
+      offerType: offers,
+      productCategory: productCategory,
+      productCategoryID: productCategoryID,
+      title: title,
+      description: description,
+      offer: offer,
+      startDate: startDate,
+      endDate: endDate,
+      status: status,
+    });
+
+    if (offers === "product") {
+      const productStatus = product.findByIdAndUpdate(
+        { productCategoryID },
+        { $set: { specialOffer: true } }
+      );
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Offer added successfully.",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while adding the offer.",
+      error: error.message,
+    });
+  }
+};
+
+const updateOffersStatus =async (req,res)=>{
+  const {id} = req.params;
+  try {
+    const updateOffer = await Offer.findByIdAndUpdate(
+      id, 
+      { $set: { status: "Inactive" } },
+      { new: true } 
+    );
+
+    if (!updateOffer) {
+      return res.status(404).json({
+        success: false,
+        message: "Offer not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Offer status updated successfully",
+      data: updateOffer,
+    });
+    
+  } catch (error) {
+    console.error("Error updating offer status:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });    
+  }
+}
+
+
 const logout = (req, res) => {
   try {
     req.session.destroy((err) => {
       if (err) {
         console.log("Error destroying session", err);
-        return re.redirect("/admin/pageerror");
+        return res.redirect("/admin/pageerror");
       }
       res.redirect("/admin/login");
     });
@@ -953,4 +1105,9 @@ module.exports = {
   loadUpdateCoupon,
   updateCoupon,
   deleteCoupon,
+
+  loadOffers,
+  loadAddOffers,
+  addOffers,
+  updateOffersStatus,
 };

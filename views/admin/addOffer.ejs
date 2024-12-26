@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/stylesheet/addProduct.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    <style>
+        .error-text {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 4px;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="alertBox">
+    </div>
+    <div class="d-flex flex-column flex-lg-row">
+        <%- include("../../views/partials/admin/sidebar") %>
+            <div class="container-fluid p-4">
+
+
+                <div class="d-flex justify-content-between align-items-center p-2 mb-2 flex-wrap head-container">
+                    <nav aria-label="breadcrumb" class="p-1 m-0">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item text-secondary"><a href="/admin/offers">Offers</a></li>
+                            <li class="breadcrumb-item text-dark fw-bold" aria-current="page">Add Offer</li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <form id="product-form">
+                            <div class="row g-3">
+
+                                <div class="input-row">
+                                    <div class="col-md-6">
+                                        <label for="stockStatus" class="form-label">Offer (Product/Category)</label>
+                                        <select name="Offers" id="offers" class="form-select">
+                                            <option value="">Select</option>
+                                            <option value="category">Category</option>
+                                            <option value="product">Product</option>
+                                        </select>
+                                        <span id="offers-error" class="error-text"></span>
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="productName" class="form-label">Product/Category Name</label>
+                                        <select name="product_category" id="product-category" class="form-select">
+                                            <option value="">Select</option>
+                                            <input type="hidden" id="prd-cat-id">
+                                        </select>
+                                        <span id="product-category-error" class="error-text"></span>
+
+                                    </div>
+                                </div>
+
+
+                                <div class="input-row">
+                                    <div class="col-md-6">
+                                        <label for="quantity" class="form-label">Title</label>
+                                        <input type="text" name="title" class="form-control" id="quantity"
+                                            placeholder="Enter Title" />
+                                        <span id="title-error" class="error-text"></span>
+                                    </div>
+
+                                    <!-- Category -->
+                                    <div class="col-md-6">
+                                        <label for="category" class="form-label">Discription</label>
+                                        <textarea name="discription" id="discription"></textarea>
+                                        <span id="description-error" class="error-text"></span>
+
+                                    </div>
+                                </div>
+
+                                <div class="input-row">
+                                    <div class="col-md-6">
+                                        <label for="status" class="form-label">Status</label>
+                                        <select class="form-select" name="status" id="status">
+                                            <option selected>Active</option>
+                                            <option>Inactive</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="offer" class="form-label">Offer %</label>
+                                        <input type="number" name="offer" id="offer">
+                                        <span id="offer-error" class="error-text"></span>
+                                    </div>
+
+                                </div>
+
+                                <div class="input-row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="startDate" class="form-label">Start Date</label>
+                                        <input type="date" class="form-control" id="startDate">
+                                        <span id="startDate-error" class="error-text"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="endDate" class="form-label">End Date</label>
+                                        <input type="date" class="form-control" id="endDate">
+                                        <span id="endDate-error" class="error-text"></span>
+                                    </div>
+                                </div>
+                                <input type="hidden" value='<%= JSON.stringify(allProduct) %>' id="allProduct">
+                                <input type="hidden" value='<%= JSON.stringify(allCategory) %>' id="allCategory">
+
+                                <div class="input-row">
+                                    <button class="button" id="submit-btn" type="submit">Add Product</button>
+                                    <a href="/admin/offers" class="button-2">Cancel</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // const allProducts = "<% - JSON.stringify(allProduct) %>";
+        // const allCategories = "<% - JSON.stringify(allCategory) %>";
+        const allProducts = JSON.parse(document.getElementById('allProduct').value);
+        const allCategories = JSON.parse(document.getElementById('allCategory').value);
+        // console.log(allProducts);
+        // console.log(allCategories);
+
+
+        document.getElementById('offers').addEventListener('change', function () {
+            const stockNameDropdown = document.getElementById('product-category');
+            stockNameDropdown.innerHTML = '<option value="">Select</option>';
+            
+
+            if (this.value === 'product') {
+                allProducts.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.productName;
+                    option.textContent = product.productName;
+                    stockNameDropdown.appendChild(option);
+                });
+            } else if (this.value === 'category') {
+                allCategories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.name; // Adjust this based on your schema
+                    option.textContent = category.name; // Adjust this based on your schema
+                    stockNameDropdown.appendChild(option);
+                });
+            }
+        });
+
+
+        document.getElementById("product-form").addEventListener("submit", function (e) {
+            let isValid = true;
+
+            // Clear previous error messages
+            document.querySelectorAll(".error-text").forEach((element) => {
+                element.innerText = "";
+            });
+
+            // Get form fields
+            const offers = document.getElementById("offers").value;
+            const productCategory = document.getElementById("product-category").value;
+            const title = document.getElementById("quantity").value.trim();
+            const description = document.getElementById("discription").value.trim();
+            const offer = document.getElementById("offer").value.trim();
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+            const status = document.getElementById("status").value; // Added status field
+
+            // Validate each field and display error near it
+            if (!offers) {
+                isValid = false;
+                document.getElementById("offers-error").innerText = "Please select an offer type.";
+            }
+
+            if (!productCategory) {
+                isValid = false;
+                document.getElementById("product-category-error").innerText = "Please select a Product or Category Name.";
+            }
+
+            if (!title) {
+                isValid = false;
+                document.getElementById("title-error").innerText = "Title is required.";
+            }
+
+            if (!description) {
+                isValid = false;
+                document.getElementById("description-error").innerText = "Description is required.";
+            }
+
+            if (!offer || isNaN(offer) || offer <= 0 || offer > 100) {
+                isValid = false;
+                document.getElementById("offer-error").innerText = "Offer % must be a valid number between 1 and 100.";
+            }
+
+            if (!startDate) {
+                isValid = false;
+                document.getElementById("startDate-error").innerText = "Start Date is required.";
+            }
+
+            if (!endDate) {
+                isValid = false;
+                document.getElementById("endDate-error").innerText = "End Date is required.";
+            } else if (new Date(startDate) > new Date(endDate)) {
+                isValid = false;
+                document.getElementById("endDate-error").innerText = "End Date must be after Start Date.";
+            }
+
+            // Prevent submission if form is invalid
+            if (!isValid) {
+                e.preventDefault();
+                return;
+            }
+
+            // Create form data object
+            const formData = {
+                offers,
+                productCategory,
+                title,
+                description,
+                offer: parseFloat(offer),
+                startDate,
+                endDate,
+                status,
+            };
+
+            // Prevent form's default submission
+            e.preventDefault();
+
+            // Submit the data using fetch
+            fetch("/admin/addOffer", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Success!",
+                            text: "Offer added successfully.",
+                            confirmButtonText: "OK",
+                        }).then(() => {
+                            window.location.reload(); // Corrected reload
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Failed!",
+                            text: data.message || "Could not add the Offer. Please try again.",
+                            confirmButtonText: "OK",
+                        });
+                    }
+                })
+                .catch((err) => {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Server Error!",
+                        text: "An error occurred while connecting to the server.",
+                        confirmButtonText: "OK",
+                    });
+                    console.error(err);
+                });
+        });
+
+    </script>
+</body>
+
+</html>
