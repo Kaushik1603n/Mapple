@@ -98,14 +98,14 @@
                                     </td>
                                     <td><select name="" id="" class="form-select form-select-sm" aria-label="Status"
                                             onchange="updateOfferStatus('<%= offer._id %>', this.value)">
-                                            <option value="active" <%=offer.status=="Active" ? 'selected' : '' %>>Active
+                                            <option value="Active" <%=offer.status=="Active" ? 'selected' : '' %>>Active
                                             </option>
                                             <option value="Inactive" <%=offer.status=="Inactive" ? 'selected' : '' %>
                                                 >Inactive
                                             </option>
                                         </select></td>
                                     <td>
-                                        <button onclick="window.location.href='#'"
+                                        <button onclick="window.location.href='/admin/updateOffer/<%=offer._id %>'"
                                             class="btn btn-sm btn-outline-primary">Edit</button>
                                     </td>
                                 </tr>

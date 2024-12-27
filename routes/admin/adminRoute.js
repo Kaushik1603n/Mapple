@@ -51,6 +51,8 @@ router.patch("/updateOrderStatus/:itemId",adminController.updateOrderStatus);
 router.get("/offers",adminController.loadOffers)
 router.get("/addOffer",adminController.loadAddOffers)
 router.post("/addOffer",adminController.addOffers)
+router.get("/updateOffer/:id",adminController.loadUpdateOffers)
+router.post("/updateOffer",adminController.updateOffers)
 router.put("/update-Offer-status/:id",adminController.updateOffersStatus)
 
 

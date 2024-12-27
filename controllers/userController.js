@@ -581,19 +581,25 @@ const loadProductDetails = async (req, res) => {
 
     const productName = `${productDetails.productName} ${productDetails.variant} ${productDetails.processor} ${productDetails.color}`;
 
-    const findPrdOffer = await Offer.findOne({ productCategory: productName });
+    const findPrdOffer = await Offer.findOne({ productCategory: productName,status:"Active" });
     const findCatOffer = await Offer.findOne({
-      productCategory: productDetails.category.name,
+      productCategory: productDetails.category.name,status:"Active"
     });
+    // console.log(findPrdOffer);
+    // console.log(findCatOffer);
+    
     let productOffer;
     let cattegoryOffer;
     if (findPrdOffer) {
-      productOffer = findPrdOffer.offer;
+      if(new Date()<=new Date(findPrdOffer.endDate)){
+        productOffer = findPrdOffer.offer;        
+      }
     }
-    
-    
+        
     if(findCatOffer){
+      if (new Date()<=new Date(findCatOffer.endDate)) {      
       cattegoryOffer=findCatOffer.offer;
+      }
     }
 
     const productCategoryOffer = (productOffer || 0) + (cattegoryOffer || 0);
@@ -1070,15 +1076,23 @@ const addCart = async (req, res) => {
 
     const productCategory = product.category.name;
     let findcategoryOffer={offer:0}
-    const categoryOffer = await Offer.findOne({productCategory:productCategory})
+    const categoryOffer = await Offer.findOne({productCategory:productCategory,status:"Active"})
+
     if(categoryOffer){
-      findcategoryOffer=categoryOffer
+      if (new Date()<=new Date(categoryOffer.endDate)) {        
+        findcategoryOffer=categoryOffer
+      }
     }
     
     let findOffer = { offer: 0 };
     if (product.specialOffer) {
-      findOffer = await Offer.findOne({ productCategoryID: product._id });
+       const productOffer = await Offer.findOne({ productCategoryID: product._id,status:"Active" });
+      if(productOffer && new Date()<=new Date(productOffer.endDate)){
+        findOffer=productOffer;
+      }
     }
+    
+
     // console.log((findcategoryOffer.offer || 0),(findOffer.offer|| 0));
     findOffer.offer =( findcategoryOffer.offer || 0)+(findOffer.offer || 0);
     // console.log(findOffer.offer);

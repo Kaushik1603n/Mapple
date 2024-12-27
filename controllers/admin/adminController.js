@@ -907,7 +907,7 @@ const deleteCoupon = async (req, res) => {
 const loadOffers = async (req, res) => {
   try {
     const allOffers = await Offer.find();
-    res.render("admin/offers",{allOffers});
+    res.render("admin/offers", { allOffers });
   } catch (error) {}
 };
 
@@ -1022,13 +1022,88 @@ const addOffers = async (req, res) => {
   }
 };
 
-const updateOffersStatus =async (req,res)=>{
-  const {id} = req.params;
+const loadUpdateOffers = async (req, res) => {
+  const { id } = req.params;
   try {
+    const findOffer = await Offer.findById(id);
+
+    if (!findOffer) {
+      return res.status(404).json({
+        success: false,
+        message: "Offer not found",
+      });
+    }
+
+    res.render("admin/updateOffer", { offer: findOffer });
+
+    // res.status(200).json({
+    //   success: true,
+    //   message: "Offer  updated successfully",
+    //   data: updateOffer,
+    // });
+  } catch (error) {
+    console.error("Error updating offer :", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+const updateOffers = async (req, res) => {
+  const {
+    prdcatid,
+    offers,
+    productCategory,
+    title,
+    description,
+    offer,
+    startDate,
+    endDate,
+    status,
+  } = req.body;
+  try {
+    console.log(req.body);
+
+    const findOffer = await Offer.findById(prdcatid);
+
+    if (!findOffer) {
+      return res.status(404).json({
+        success: false,
+        message: "Offer not found",
+      });
+    }
+
+    findOffer.offerType = offers?.trim() || findOffer.offerType;
+    findOffer.productCategory = productCategory || findOffer.productCategory;
+    findOffer.title = title || findOffer.title;
+    findOffer.description = description || findOffer.description;
+    findOffer.offer = offer || findOffer.offer;
+    findOffer.startDate = startDate || findOffer.startDate;
+    findOffer.endDate = endDate || findOffer.endDate;
+    findOffer.status = status || findOffer.status;
+
+    await findOffer.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Offer  updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating offer :", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+const updateOffersStatus = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const {status}=req.body;
     const updateOffer = await Offer.findByIdAndUpdate(
-      id, 
-      { $set: { status: "Inactive" } },
-      { new: true } 
+      id,
+      { $set: { status: status } },
+      { new: true }
     );
 
     if (!updateOffer) {
@@ -1043,16 +1118,14 @@ const updateOffersStatus =async (req,res)=>{
       message: "Offer status updated successfully",
       data: updateOffer,
     });
-    
   } catch (error) {
     console.error("Error updating offer status:", error);
     res.status(500).json({
       success: false,
       message: "Internal Server Error",
-    });    
+    });
   }
-}
-
+};
 
 const logout = (req, res) => {
   try {
@@ -1109,5 +1182,7 @@ module.exports = {
   loadOffers,
   loadAddOffers,
   addOffers,
+  loadUpdateOffers,
+  updateOffers,
   updateOffersStatus,
 };
