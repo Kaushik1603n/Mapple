@@ -44,11 +44,11 @@ const userSchema = new Schema({
   //     ref: "Cart",
   //   },
   // ],
-  wallet: {
-    type: Schema.Types.ObjectId,
-    ref: "Wallet",  // Capitalized to match the model name
-  },
- 
+  // wallet: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Wallet",
+  // },
+
   orderHistory: [
     {
       type: Schema.Types.ObjectId,
@@ -59,10 +59,16 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-  secondaryEmail:{type: String},
-  referalCode: {
-    type: String,
-  },
+  secondaryEmail: { type: String },
+  referralCode: { type: String, unique: true },
+  referredBy: { type: String },
+  rewards: { type: Number, default: 0 },
+  referredUsers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  ],
   redeemed: {
     type: Boolean,
   },

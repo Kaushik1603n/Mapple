@@ -31,6 +31,8 @@
             <div id="error4" class="error-msg"></div>
             <input type="password" name="cpassword" id="cpassword" placeholder="Confirm Password">
 
+            <input type="text" name="referral" id="referral" hidden>
+
             <button class="create-account-btn" type="submit">Create Account</button>
             <a href="/user/auth/google" class="google-signup-btn" type="button">
               <img src="/image/Google_Icon.webp" alt="Google Logo"> Sign up with Google
@@ -118,6 +120,14 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
+    const queryParams = new URLSearchParams(window.location.search);
+    const referralCode = queryParams.get('ref');
+    // alert(referralCode)
+    const referralInput = document.getElementById('referral');
+    if (referralCode) {
+      referralInput.value = referralCode;
+    }
+
     submitform.addEventListener("submit", function (e) {
       nameValidation();
       emailValidation();
@@ -134,8 +144,8 @@
       if (submitButton) {
         submitButton.disabled = true;
         submitButton.innerText = "Submitting...";
-        submitButton.style.backgroundColor = "#cccccc"; 
-        submitButton.style.color = "#ffffff"; 
+        submitButton.style.backgroundColor = "#cccccc";
+        submitButton.style.color = "#ffffff";
         submitButton.style.cursor = "not-allowed";
       }
 
@@ -146,6 +156,8 @@
 
 </script>
 <script>
+
+
   window.onload = function () {
     const alertMessage = document.getElementById("alertMessage");
     if (alertMessage) {

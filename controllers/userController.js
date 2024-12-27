@@ -15,6 +15,7 @@ const Wallet = require("../models/walletSchema");
 const coupon = require("../models/couponSchema");
 const Razorpay = require("razorpay");
 const Offer = require("../models/offerSchema");
+const Referral = require("../models/referralSchema");
 
 const loadHomePage = async (req, res) => {
   try {
@@ -235,7 +236,8 @@ async function sendVerificationEmail(email, otp) {
 
 const signup = async (req, res) => {
   try {
-    const { name, email, password, cpassword } = req.body;
+    const { name, email, password, cpassword, referral } = req.body;
+    // console.log(referral);
 
     if (password !== cpassword) {
       return res.render("user/signup", { message: "Password do not match" });
@@ -255,7 +257,9 @@ const signup = async (req, res) => {
     req.session.userOtp = otp;
     // console.log("session otp ", req.session.userOtp);
 
-    req.session.userData = { name, email, password };
+    req.session.userData = { name, email, password, referral };
+    console.log(req.session.userData);
+    console.log(referral);
 
     // req.session.registerUser=true;
     res.redirect("/user/verificationOTP");
@@ -287,6 +291,7 @@ const verifyOTP = async (req, res) => {
 
     if (otp === req.session.userOtp) {
       const user = req.session.userData;
+      const referral = user.referral;
       const passwordHash = await securePassword(user.password);
 
       const saveUserData = new User({
@@ -297,6 +302,35 @@ const verifyOTP = async (req, res) => {
 
       await saveUserData.save();
       req.session.user = saveUserData;
+      // console.log(saveUserData);
+      // console.log(referral);
+
+      const findReferral = await User.findOne({ referralCode: user.referral });
+      if (!findReferral) {
+        console.log("Referral code not available in DB");
+      } else {
+        const existReferral = await Referral.findOne({ userEmail: user.email });
+
+        if (!existReferral) {
+          const addReferral = await Referral.create({
+            userId: saveUserData._id,
+            userEmail: saveUserData.email,
+            referralCode: referral,
+            referredUsers: findReferral._id,
+          });
+
+          const findOwner = await User.findOneAndUpdate(
+            { _id: findReferral._id }, // Find the referrer
+            { $push: { referredUsers: saveUserData._id } }, // Add the new user to referredUsers array
+            { new: true }
+          );
+          // console.log(findOwner);
+
+          console.log("Referral successfully added:", addReferral);
+        } else {
+          console.log("Referral already exists for this user.");
+        }
+      }
 
       res.json({ success: true, redirectUrl: "/user/login" });
     } else {
@@ -581,30 +615,33 @@ const loadProductDetails = async (req, res) => {
 
     const productName = `${productDetails.productName} ${productDetails.variant} ${productDetails.processor} ${productDetails.color}`;
 
-    const findPrdOffer = await Offer.findOne({ productCategory: productName,status:"Active" });
+    const findPrdOffer = await Offer.findOne({
+      productCategory: productName,
+      status: "Active",
+    });
     const findCatOffer = await Offer.findOne({
-      productCategory: productDetails.category.name,status:"Active"
+      productCategory: productDetails.category.name,
+      status: "Active",
     });
     // console.log(findPrdOffer);
     // console.log(findCatOffer);
-    
+
     let productOffer;
     let cattegoryOffer;
     if (findPrdOffer) {
-      if(new Date()<=new Date(findPrdOffer.endDate)){
-        productOffer = findPrdOffer.offer;        
+      if (new Date() <= new Date(findPrdOffer.endDate)) {
+        productOffer = findPrdOffer.offer;
       }
     }
-        
-    if(findCatOffer){
-      if (new Date()<=new Date(findCatOffer.endDate)) {      
-      cattegoryOffer=findCatOffer.offer;
+
+    if (findCatOffer) {
+      if (new Date() <= new Date(findCatOffer.endDate)) {
+        cattegoryOffer = findCatOffer.offer;
       }
     }
 
     const productCategoryOffer = (productOffer || 0) + (cattegoryOffer || 0);
     // console.log(productCategoryOffer);
-    
 
     // console.log(productOffer);
 
@@ -668,7 +705,6 @@ const loadProductDetails = async (req, res) => {
     // const availableColors = ['#1D2536','#C0C0C0','#C0C0C0']
     // console.log(availableColors);
     console.log(productCategoryOffer);
-    
 
     res.render("user/productDetails", {
       productDetails,
@@ -678,7 +714,7 @@ const loadProductDetails = async (req, res) => {
       activeColor,
       products,
       allReview: allReview || [],
-      productOffer:productCategoryOffer,
+      productOffer: productCategoryOffer,
       user,
     });
   } catch (error) {
@@ -1015,7 +1051,7 @@ const loadWallet = async (req, res) => {
   const userData = req.session.user;
   try {
     const user = await Wallet.findOne({ user: userData._id }).populate("user");
-    console.log(user);
+    // console.log(user);
 
     res.render("user/wallet", { user });
   } catch (error) {}
@@ -1028,7 +1064,7 @@ const addMoney = async (req, res) => {
   const userData = req.session.user;
   const { amount } = req.body;
   try {
-    console.log(amount);
+    // console.log(amount);
 
     let userwallet = await Wallet.findOne({ user: userData._id });
     if (!userwallet) {
@@ -1047,6 +1083,49 @@ const addMoney = async (req, res) => {
     await userwallet.save();
     res.status(200).json({ success: true, message: "successfully added" });
   } catch (error) {}
+};
+
+const loadReferral = async (req, res) => {
+  const userData = req.session.user;
+
+  function generateReferralCode(username) {
+    return (
+      username.replace(" ", "") +
+      Math.random().toString(36).substr(2, 6).toUpperCase()
+    );
+  }
+
+  try {
+    // console.log("hello");
+
+    let findReferral = await User.findOne({ _id: userData._id });
+    if (!findReferral.referralCode) {
+      const referralCode = generateReferralCode(findReferral.name);
+      findReferral.referralCode = referralCode;
+      console.log(referralCode);
+
+      await findReferral.save();
+    }
+
+    const allReferrals = await Referral.find({ referredUsers: userData._id });
+    let referralBonus = 0;
+    if (allReferrals.length > 0) {
+      for (const doc of allReferrals) {
+        if (doc.referralCode) {
+          referralBonus += 100;
+        }
+      }
+    }
+
+    res.render("user/referral", {
+      ReferralCode: findReferral.referralCode,
+      referralBonus,
+      allReferrals,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
 };
 
 const addCart = async (req, res) => {
@@ -1075,28 +1154,33 @@ const addCart = async (req, res) => {
     const product = await Product.findById(productId).populate("category");
 
     const productCategory = product.category.name;
-    let findcategoryOffer={offer:0}
-    const categoryOffer = await Offer.findOne({productCategory:productCategory,status:"Active"})
+    let findcategoryOffer = { offer: 0 };
+    const categoryOffer = await Offer.findOne({
+      productCategory: productCategory,
+      status: "Active",
+    });
 
-    if(categoryOffer){
-      if (new Date()<=new Date(categoryOffer.endDate)) {        
-        findcategoryOffer=categoryOffer
+    if (categoryOffer) {
+      if (new Date() <= new Date(categoryOffer.endDate)) {
+        findcategoryOffer = categoryOffer;
       }
     }
-    
+
     let findOffer = { offer: 0 };
     if (product.specialOffer) {
-       const productOffer = await Offer.findOne({ productCategoryID: product._id,status:"Active" });
-      if(productOffer && new Date()<=new Date(productOffer.endDate)){
-        findOffer=productOffer;
+      const productOffer = await Offer.findOne({
+        productCategoryID: product._id,
+        status: "Active",
+      });
+      if (productOffer && new Date() <= new Date(productOffer.endDate)) {
+        findOffer = productOffer;
       }
     }
-    
 
     // console.log((findcategoryOffer.offer || 0),(findOffer.offer|| 0));
-    findOffer.offer =( findcategoryOffer.offer || 0)+(findOffer.offer || 0);
+    findOffer.offer = (findcategoryOffer.offer || 0) + (findOffer.offer || 0);
     // console.log(findOffer.offer);
-    
+
     const hasOffer = findOffer && findOffer.offer > 0;
     if (existingItem) {
       const totalStock = product.quantity;
@@ -1685,6 +1769,7 @@ module.exports = {
   removeWishList,
   loadWallet,
   addMoney,
+  loadReferral,
 
   loadProductDetails,
   addCart,

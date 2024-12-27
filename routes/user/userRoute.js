@@ -44,6 +44,7 @@ router.get("/wishlist", userController.loadWishList);
 router.delete("/removeproduct/:id", userController.removeWishList);
 router.get("/wallet", userController.loadWallet);
 router.post("/addmoney", userController.addMoney);
+router.get("/referral", userController.loadReferral);
 
 router.post("/cart", userController.addCart);
 router.get("/cart",auth.userAuth, userController.loadAddCart);
