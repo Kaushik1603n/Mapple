@@ -107,7 +107,6 @@ const loadShope = async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = 8;
     const skip = (page - 1) * limit;
-
     let filter = {};
 
     if (search) {
@@ -1177,9 +1176,7 @@ const addCart = async (req, res) => {
       }
     }
 
-    // console.log((findcategoryOffer.offer || 0),(findOffer.offer|| 0));
     findOffer.offer = (findcategoryOffer.offer || 0) + (findOffer.offer || 0);
-    // console.log(findOffer.offer);
 
     const hasOffer = findOffer && findOffer.offer > 0;
     if (existingItem) {
@@ -1194,17 +1191,13 @@ const addCart = async (req, res) => {
           .json({ success: false, message: "Stock out Product" });
       }
     } else {
-      // If product is not in the cart, add it
+
       const product = await Product.findById(productId);
       if (!product) {
         return res
           .status(404)
           .json({ success: false, message: "Product not found" });
       }
-      // const findPrdOffer = await Offer.findOne({ productCategory: productName });
-      // const findCatOffer = await Offer.findOne({
-      //   productCategory: productDetails.category.name,
-      // });
 
       userCart.items.push({
         productId: productId,
@@ -1213,15 +1206,15 @@ const addCart = async (req, res) => {
         price: hasOffer
           ? product.regularPrice -
             (product.regularPrice * findOffer.offer) / 100
-          : product.salePrice || product.regularPrice, // Apply sale price or fallback to regular price
+          : product.salePrice || product.regularPrice,
         totalprice: hasOffer
           ? product.regularPrice * quantity -
             (product.regularPrice * quantity * findOffer.offer) / 100
-          : (product.salePrice || product.regularPrice) * quantity, // Apply total price logic
+          : (product.salePrice || product.regularPrice) * quantity,
         discount: hasOffer
           ? (product.regularPrice * quantity * findOffer.offer) / 100
           : product.regularPrice * quantity -
-            (product.salePrice || product.regularPrice) * quantity, // Discount logic
+            (product.salePrice || product.regularPrice) * quantity,
       });
     }
 
@@ -1396,6 +1389,7 @@ const placeOrder = async (req, res) => {
         regularTotal: product.regularPrice * item.quantity,
         price: item.price,
         total: item.quantity * item.price * (1 - (couponPercentage || 0) / 100),
+        couponDiscount:(item.quantity * item.price -item.quantity * item.price * (1 - (couponPercentage ) / 100))|| 0,
         discount:
           product.regularPrice * item.quantity - item.quantity * product.price,
       });
@@ -1689,16 +1683,24 @@ const addWishlist = async (req, res) => {
 
     if (liked) {
       if (findUser) {
-        const addWishlist = await wishlist.updateOne(
-          { userId: userId },
-          {
-            $push: {
-              product: {
-                productId: productId,
+        const checkWishlist = await wishlist.findOne({
+          userId: userId,
+          product: { $elemMatch: { productId: productId } },
+        });
+        if (checkWishlist) {
+          console.log("Product already exists in the wishlist.");
+        } else {
+          const addWishlist = await wishlist.updateOne(
+            { userId: userId },
+            {
+              $push: {
+                product: {
+                  productId: productId,
+                },
               },
-            },
-          }
-        );
+            }
+          );
+        }
       } else {
         const addWishlistItems = await wishlist.create({
           userId: userId,

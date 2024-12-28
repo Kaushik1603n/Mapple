@@ -55,6 +55,8 @@ router.get("/updateOffer/:id",adminController.loadUpdateOffers)
 router.post("/updateOffer",adminController.updateOffers)
 router.put("/update-Offer-status/:id",adminController.updateOffersStatus)
 
+router.get("/sales",adminController.loadSales)
+router.post("/salesReport",adminController.salesReport)
 
 
 router.get("/logout",adminController.logout)

@@ -35,15 +35,15 @@ const orderSchema = new Schema(
           required: true,
         },
         productStorage: {
-          type: String, // Changed to String
+          type: String,
           required: true,
         },
         productProcessor: {
-          type: String, // Changed to String
+          type: String,
           required: true,
         },
         description: {
-          type: String, // Changed to String
+          type: String,
           required: true,
         },
         quantity: {
@@ -65,6 +65,10 @@ const orderSchema = new Schema(
         total: {
           type: Number,
           required: true,
+          default: 0,
+        },
+        couponDiscount: {
+          type: Number,
           default: 0,
         },
         status: {

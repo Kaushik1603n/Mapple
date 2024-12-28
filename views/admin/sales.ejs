@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- <link rel="stylesheet" href="/stylesheet/dashboard.css"> -->
+
+    <style>
+        .card {
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+    <div class="d-flex flex-column flex-lg-row">
+        <%- include("../../views/partials/admin/sidebar") %>
+            <div class="container-fluid p-4 ">
+
+
+                <!-- <div class="d-flex justify-content-between align-items-center p-2 mb-2 flex-wrap head-container">
+                    <nav aria-label="breadcrumb" class="p-1 m-0">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item text-dark fw-bold" aria-current="page">Add Offer</li>
+                        </ol>
+                    </nav>
+                </div> -->
+
+                <div class="row">
+                    <!-- Cards -->
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <%= totalDiscount %>
+                                </h5>
+                                <p class="card-text">Total Discount</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <%= customers %>
+                                </h5>
+                                <p class="card-text">Customer</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <%= orders %>
+                                </h5>
+                                <p class="card-text">Orders</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="couponForm" class="rounded shadow-lg p-4 bg-light">
+                    <div class="row g-3 mb-3">
+                        <!-- Select Range -->
+                        <div class="col-md-6">
+                            <label for="day" class="form-label fw-bold">Select Range</label>
+                            <select class="form-select" name="day" id="day">
+                                <option value="Today">Today</option>
+                                <option value="Week">Week</option>
+                                <option value="Month">Month</option>
+                                <option value="Custom">Custom</option>
+                            </select>
+                        </div>
+
+                        <!-- Filter -->
+                        <div class="col-md-6">
+                            <label for="filter" class="form-label fw-bold">Filter</label>
+                            <select class="form-select" name="filter" id="filter">
+                                <option value="Delivered">Delivered</option>
+                                <option value="Canceled">Canceled</option>
+                                <option value="Returned">Returned</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="dateRangeContainer" class="row g-3 mt-3 mb-3" style="display: none;">
+                        <div class="col-md-6">
+                            <label for="startDate" class="form-label fw-bold">Start Date</label>
+                            <input type="date" class="form-control" id="startDate" name="startDate" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="endDate" class="form-label fw-bold">End Date</label>
+                            <input type="date" class="form-control" id="endDate" name="endDate" />
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-4">
+                        <button class="btn btn-success btn me-2">Submit</button>
+                        <div>
+                            <button class="btn btn-primary btn me-2">Download PDF</button>
+                            <button class="btn btn-secondary btn">Download Excel</button>
+                        </div>
+                    </div>
+
+                    
+                    <table id="salesReportTable" class="table table-striped table-bordered mt-4">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Order ID</th>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
+                                <th>Total Amount</th>
+                                <th>Discount</th>
+                                <th>Coupon Discount</th>
+                                <th>Net Price</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+
+                    <input type="hidden" id="totalDiscount">
+                    <input type="hidden" id="totalCouponDiscount">
+                    <input type="hidden" id="totalAmount">
+
+
+                </form>
+
+
+
+
+
+            </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(12);
+
+            // Centered Company Name
+            doc.setFontSize(16);
+            const companyName = "Mapple";
+            const pageWidth = doc.internal.pageSize.width;
+            const textWidth = doc.getTextWidth(companyName);
+            const xPosition = (pageWidth - textWidth) / 2;
+            doc.text(companyName, xPosition, 10);
+
+            // Sales Report Title
+            doc.setFontSize(14);
+            doc.text("Sales Report", 14, 20);
+            doc.line(14, 22, 195, 22); // Line under title
+            doc.setLineWidth(0.5);
+
+            // Get values from input fields or fallback to 0
+            const totalDiscount = parseFloat(document.getElementById("totalDiscount").value) || 0;
+            const totalCouponDiscount = parseFloat(document.getElementById("totalCouponDiscount").value) || 0;
+            const totalAmount = parseFloat(document.getElementById("totalAmount").value) || 0;
+
+            // AutoTable for Sales Report
+            const tableYStart = 30;
+            doc.autoTable({
+                html: "#salesReportTable",
+                startY: tableYStart,
+                theme: "grid",
+                headStyles: { fillColor: [40, 115, 189] },
+            });
+
+            // Position text after the table
+            const finalY = doc.lastAutoTable.finalY + 10; // Get the Y-coordinate after the table
+            doc.setFontSize(12);
+            doc.text(`Total Discount: ${totalDiscount.toFixed(2)}`, 14, finalY);
+            doc.text(`Total Coupon Discount: ${totalCouponDiscount.toFixed(2)}`, 14, finalY + 10);
+            doc.text(`Total Price: ${totalAmount.toFixed(2)}`, 14, finalY + 20);
+
+            // Footer with report generation date
+            const date = new Date();
+            const dateString = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+            doc.setFontSize(10);
+            doc.text(`Report Generated on: ${dateString}`, 14, doc.internal.pageSize.height - 20);
+
+            // Save PDF
+            doc.save("Sales_Report.pdf");
+        }
+
+        // function downloadPDF() {
+        //     const { jsPDF } = window.jspdf;
+        //     const doc = new jsPDF();
+
+        //     // Set up document font and size
+        //     doc.setFont("helvetica", "normal");
+        //     doc.setFontSize(12);
+
+        //     // Company name and title
+        //     doc.setFontSize(16);
+        //     doc.text("Mapple", 14, 10); // Company Name
+        //     doc.setFontSize(14);
+        //     doc.text("Sales Report", 14, 20);
+
+        //     // Add spacing after the title
+        //     doc.line(14, 22, 195, 22); // Horizontal line under the title
+        //     doc.setLineWidth(0.5);
+
+        //     // Total discount and total price (replace with dynamic calculations if needed)
+        //     const totalDiscount = 150;
+        //     const totalPrice = 1200;
+
+        //     doc.setFontSize(12); // Reset font size
+        //     doc.text(`Total Discount: $${totalDiscount.toFixed(2)}`, 14, 35);
+        //     doc.text(`Total Price: $${totalPrice.toFixed(2)}`, 14, 45);
+
+        //     // Add a line break
+        //     doc.ln(10); // Adds a line break (10 units)
+
+        //     // AutoTable for sales report (using the existing table)
+        //     doc.autoTable({
+        //         html: "#salesReportTable", // Use the existing table
+        //         startY: doc.autoTable.previous.finalY + 10, // Dynamically adjust position
+        //         theme: 'grid',
+        //         headStyles: { fillColor: [40, 115, 189], textColor: 255, fontSize: 12 }, // Header styling
+        //         bodyStyles: { fontSize: 10 },
+        //         margin: { top: 5, left: 14, right: 14 },
+        //     });
+
+        //     // Footer with additional details (e.g., date of report generation)
+        //     const date = new Date();
+        //     const dateString = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        //     doc.setFontSize(10);
+        //     doc.text(`Report Generated on: ${dateString}`, 14, doc.internal.pageSize.height - 20); // Footer positioning
+
+        //     // Save as PDF
+        //     doc.save("Sales_Report.pdf");
+        // }
+
+
+        document.querySelector(".btn-primary").addEventListener("click", (e) => {
+            e.preventDefault();
+            downloadPDF();
+        });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        function downloadExcel() {
+            const table = document.getElementById("salesReportTable");
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Sales Report" });
+            XLSX.writeFile(wb, "Sales_Report.xlsx");
+        }
+
+        document.querySelector(".btn-secondary").addEventListener("click", (e) => {
+            e.preventDefault();
+            downloadExcel();
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const daySelect = document.getElementById("day");
+            const dateRangeContainer = document.getElementById("dateRangeContainer");
+
+            daySelect.addEventListener("change", () => {
+                if (daySelect.value === "Custom") {
+                    dateRangeContainer.style.display = "flex"; // Show the date range inputs
+                } else {
+                    dateRangeContainer.style.display = "none"; // Hide the date range inputs
+                }
+            });
+        });
+
+        document.getElementById("couponForm").addEventListener("submit", function (e) {
+            e.preventDefault(); // Prevent the form from submitting
+
+            // Get the selected range and filter
+            const day = document.getElementById("day").value;
+            const filter = document.getElementById("filter").value;
+
+            // Get the date range if 'Custom' is selected
+            let startDate = null;
+            let endDate = null;
+            if (day === "Custom") {
+                startDate = document.getElementById("startDate").value;
+                endDate = document.getElementById("endDate").value;
+            }
+
+            // Create a data object to send to the server
+            const requestData = {
+                range: day,
+                filter: filter,
+                startDate: startDate,
+                endDate: endDate,
+            };
+
+            console.log("Request Data:", requestData);
+
+            // Make an API call to fetch the report data (Example)
+            fetch('/admin/salesReport', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Sales Report Data:", data);
+                    // Handle the response data
+                    displaySalesReport(data)
+                })
+                .catch(error => console.error("Error fetching sales report:", error));
+        });
+
+        //     function displaySalesReport(data) {
+        //         const tableBody = document.querySelector("#salesReportTable tbody");
+
+        //         const table = document.getElementById("salesReportTable");
+        //         table.innerHTML = ""; // Clear existing data
+
+        //     //     data.forEach(item => {
+        //     //         const row = `<tr>
+        //     //     <td>${item.productName}</td>
+        //     //     <td>${item.quantity}</td>
+        //     //     <td>${item.totalPrice}</td>
+        //     //     <td>${item.status}</td>
+        //     // </tr>`;
+        //     //         table.innerHTML += row;
+        //     //     });
+        //     if (data.length === 0) {
+        //     const row = `<tr><td colspan="7" class="text-center">No records found</td></tr>`;
+        //     tableBody.insertAdjacentHTML('beforeend', row);
+        //     return;
+        // }
+
+        // data.forEach((item, index) => {
+        //     const row = `
+        //         <tr>
+        //             <td>${index + 1}</td>
+        //             <td>${item.orderId || "N/A"}</td>
+        //             <td>${item.orderedItem.name || "N/A"}</td>
+        //             <td>${item.orderedItem.status || "N/A"}</td>
+        //             <td>${item.orderedItem.quantity || 0}</td>
+        //             <td>${item.orderedItem.price || 0}</td>
+        //             <td>${new Date(item.date).toLocaleDateString() || "N/A"}</td>
+        //         </tr>
+        //     `;
+        //     tableBody.insertAdjacentHTML('beforeend', row);
+        // });
+        //     }
+
+        function displaySalesReport(data) {
+            const tableBody = document.querySelector("#salesReportTable tbody");
+            let totalDiscount = 0;
+            let totalCouponDiscount = 0;
+            let totalAmount = 0;
+            tableBody.innerHTML = ""; // Clear existing rows
+
+            if (data.length === 0) {
+                const row = `<tr><td colspan="7" class="text-center">No records found</td></tr>`;
+                tableBody.insertAdjacentHTML('beforeend', row);
+                return;
+            }
+
+            data.forEach((item, index) => {
+                const row = `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${item.orderId || "N/A"}</td>
+                <td>${item.orderedItem.productName || "N/A"}</td>
+                <td>${item.orderedItem.quantity || 0}</td>
+                <td>${item.orderedItem.regularPrice || 0}</td>
+                <td>${((item.orderedItem.regularTotal || 0) - (item.orderedItem.total || 0)).toFixed(2)}</td>
+                <td>${item.couponDiscount || 0}</td>
+                <td>${item.orderedItem.total || 0}</td>
+                <td>${new Date(item.createdAt).toLocaleDateString() || "N/A"}</td>
+                </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+
+            document.querySelectorAll("#salesReportTable tbody tr").forEach((row) => {
+                const discount = parseFloat(row.cells[5].textContent) || 0;
+                const couponDiscount = parseFloat(row.cells[6].textContent) || 0;
+                const amount = parseFloat(row.cells[7].textContent) || 0;
+
+                totalDiscount += discount;
+                totalCouponDiscount += couponDiscount;
+                totalAmount += amount;
+
+            });
+            document.getElementById("totalDiscount").value = totalDiscount.toFixed(2);
+            document.getElementById("totalCouponDiscount").value = totalCouponDiscount.toFixed(2);
+            document.getElementById("totalAmount").value = totalAmount.toFixed(2);
+        }
+    </script>
+
+
+
+</body>
+
+</html>

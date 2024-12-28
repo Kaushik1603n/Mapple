@@ -1099,7 +1099,7 @@ const updateOffers = async (req, res) => {
 const updateOffersStatus = async (req, res) => {
   const { id } = req.params;
   try {
-    const {status}=req.body;
+    const { status } = req.body;
     const updateOffer = await Offer.findByIdAndUpdate(
       id,
       { $set: { status: status } },
@@ -1125,6 +1125,94 @@ const updateOffersStatus = async (req, res) => {
       message: "Internal Server Error",
     });
   }
+};
+
+const loadSales = async (req, res) => {
+  try {
+    const customers = await User.find().countDocuments();
+    const orders = await order.find({}).countDocuments();
+    const discount = await order.aggregate([
+      {
+        $unwind: "$orderedItem", // Unwind the orderedItem array
+      },
+      {
+        $match: {
+          // Match the filter and date conditions
+          "orderedItem.status": "Delivered",
+          
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalDiscount: { $sum: "$discount" },
+        },
+      },
+    ]);
+    const totalDiscount = discount.length > 0 ? discount[0].totalDiscount : 0;
+    // console.log(totalDiscount);
+
+    res.render("admin/sales", { customers, orders, totalDiscount });
+  } catch (error) {}
+};
+
+const salesReport = async (req, res) => {
+  const { range, filter, startDate, endDate } = req.body;
+  console.log(req.body);
+
+  let query = { "$orderedItem.status": filter };
+
+  // Add date range condition based on the range
+  if (range === "Today") {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    query.date = { $gte: today };
+  } else if (range === "Week") {
+    const today = new Date();
+    const lastWeek = new Date(today);
+    lastWeek.setDate(today.getDate() - 7);
+    query.date = { $gte: lastWeek };
+  } else if (range === "Month") {
+    const today = new Date();
+    const lastMonth = new Date(today);
+    lastMonth.setMonth(today.getMonth() - 1);
+    query.date = { $gte: lastMonth };
+  } else if (range === "Custom") {
+    query.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
+  }
+
+  console.log(query);
+
+  // const result = await order.find(query);
+  const result = await order
+    .aggregate([
+      {
+        $unwind: "$orderedItem", // Unwind the orderedItem array
+      },
+      {
+        $match: {
+          // Match the filter and date conditions
+          "orderedItem.status": filter,
+          createdAt: query.date || {},
+        },
+      },
+
+    ])
+    
+
+  // console.log(result);
+  res.json(result);
+
+  // Fetch data from the database
+  //  order.find(query).toArray((err, results) => {
+  //     if (err) {
+  //         res.status(500).send("Error fetching sales report");
+  //     } else {
+  //       console.log(results);
+
+  //         res.json(results);
+  //     }
+  // });
 };
 
 const logout = (req, res) => {
@@ -1185,4 +1273,7 @@ module.exports = {
   loadUpdateOffers,
   updateOffers,
   updateOffersStatus,
+
+  loadSales,
+  salesReport,
 };
