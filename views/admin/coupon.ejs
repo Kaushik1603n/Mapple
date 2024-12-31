@@ -93,9 +93,20 @@
                                 <td>
                                     <%= coupon.endDate.toLocaleDateString() %>
                                 </td>
-                                <td><span class="badge bg-success">
+                                <td>
+                                    <select name="" id="" class="form-select form-select-sm" aria-label="Status"
+                                        onchange="updateCouponStatus('<%= coupon._id %>', this.value)">
+                                        <option value="true" <%=coupon.isList==true ? 'selected' : '' %>>Active
+                                        </option>
+                                        <option value="false" <%=coupon.isList==false ? 'selected' : '' %>
+                                            >Block
+                                        </option>
+                                    </select>
+
+                                    <!-- <span class="badge bg-success">
                                         <%= coupon.isList %>
-                                    </span></td>
+                                    </span> -->
+                                </td>
                                 <td>
                                     <button onclick="window.location.href='/admin/updateCoupon/<%= coupon._id %>'"
                                         class="btn btn-sm btn-outline-primary">Edit</button>
@@ -123,6 +134,51 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+
+        function updateCouponStatus(couponId, status) {
+            if (confirm("Are you sure you want to change the Coupon's status?")) {
+                alert(status)
+                fetch(`/admin/update-Coupon-status/${couponId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: status=="true" })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Coupon status updated successfully!',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                location.reload(); // Reload the page after success
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Failed to update Coupon status.',
+                                icon: 'error',
+                                confirmButtonText: 'Try Again'
+                            });
+                        }
+
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+
+                    });
+            }
+
+        }
 
 
         document.addEventListener("click", function (event) {

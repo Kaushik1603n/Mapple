@@ -66,12 +66,13 @@
                                     <th>Image</th>
                                     <th>Product</th>
                                     <th>Quantity</th>
-                                    <th>Color</th>
+                                    <!-- <th>Color</th> -->
                                     <th>Variant</th>
                                     <th>Price</th>
                                     <th>Status</th>
                                     <th>Date</th>
                                     <th>Reason</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -88,9 +89,9 @@
                                             <td>
                                                 <%= product.quantity %>
                                             </td>
-                                            <td>
+                                            <!-- <td>
                                                 <%= product.productColor %>
-                                            </td>
+                                            </td> -->
                                             <td>
                                                 <%= product.productStorage %>
                                             </td>
@@ -106,8 +107,13 @@
                                                 <%= new Date(order.invoiceDate).toLocaleDateString() %>
                                             </td>
                                             <td>
+                                                <%= product.reason %>
+
+                                            </td>
+                                            <td>
+                                                <!-- <input type="hidden" value="<%= product.paymentMethod %>"> -->
                                                 <button class="btn btn-success p-1"
-                                                    onclick="submitAcceptForm('<%= order.orderId %>','<%= product.product %>','<%= product.quantity %>','<%= product._id %>','<%= product.status %>')">Accept</button>
+                                                    onclick="submitAcceptForm('<%= order.orderId %>','<%= product.product %>','<%= product.quantity %>','<%= product._id %>','<%= product.status %>','<%= product.paymentMethod %>')">Accept</button>
                                                 <button class="btn btn-danger me-2" data-bs-toggle="modal"
                                                     data-bs-target="#rejectModal<%= product._id %>">
                                                     Cancel
@@ -246,14 +252,15 @@
                 });
         }
 
-        function submitAcceptForm(orderId, productId, quantity, itemId, status) {
+        function submitAcceptForm(orderId, productId, quantity, itemId, status,paymentMethod) {
             console.log(orderId, productId, quantity, status);
             const data = {
                 orderId: orderId,
                 productId: productId,
                 quantity,
                 itemId,
-                status
+                status,
+                paymentMethod
             };
             fetch('/admin/acceptRequest', {
                 method: 'POST',

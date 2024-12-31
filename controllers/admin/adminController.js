@@ -8,6 +8,7 @@ const order = require("../../models/orderSchema");
 const Wallet = require("../../models/walletSchema");
 const coupon = require("../../models/couponSchema");
 const Offer = require("../../models/offerSchema");
+const { default: mongoose } = require("mongoose");
 
 const pageerror = (req, res) => {
   res.render("pageerror");
@@ -62,9 +63,6 @@ const login = async (req, res) => {
 };
 
 const loadDashboard = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
   try {
     res.render("admin/dashboard");
   } catch (error) {
@@ -74,10 +72,6 @@ const loadDashboard = async (req, res) => {
 };
 
 const loadCustomer = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
-
   try {
     const seccess = req.session.successMessage || null;
     req.session.successMessage = null;
@@ -175,9 +169,6 @@ const deleteCustomer = async (req, res) => {
   }
 };
 const loadAddCustomer = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
   try {
     const seccess = req.session.successMessage || null;
     req.session.successMessage = null;
@@ -199,10 +190,6 @@ const securePassword = async (password) => {
 };
 
 const addCustomer = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
-
   try {
     const { name, email, secondaryEmail, phone, status, password } = req.body;
 
@@ -246,9 +233,6 @@ const addCustomer = async (req, res) => {
 };
 
 const loadUpdateCustomer = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
   const { id } = req.params;
   try {
     const user = await User.find({ _id: id });
@@ -259,9 +243,6 @@ const loadUpdateCustomer = async (req, res) => {
   } catch (error) {}
 };
 const loadUpdateCustomerPage = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
   const { id } = req.params;
 
   try {
@@ -317,9 +298,6 @@ const updateCustomer = async (req, res) => {
 };
 
 const loadcategory = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
@@ -350,9 +328,6 @@ const loadcategory = async (req, res) => {
 };
 
 const loadAddCategory = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
   try {
     const successMessage = req.session.successMessage || null;
     req.session.successMessage = null;
@@ -364,15 +339,13 @@ const loadAddCategory = async (req, res) => {
 };
 
 const addCategory = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
-
   try {
     const { category, description, categoryStatus } = req.body;
 
     const trimmedName = category.trim();
-    const nameExists = await Category.findOne({ name: trimmedName });
+    const nameExists = await Category.findOne({
+      name: { $regex: new RegExp(`^${trimmedName}$`, "i") },
+    });
 
     if (nameExists) {
       return res.render("admin/addCategory", {
@@ -400,9 +373,6 @@ const addCategory = async (req, res) => {
 };
 
 const loadEditCategory = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
   const { id } = req.params;
   //   console.log(id);
   try {
@@ -415,10 +385,6 @@ const loadEditCategory = async (req, res) => {
 };
 
 const editCategory = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
-
   try {
     const { category, description, categoryStatus } = req.body;
 
@@ -488,9 +454,6 @@ const deleteCategory = async (req, res) => {
 };
 
 const loadproducts = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
   try {
     res.render("admin/products");
   } catch (error) {
@@ -499,9 +462,6 @@ const loadproducts = async (req, res) => {
   }
 };
 const loadAddProducts = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
   try {
     res.render("admin/addProduct");
   } catch (error) {
@@ -509,10 +469,8 @@ const loadAddProducts = async (req, res) => {
     res.redirect("/admin/pageerror");
   }
 };
+
 const loadOrders = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
   try {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 5;
@@ -540,10 +498,37 @@ const loadOrders = async (req, res) => {
     res.redirect("/admin/pageerror");
   }
 };
-const loadCancelReturn = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
+
+const loadViewOrders = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const objectId = new mongoose.Types.ObjectId(id);
+
+    const findOrder = await order.aggregate([
+      {
+        $unwind: "$orderedItem",
+      },
+      {
+        $match: {
+          "orderedItem._id": objectId, 
+        },
+      },
+    ]);
+    // console.log(findOrder);
+
+    if(!findOrder){
+      return res.status(400).json("order not fount")
+    }
+
+    res.render("admin/orderDetails",{orderDetails:findOrder});
+
+  } catch (error) {
+    console.log(error);
+    
   }
+};
+
+const loadCancelReturn = async (req, res) => {
   try {
     const orders = await order.aggregate([
       {
@@ -608,7 +593,7 @@ const rejectCancelRequest = async (req, res) => {
 
 const acceptRequest = async (req, res) => {
   const { orderId, productId, quantity, itemId, status } = req.body;
-  // console.log(req.body);
+  console.log(req.body);
   const userData = req.session.user;
 
   try {
@@ -630,18 +615,45 @@ const acceptRequest = async (req, res) => {
       { new: true }
     );
 
-    // console.log("Order Status Updated:", updatedStatus);
-    if (status == "Return Request" && updatedStatus) {
-      let userwallet = await Wallet.findOne({ user: userData._id });
-      // console.log("User Wallet Found:", userwallet);
+    const findOrder = await order.findOne({ orderId: orderId });
+    const findUser = await User.findById(findOrder.userId);
+    // console.log(findOrder.paymentMethod);
 
+    if (status == "Cancel Request" && findOrder.paymentMethod == "upi") {
+      let userwallet = await Wallet.findOne({ user: findUser._id });
       if (!userwallet) {
-        userwallet = new Wallet({ user: userData._id, transactions: [] });
-        // console.log("New Wallet Created:", userwallet);
+        userwallet = new Wallet({ user: findUser._id, transactions: [] });
       }
 
       const amountToAdd = Number(products.salePrice) * Number(quantity);
-      // console.log("Amount to Add:", amountToAdd);
+
+      userwallet.balance = Number(userwallet.balance) + amountToAdd;
+      console.log("Updated Wallet Balance:", userwallet.balance);
+
+      userwallet.transactions.push({
+        transactionType: "deposit",
+        amount: amountToAdd,
+        description: "Refund for canceled order",
+      });
+
+      try {
+        await userwallet.save();
+        console.log("Wallet Updated Successfully");
+      } catch (error) {
+        console.error("Error Saving Wallet:", error);
+      }
+    }
+
+    // console.log("Order Status Updated:", updatedStatus);
+    if (status == "Return Request" && updatedStatus) {
+      let userwallet = await Wallet.findOne({ user: findUser._id });
+      // console.log("User Wallet Found:", userwallet);
+
+      if (!userwallet) {
+        userwallet = new Wallet({ user: findUser._id, transactions: [] });
+      }
+
+      const amountToAdd = Number(products.salePrice) * Number(quantity);
 
       userwallet.balance = Number(userwallet.balance) + amountToAdd;
       console.log("Updated Wallet Balance:", userwallet.balance);
@@ -665,6 +677,9 @@ const acceptRequest = async (req, res) => {
       {
         $inc: {
           quantity: prdQuantity,
+        },
+        $set: {
+          status: "Available",
         },
       },
       { new: true }
@@ -904,6 +919,38 @@ const deleteCoupon = async (req, res) => {
   }
 };
 
+const couponStatus = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { status } = req.body;
+
+    const updateStatus = await coupon.findByIdAndUpdate(
+      id,
+      { $set: { isList: status } },
+      { new: true }
+    );
+
+    if (!updateStatus) {
+      return res.status(404).json({
+        success: false,
+        message: "Coupon not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Coupon status updated successfully",
+      data: updateStatus,
+    });
+  } catch (error) {
+    console.error("Error updating Coupon status:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
 const loadOffers = async (req, res) => {
   try {
     const allOffers = await Offer.find();
@@ -1139,7 +1186,6 @@ const loadSales = async (req, res) => {
         $match: {
           // Match the filter and date conditions
           "orderedItem.status": "Delivered",
-          
         },
       },
       {
@@ -1184,21 +1230,18 @@ const salesReport = async (req, res) => {
   console.log(query);
 
   // const result = await order.find(query);
-  const result = await order
-    .aggregate([
-      {
-        $unwind: "$orderedItem", // Unwind the orderedItem array
+  const result = await order.aggregate([
+    {
+      $unwind: "$orderedItem", // Unwind the orderedItem array
+    },
+    {
+      $match: {
+        // Match the filter and date conditions
+        "orderedItem.status": filter,
+        createdAt: query.date || {},
       },
-      {
-        $match: {
-          // Match the filter and date conditions
-          "orderedItem.status": filter,
-          createdAt: query.date || {},
-        },
-      },
-
-    ])
-    
+    },
+  ]);
 
   // console.log(result);
   res.json(result);
@@ -1255,6 +1298,7 @@ module.exports = {
   logout,
 
   loadOrders,
+  loadViewOrders,
   loadCancelReturn,
   rejectCancelRequest,
   acceptRequest,
@@ -1266,6 +1310,7 @@ module.exports = {
   loadUpdateCoupon,
   updateCoupon,
   deleteCoupon,
+  couponStatus,
 
   loadOffers,
   loadAddOffers,

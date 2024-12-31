@@ -165,7 +165,7 @@
                                     <div class="p-3 m-2" style="background-color: <%= item.productId.color %>;"></div>
                                 </td>
                                 <td>
-                                    <%= item.price %>
+                                    <%= item.price.toFixed(2) %>
                                 </td>
                                 <td>
                                     <div class="input-group quantity-control" style="width: 100px;">
@@ -180,7 +180,7 @@
                                 </td>
 
                                 <td class="total">
-                                    <%= item.totalprice %>
+                                    <%= item.totalprice.toFixed(2) %>
                                 </td>
                                 <td><span class="remove-btn" data-item-id="<%= item._id %>">&times;</span></td>
                             </tr>
@@ -203,11 +203,15 @@
 
                 <!-- Total Summary Section -->
                 <div class=" bg-light col-md-3 total-summary text-center shadow-lg p-3">
-                    <p>Subtotal: <span id="subtotal"><%= userCart.totalAmount %></span></p>
+                    <p>Subtotal: <span id="subtotal">
+                            <%= userCart.totalAmount %>
+                        </span></p>
                     <p>Delivery: <span id="delivery">0.00</span></p>
-                    <p>Discount: <span id="discount"><%= userCart.totalDiscountAmount.toFixed(2) %></span></p>
+                    <p>Discount: <span id="discount">
+                            <%= (userCart.totalDiscountAmount||0).toFixed(2) %>
+                        </span></p>
                     <h5>Total: <span id="total">
-                            <%= userCart.totalActualAmount %>
+                            <%= (userCart.totalActualAmount || 0).toFixed(2) %>
                         </span></h5>
                     <a href="/user/checkout" class="btn btn-success mt-3">Check Out</a href="/user/ckeckOut">
                 </div>
@@ -223,7 +227,6 @@
     <script>
         const removeButtons = document.querySelectorAll('.remove-btn');
 
-        // Loop through each remove button and add an event listener
         removeButtons.forEach(button => {
             button.addEventListener('click', async function () {
                 const itemId = this.getAttribute('data-item-id');
@@ -247,8 +250,10 @@
                             });
 
                             if (response.ok) {
-                                this.closest('tr').remove(); // Assuming the <td> is inside a <tr>
-                                Swal.fire('Deleted!', 'Your item has been removed.', 'success')
+                                this.closest('tr').remove();
+                                Swal.fire('Deleted!', 'Your item has been removed.', 'success').then(() => {
+                                    window.location.reload();
+                                });
                             } else {
                                 Swal.fire('Error!', 'Failed to remove the item.', 'error');
                             }
@@ -261,14 +266,12 @@
             });
         });
 
-        // Add event listeners to increment and decrement buttons
         document.querySelectorAll('.increment, .decrement').forEach(button => {
             button.addEventListener('click', async function () {
                 const itemId = this.getAttribute('data-item-id');
                 const action = this.classList.contains('increment') ? 'increment' : 'decrement';
 
                 try {
-                    // Send a request to the server to update the quantity
                     const response = await fetch('/user/cart/update-quantity', {
                         method: 'POST',
                         headers: {
@@ -280,16 +283,15 @@
                     const data = await response.json();
 
                     if (response.ok) {
-                        // Update the quantity display
                         const quantityDisplay = this.parentElement.querySelector('.quantity-display');
                         quantityDisplay.textContent = data.quantity;
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Updated!',
-                            text: 'Quantity has been updated.',
-                        }).then(() => {
-                            window.location.reload();
-                        });
+                        // Swal.fire({
+                        //     icon: 'success',
+                        //     title: 'Updated!',
+                        //     text: 'Quantity has been updated.',
+                        // }).then(() => {
+                        window.location.reload();
+                        // });
                     } else {
                         Swal.fire({
                             icon: 'error',

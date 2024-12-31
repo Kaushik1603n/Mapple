@@ -68,6 +68,23 @@ const adminAuth = (req, res, next) => {
     });
 };
 
+const checkAdminAuth =(req,res,next)=>{
+  try {
+
+    if(!req.session.admin){
+      // console.log("/admin/login");
+      
+      res.redirect("/admin/login");
+    }else{
+      next();
+    }
+    
+    
+  } catch (error) {
+    console.log("Error in admin checkAdminAuth ", error);
+    res.status(500).send("Internal sever Error");
+  }
+}
 const storeSessionEmail = (req, res, next) => {
   if (req.user) {
     req.session.user = req.user;
@@ -90,5 +107,6 @@ module.exports = {
   adminAuth,
   isLogin,
   storeSessionEmail,
+  checkAdminAuth,
   // validRegisteredUser,
 };

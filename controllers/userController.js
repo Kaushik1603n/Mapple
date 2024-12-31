@@ -103,7 +103,9 @@ const loadHomePage = async (req, res) => {
 const loadShope = async (req, res) => {
   const user = req.session.user;
   try {
-    const { search, variant, sortOption, priceRange } = req.query; // Get search query and variant from the URL
+    const { search, variant, sortOption, priceRange, category } = req.query;
+    console.log(category);
+
     const page = parseInt(req.query.page, 10) || 1;
     const limit = 8;
     const skip = (page - 1) * limit;
@@ -118,6 +120,14 @@ const loadShope = async (req, res) => {
       };
     }
 
+    if (category) {
+      if (Array.isArray(category)) {
+        filter.productName = { $in: new RegExp(category, "i") };
+      } else {
+        filter.productName = { $in: new RegExp(category, "i") };
+      }
+    }
+
     if (variant) {
       if (Array.isArray(variant)) {
         filter.variant = { $in: variant };
@@ -129,15 +139,12 @@ const loadShope = async (req, res) => {
     if (priceRange) {
       const ranges = Array.isArray(priceRange) ? priceRange : [priceRange];
 
-      // Parse price ranges into filter conditions
       const priceConditions = ranges.map((range) => {
-        const [min, max] = range.split("-").map(Number); // Convert "50k-75k" to [50000, 75000]
-        return { salePrice: { $gte: min, $lte: max } }; // Assuming prices are in thousands
+        const [min, max] = range.split("-").map(Number);
+        return { salePrice: { $gte: min, $lte: max } };
       });
 
-      // Combine price conditions with $or
       filter.$or = [...(filter.$or || []), ...priceConditions];
-      // console.log(priceConditions);
     }
 
     let sort = {};
@@ -173,6 +180,7 @@ const loadShope = async (req, res) => {
         totalProducts,
         totalPages,
         currentPage: page,
+        Category: category || [],
       });
     } else {
       res.render("user/shop", {
@@ -184,6 +192,7 @@ const loadShope = async (req, res) => {
         totalProducts,
         totalPages,
         currentPage: page,
+        Category: category || [],
       });
     }
   } catch (error) {
@@ -897,7 +906,7 @@ const loadOrders = async (req, res) => {
   const userData = req.session.user;
   const userId = userData._id;
   try {
-    const orderedItem = await order.find({ userId });
+    const orderedItem = await order.find({ userId }).sort({createdAt:-1});
     // console.log(orderedItem);
 
     res.render("user/orders", { orders: orderedItem || [] });
@@ -1191,7 +1200,6 @@ const addCart = async (req, res) => {
           .json({ success: false, message: "Stock out Product" });
       }
     } else {
-
       const product = await Product.findById(productId);
       if (!product) {
         return res
@@ -1388,8 +1396,13 @@ const placeOrder = async (req, res) => {
         regularPrice: product.regularPrice,
         regularTotal: product.regularPrice * item.quantity,
         price: item.price,
-        total: item.quantity * item.price * (1 - (couponPercentage || 0) / 100),
-        couponDiscount:(item.quantity * item.price -item.quantity * item.price * (1 - (couponPercentage ) / 100))|| 0,
+        total:
+          item.quantity * item.price -
+          (item.quantity * item.price -
+            item.quantity * item.price * (1 - couponPercentage / 100) || 0),
+        couponDiscount:
+          item.quantity * item.price -
+            item.quantity * item.price * (1 - couponPercentage / 100) || 0,
         discount:
           product.regularPrice * item.quantity - item.quantity * product.price,
       });
@@ -1470,6 +1483,16 @@ const placeOrder = async (req, res) => {
     if (!newOrder) {
       return res.status(404).json({ error: "Order not placed" });
     }
+    const couponCode = req.session.couponCode;
+    let findcoupon;
+    if (couponCode) {
+      findcoupon = await coupon.findOne({
+        couponCode: couponCode,
+        isList: true,
+      });
+      findcoupon.userId.push(userData._id);
+      await findcoupon.save();
+    }
 
     for (const item of orderedProduct) {
       // const updatedProduct = await Product.findById(item.product);
@@ -1488,6 +1511,8 @@ const placeOrder = async (req, res) => {
     }
 
     await cart.findOneAndDelete({ userId: userId });
+    req.session.couponDiscount=null;
+    req.session.couponCode=null;
 
     // console.log("success");
     res.status(404).json({ message: "Order placed successfully" });
@@ -1602,8 +1627,8 @@ const applyCoupon = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Coupon already used." });
     } else {
-      findcoupon.userId.push(userData._id);
-      await findcoupon.save();
+      // findcoupon.userId.push(userData._id);
+      // await findcoupon.save();
     }
 
     if (findcoupon.expiryDate < new Date()) {

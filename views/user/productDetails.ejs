@@ -292,13 +292,11 @@
 
             </script>
             <script>
-                // Function to switch to a specific slide in the carousel
                 function switchToSlide(slideIndex) {
                     const carousel = new bootstrap.Carousel('#productCarousel');
                     carousel.to(slideIndex);
                 }
 
-                // Get references to the buttons and input field for quantity change
                 const decreaseButton = document.getElementById('decreaseButton');
                 const increaseButton = document.getElementById('increaseButton');
                 const quantityInput = document.getElementById('quantityInput');
@@ -326,9 +324,7 @@
                 });
 
 
-                // Select all the storage buttons
                 const storageButtons = document.querySelectorAll('button[data-storage]');
-                // Add event listener for each storage button
                 storageButtons.forEach(button => {
                     button.addEventListener('click', function () {
                         storageButtons.forEach(b => b.classList.remove('active'));
@@ -338,7 +334,6 @@
                     });
                 });
 
-                // Select all badges
                 const colorBadges = document.querySelectorAll('.badge');
                 colorBadges.forEach(badge => {
                     badge.addEventListener('click', function () {
@@ -356,7 +351,6 @@
                     window.location.href = url.toString();
                 }
 
-                // Function to dynamically set the background color
                 document.addEventListener("DOMContentLoaded", () => {
                     const badges = document.querySelectorAll(".colorBadge");
 
@@ -366,11 +360,8 @@
                     });
                 });
 
-                // Function to apply zoom functionality on the image
                 function applyZoom(wrapper) {
-                    // Add event listeners for zoom functionality to the wrapper
                     wrapper.addEventListener("mousemove", (e) => {
-                        // Find the currently active image
                         const img = wrapper.querySelector(".carousel-item.active .zoom-image");
                         if (!img) return;
 
@@ -392,12 +383,10 @@
                     });
                 }
 
-                // Initialize zoom functionality for the carousel
                 function initializeZoomCarousel() {
                     const zoomWrappers = document.querySelectorAll(".zoom-wrapper");
 
                     zoomWrappers.forEach(wrapper => {
-                        // Apply zoom functionality to the wrapper
                         applyZoom(wrapper);
 
                         const carousel = wrapper.querySelector(".carousel");
@@ -426,7 +415,6 @@
                             const productId = addToCartButton.getAttribute('data-product-id');
                             const quantity = parseInt(quantityInput.value, 10);
 
-                            // Validate inputs (optional)
                             if (!productId || quantity <= 0) {
                                 Swal.fire({
                                     title: 'Invalid Input!',
@@ -443,7 +431,6 @@
                                 quantity: quantity,
                             };
 
-                            // console.log(cartData);
 
 
                             fetch('/user/cart', {
@@ -484,7 +471,7 @@
                                         icon: 'error',
                                         confirmButtonText: 'OK'
                                     }).then(() => {
-                                        window.location.href = window.location.href; // Optionally reload the page or navigate
+                                        window.location.href = window.location.href; 
                                     });
 
                                 });

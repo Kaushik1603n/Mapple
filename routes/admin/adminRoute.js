@@ -2,63 +2,65 @@ const express = require("express");
 const router = express.Router();
 const adminController = require("../../controllers/admin/adminController");
 const productController = require("../../controllers/admin/productCondroller");
-const {userAuth,adminAuth} = require("../../middlewares/auth")
+const {userAuth,adminAuth,checkAdminAuth} = require("../../middlewares/auth")
 
 router.get("/pageerror",adminController.pageerror)
 router.get("/login", adminController.loadLogin);
 router.post("/login",adminAuth, adminController.login);
-router.get("/dashboard",adminController.loadDashboard)
+router.get("/dashboard",checkAdminAuth,adminController.loadDashboard)
 
-router.get("/customer",adminController.loadCustomer)
-router.put('/update-customer-status/:userId',adminController.updateCustomerStatus)
-router.delete('/deleteCustomer/:id', adminController.deleteCustomer);
-router.get('/addCustomer', adminController.loadAddCustomer);
-router.post('/addCustomer', adminController.addCustomer);
-router.get('/updateCustomer/:id', adminController.loadUpdateCustomer);
-router.get('/updateCustomerDetails/:id', adminController.loadUpdateCustomerPage);
-router.post('/updateCustomer', adminController.updateCustomer);
+router.get("/customer",checkAdminAuth,adminController.loadCustomer)
+router.put('/update-customer-status/:userId',checkAdminAuth,adminController.updateCustomerStatus)
+router.delete('/deleteCustomer/:id', checkAdminAuth,adminController.deleteCustomer);
+router.get('/addCustomer', checkAdminAuth,adminController.loadAddCustomer);
+router.post('/addCustomer', checkAdminAuth,adminController.addCustomer);
+router.get('/updateCustomer/:id', checkAdminAuth,adminController.loadUpdateCustomer);
+router.get('/updateCustomerDetails/:id', checkAdminAuth,adminController.loadUpdateCustomerPage);
+router.post('/updateCustomer', checkAdminAuth,adminController.updateCustomer);
 
-router.get("/category",adminController.loadcategory)
-router.get("/addCategory",adminController.loadAddCategory)
-router.post("/addCategory",adminController.addCategory)
-router.get("/editCategory/:id",adminController.loadEditCategory)
-router.post("/editCategory",adminController.editCategory)
-router.patch("/updateCategoryStatus/:id",adminController.editCategoryStatus)
-router.delete("/deleteCategory/:id",adminController.deleteCategory)
+router.get("/category",checkAdminAuth,adminController.loadcategory)
+router.get("/addCategory",checkAdminAuth,adminController.loadAddCategory)
+router.post("/addCategory",checkAdminAuth,adminController.addCategory)
+router.get("/editCategory/:id",checkAdminAuth,adminController.loadEditCategory)
+router.post("/editCategory",checkAdminAuth,adminController.editCategory)
+router.patch("/updateCategoryStatus/:id",checkAdminAuth,adminController.editCategoryStatus)
+router.delete("/deleteCategory/:id",checkAdminAuth,adminController.deleteCategory)
 
-router.get("/products",productController.loadproducts)
-router.get("/addProduct",productController.loadAddProducts)
-router.post("/addProduct",productController.uploadImages,productController.addProducts)
-router.get("/updateProduct/:id",productController.loadUpdateProduct)
-router.put("/updateProduct",productController.uploadImages,productController.updateProduct)
-router.patch("/updateProductStatus/:id",productController.editProductStatus)
-router.delete("/deleteProductImage/:productId",productController.deleteProductImage)
-router.delete("/deleteProduct/:id",productController.deleteProduct)
+router.get("/products",checkAdminAuth,productController.loadproducts)
+router.get("/addProduct",checkAdminAuth,productController.loadAddProducts)
+router.post("/addProduct",checkAdminAuth,productController.uploadImages,productController.addProducts)
+router.get("/updateProduct/:id",checkAdminAuth,productController.loadUpdateProduct)
+router.put("/updateProduct",checkAdminAuth,productController.uploadImages,productController.updateProduct)
+router.patch("/updateProductStatus/:id",checkAdminAuth,productController.editProductStatus)
+router.delete("/deleteProductImage/:productId",checkAdminAuth,productController.deleteProductImage)
+router.delete("/deleteProduct/:id",checkAdminAuth,productController.deleteProduct)
 
-router.get("/coupon",adminController.loadCoupon)
-router.get("/addCoupon",adminController.loadAddCoupon)
-router.post("/addcoupon",adminController.addCoupon)
-router.get("/updateCoupon/:id",adminController.loadUpdateCoupon)
-router.post("/updatecoupon",adminController.updateCoupon)
-router.delete("/deleteCoupon/:id",adminController.deleteCoupon)
+router.get("/coupon",checkAdminAuth,adminController.loadCoupon)
+router.get("/addCoupon",checkAdminAuth,adminController.loadAddCoupon)
+router.post("/addcoupon",checkAdminAuth,adminController.addCoupon)
+router.get("/updateCoupon/:id",checkAdminAuth,adminController.loadUpdateCoupon)
+router.post("/updatecoupon",checkAdminAuth,adminController.updateCoupon)
+router.delete("/deleteCoupon/:id",checkAdminAuth,adminController.deleteCoupon)
+router.put("/update-Coupon-status/:id",checkAdminAuth,adminController.couponStatus)
 
-router.get("/orders",adminController.loadOrders)
-router.get("/cancelReturn",adminController.loadCancelReturn);
-router.post("/rejectCancelRequest",adminController.rejectCancelRequest);
-router.post("/acceptRequest",adminController.acceptRequest);
-router.patch("/updateOrderStatus/:itemId",adminController.updateOrderStatus);
+router.get("/orders",checkAdminAuth,adminController.loadOrders)
+router.get("/viewOeder/:id",checkAdminAuth,adminController.loadViewOrders)
+router.get("/cancelReturn",checkAdminAuth,adminController.loadCancelReturn);
+router.post("/rejectCancelRequest",checkAdminAuth,adminController.rejectCancelRequest);
+router.post("/acceptRequest",checkAdminAuth,adminController.acceptRequest);
+router.patch("/updateOrderStatus/:itemId",checkAdminAuth,adminController.updateOrderStatus);
 
-router.get("/offers",adminController.loadOffers)
-router.get("/addOffer",adminController.loadAddOffers)
-router.post("/addOffer",adminController.addOffers)
-router.get("/updateOffer/:id",adminController.loadUpdateOffers)
-router.post("/updateOffer",adminController.updateOffers)
-router.put("/update-Offer-status/:id",adminController.updateOffersStatus)
+router.get("/offers",checkAdminAuth,adminController.loadOffers)
+router.get("/addOffer",checkAdminAuth,adminController.loadAddOffers)
+router.post("/addOffer",checkAdminAuth,adminController.addOffers)
+router.get("/updateOffer/:id",checkAdminAuth,adminController.loadUpdateOffers)
+router.post("/updateOffer",checkAdminAuth,adminController.updateOffers)
+router.put("/update-Offer-status/:id",checkAdminAuth,adminController.updateOffersStatus)
 
-router.get("/sales",adminController.loadSales)
-router.post("/salesReport",adminController.salesReport)
+router.get("/sales",checkAdminAuth,adminController.loadSales)
+router.post("/salesReport",checkAdminAuth,adminController.salesReport)
 
 
-router.get("/logout",adminController.logout)
+router.get("/logout",checkAdminAuth,adminController.logout)
 
 module.exports = router;

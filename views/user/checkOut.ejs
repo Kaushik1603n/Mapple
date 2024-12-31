@@ -187,7 +187,7 @@
                         </p>
                         <!-- <p>Tax: <span class="float-end">₹1,599</span></p> -->
                         <hr>
-                        <p><strong>Total: <span class="float-end" id="totalAmount">₹<%= userCart.totalActualAmount %>
+                        <p><strong>Total: <span class="float-end" id="totalAmount">₹<%= userCart.totalActualAmount.toFixed(2) %>
                                 </span></strong></p>
                         <span class="float-end" id="totalActualAmount" hidden>₹<%= userCart.totalActualAmount %>
                         </span>
@@ -204,13 +204,11 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <script>
-        // Add event listener for the "Same as delivery address" checkbox
         document.getElementById('sameAsDelivery').addEventListener('change', function () {
-            const selectedAddress = document.querySelector('input[name="address"]:checked'); // Selected radio button
+            const selectedAddress = document.querySelector('input[name="address"]:checked');
             if (this.checked && selectedAddress) {
-                const selectedIndex = selectedAddress.value; // Get the selected address index
+                const selectedIndex = selectedAddress.value; 
 
-                // Retrieve data attributes from the hidden input field
                 const addressData = document.getElementById(`addressData${selectedIndex}`);
                 if (addressData) {
                     document.getElementById('name').value = addressData.getAttribute('data-name');
@@ -223,7 +221,6 @@
                     document.getElementById('country').value = addressData.getAttribute('data-country');
                 }
             } else {
-                // Clear form if the checkbox is unchecked
                 document.getElementById('name').value = '';
                 document.getElementById('phoneNumber').value = '';
                 document.getElementById('houseAddress').value = '';
@@ -236,7 +233,6 @@
         });
 
         document.getElementById('placeOrderBtn').addEventListener('click', function () {
-            // Selected delivery address
             const selectedAddressIndex = document.querySelector('input[name="address"]:checked')?.value;
             const addressData = selectedAddressIndex !== undefined
                 ? document.getElementById(`addressData${selectedAddressIndex}`)
@@ -255,7 +251,6 @@
                 }
                 : null;
 
-            // Billing details
             const billingDetails = {
                 name: document.getElementById('name').value,
                 phoneNumber: document.getElementById('phoneNumber').value,
@@ -267,19 +262,16 @@
                 country: document.getElementById('country').value,
             };
 
-            // Payment method
             const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.id;
 
-            // Validate inputs
             if (!deliveryAddress) {
                 Swal.fire('Error!', 'Please select a delivery address.', 'error');
                 return;
             }
 
 
-            event.preventDefault(); // Prevent default form submission
+            event.preventDefault();
 
-            // Retrieve form values
             const homeAddress = document.getElementById('houseAddress').value.trim();
             const landmark = document.getElementById('landmark').value.trim();
             const name = document.getElementById('name').value.trim();
@@ -289,7 +281,6 @@
             const zipCode = document.getElementById('zipCode').value.trim();
             const country = document.getElementById('country').value.trim();
 
-            // Error elements
             const errors = {
                 houseAddressError: document.getElementById('houseAddressError'),
                 landmarkError: document.getElementById('landmarkError'),
@@ -301,12 +292,10 @@
                 countryError: document.getElementById('countryError'),
             };
 
-            // Clear previous errors
             for (const key in errors) {
                 errors[key].textContent = '';
             }
 
-            // Validation
             let isValid = true;
 
             if (!homeAddress) {
@@ -342,10 +331,8 @@
                 isValid = false;
             }
 
-            // Stop if any validation fails
             if (!isValid) return;
 
-            // Prepare data for sending
             const formData = {
 
                 homeAddress,
@@ -362,14 +349,11 @@
                 return;
             }
             const userCart = JSON.parse(document.getElementById('cartData').value);
-            // console.log(userCart);
 
             const discountAmount = document.getElementById("discountAmount").textContent;
             const totalAmount = document.getElementById("totalAmount").textContent;
 
-            // alert( totalAmount)
 
-            // Combine all data
             const orderData = {
                 orderedItem: Object.values(userCart.items).map(item => ({
                     product: item.productId,
@@ -383,7 +367,7 @@
                 deliveryAddress,
                 billingDetails,
                 paymentMethod,
-                status: "pending", // Default status
+                status: "pending", 
                 couponApplied: discountAmount !== "" ? true : false,
             };
 
@@ -445,7 +429,6 @@
                         if (data.message) {
                             Swal.fire('Success', data.message, 'success')
                                 .then(() => {
-                                    // Redirect to confirmation page after the SweetAlert2 modal closes
                                     window.location.href = '/user';
                                 });
 
@@ -462,7 +445,6 @@
 
     </script>
     <script>
-        //coupon management 
         document.getElementById("applyCouponBtn").addEventListener("click", () => {
             const couponCode = document.getElementById("couponCode").value;
             const totalAmount = parseFloat(document.getElementById("totalAmount").textContent.replace(/[^\d.-]/g, ""));

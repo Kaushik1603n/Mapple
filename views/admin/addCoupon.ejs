@@ -179,6 +179,9 @@
                 } else if (new Date(endDate.value) < new Date(startDate.value)) {
                     setError(endDate, "End date must be after the Start date.");
                     isValid = false;
+                } else if (new Date(endDate.value) <= new Date()) {
+                    setError(endDate, 'End date must be greater than today.');
+                    isValid = false;
                 } else {
                     clearError(endDate);
                 }

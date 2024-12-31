@@ -188,12 +188,31 @@
                         </div>
                     </div>
 
-                    <!-- <div class="px-4 mb-4">
+                    <div class="px-4 mb-4">
                         <h6>Category</h6>
-                        <div><input type="checkbox" id="MacBookPro"> <label for="MacBookPro">MacBook Pro</label></div>
-                        <div><input type="checkbox" id="MacBookAir"> <label for="MacBookAir">MacBook Air</label></div>
-                        <div><input type="checkbox" id="MacMini"> <label for="MacMini">Mac Mini</label></div>
-                    </div> -->
+                        <div>
+                            <input type="checkbox" class="categorycheckboxes" name="category" id="MacBookPro"
+                                value="MacBook Pro" <%=Category.includes('MacBook Pro') ? 'checked' : '' %>>
+                            <label for="MacBookPro">MacBook Pro</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" class="categorycheckboxes" name="category" id="MacBookAir"
+                                value="MacBook Air" <%=Category.includes('MacBook Air') ? 'checked' : '' %>>
+                            <label for="MacBookAir">MacBook Air</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" class="categorycheckboxes" name="category" id="MacMini"
+                                value="Mac Mini" <%=Category.includes('Mac Mini') ? 'checked' : '' %>>
+                            <label for="MacMini">Mac Mini</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" class="categorycheckboxes" name="category" id="iMac" value="iMac"
+                                <%=Category.includes('iMac') ? 'checked' : '' %>>
+                            <label for="iMac">iMac</label>
+                        </div>
+                    </div>
+
+
                     <form id="priceSearch" action="/user/shop" method="GET">
                         <div class="px-4 mb-4" id="priceFilterContainer">
                             <h6>Price</h6>
@@ -380,55 +399,69 @@
 
         </script>
         <script>
-            const variantcheckboxes = document.querySelectorAll('.variant-checkbox');
-            const form = document.getElementById('searchForm');
-            const sortSelect = document.getElementById('sortSelect');
+            document.addEventListener('DOMContentLoaded', () => {
+                const variantcheckboxes = document.querySelectorAll('.variant-checkbox');
+                const categorycheckboxes = document.querySelectorAll('.categorycheckboxes');
+                const form = document.getElementById('searchForm');
+                const sortSelect = document.getElementById('sortSelect');
 
-            // Sync checkbox state with the form submission
-            variantcheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
-                    const variantInputs = document.querySelectorAll('input[name="variant"]');
-                    variantInputs.forEach(input => input.remove()); // Remove old inputs
+                function handleCheckboxChange(checkboxes, name) {
+                    const existingInputs = document.querySelectorAll(`input[name="${name}"]`);
+                    existingInputs.forEach(input => input.remove());
 
-                    variantcheckboxes.forEach(box => {
-                        if (box.checked) {
+                    checkboxes.forEach(checkbox => {
+                        if (checkbox.checked) {
                             const hiddenInput = document.createElement('input');
                             hiddenInput.type = 'hidden';
-                            hiddenInput.name = 'variant';
-                            hiddenInput.value = box.value;
+                            hiddenInput.name = name;  
+                            hiddenInput.value = checkbox.value;
                             form.appendChild(hiddenInput);
                         }
                     });
+                }
 
-                    form.submit(); // Automatically submit on filter change
+                categorycheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        handleCheckboxChange(categorycheckboxes, 'category');
+                        form.submit(); 
+                    });
                 });
-            });
 
-            // Capture the selected sort option and update the form
-            sortSelect.addEventListener('change', () => {
-                const sortOption = sortSelect.value;
-                const hiddenSortInput = document.createElement('input');
-                hiddenSortInput.type = 'hidden';
-                hiddenSortInput.name = 'sortOption';
-                hiddenSortInput.value = sortOption;
-                form.appendChild(hiddenSortInput);
+                variantcheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        handleCheckboxChange(variantcheckboxes, 'variant');
+                        form.submit();  
+                    });
+                });
 
-                form.submit(); // Automatically submit when sorting changes
+                sortSelect.addEventListener('change', () => {
+                    const sortOption = sortSelect.value;
+                    const existingSortInput = document.querySelector('input[name="sortOption"]');
+                    if (existingSortInput) {
+                        existingSortInput.value = sortOption;  
+                    } else {
+                        const hiddenSortInput = document.createElement('input');
+                        hiddenSortInput.type = 'hidden';
+                        hiddenSortInput.name = 'sortOption';
+                        hiddenSortInput.value = sortOption;
+                        form.appendChild(hiddenSortInput);
+                    }
+
+                    form.submit();  
+                });
             });
 
 
             const priceRangeCheckboxes = document.querySelectorAll('.priceRange-checkbox');
-            const form2 = document.getElementById('priceSearch'); // Ensure form ID matches
+            const form2 = document.getElementById('priceSearch'); 
 
             priceRangeCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', () => {
                     console.log("Checkbox changed:", checkbox.checked, "Value:", checkbox.value);
 
-                    // Remove old hidden inputs
                     const existingInputs = document.querySelectorAll('input[name="priceRange"]');
                     existingInputs.forEach(input => input.remove());
 
-                    // Append hidden inputs for checked checkboxes
                     priceRangeCheckboxes.forEach(box => {
                         if (box.checked) {
                             const hiddenInput = document.createElement('input');
@@ -441,7 +474,6 @@
                         }
                     });
 
-                    // Submit the form automatically
                     form2.submit();
                 });
             });

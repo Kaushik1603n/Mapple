@@ -83,6 +83,7 @@
                                     <th>Price</th>
                                     <th>Status</th>
                                     <th>Date</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -138,7 +139,9 @@
                                         <td>
                                             <%= order.createdAt.toLocaleDateString() %>
                                         </td>
-                                        <td></td>
+                                        <td><button onclick="window.location.href='/admin/viewOeder/<%=order.orderedItem._id %>'"
+                                            class="btn btn-sm btn-outline-primary">View</button>
+                                    </td></td>
                                     </tr>
                                     <% }) %>
 
