@@ -16,6 +16,8 @@ const coupon = require("../models/couponSchema");
 const Razorpay = require("razorpay");
 const Offer = require("../models/offerSchema");
 const Referral = require("../models/referralSchema");
+const failedorder = require("../models/faildOrders");
+const PDFDocument = require('pdfkit');
 
 const loadHomePage = async (req, res) => {
   try {
@@ -906,10 +908,18 @@ const loadOrders = async (req, res) => {
   const userData = req.session.user;
   const userId = userData._id;
   try {
-    const orderedItem = await order.find({ userId }).sort({createdAt:-1});
+    const orderedItem = await order.find({ userId }).sort({ createdAt: -1 });
+    const faildOrders = await failedorder
+      .find({ userId })
+      .sort({ createdAt: -1 });
+    console.log(faildOrders);
+
     // console.log(orderedItem);
 
-    res.render("user/orders", { orders: orderedItem || [] });
+    res.render("user/orders", {
+      orders: orderedItem || [],
+      faildOrders: faildOrders || [],
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: "Failed get Orders" });
@@ -924,6 +934,20 @@ const loadOrdersDetails = async (req, res) => {
     // console.log(orderDetails);
 
     res.render("user/orderDetails", { orderDetails: orderDetails || [] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Failed get Orders" });
+  }
+};
+const loadFailedOrdersDetails = async (req, res) => {
+  const userData = req.session.user;
+  const userId = userData._id;
+  const id = req.params.id;
+  try {
+    const orderDetails = await failedorder.find({ orderId: id });
+    // console.log(orderDetails);
+
+    res.render("user/failedOrderDetails", { orderDetails: orderDetails || [] });
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: "Failed get Orders" });
@@ -1349,6 +1373,7 @@ const placeOrder = async (req, res) => {
       couponApplied,
       couponDiscount,
       finalTotalAmount,
+      paymentIds,
     } = req.body;
     const couponDisc =
       parseFloat(((couponDiscount || "0") + "").replace(/[^\d.-]/g, "")) || 0;
@@ -1510,9 +1535,19 @@ const placeOrder = async (req, res) => {
       // console.log(updatedProduct);
     }
 
+    const deleteDemoOrder = await failedorder.findOneAndDelete({
+      paymentId: paymentIds,
+    });
+    // if (deleteDemoOrder) {
+    //   console.log("success");
+    // }
+
     await cart.findOneAndDelete({ userId: userId });
-    req.session.couponDiscount=null;
-    req.session.couponCode=null;
+    req.session.couponDiscount = null;
+    req.session.couponCode = null;
+
+    req.session.paymentData = null;
+    req.session.orderId = null;
 
     // console.log("success");
     res.status(404).json({ message: "Order placed successfully" });
@@ -1576,7 +1611,13 @@ const verifyPayment = async (req, res) => {
       regularPrice: product.regularPrice,
       regularTotal: product.regularPrice * item.quantity,
       price: item.price,
-      total: item.quantity * item.price * (1 - (couponPercentage || 0) / 100),
+      total:
+        item.quantity * item.price -
+        (item.quantity * item.price -
+          item.quantity * item.price * (1 - couponPercentage / 100) || 0),
+      couponDiscount:
+        item.quantity * item.price -
+          item.quantity * item.price * (1 - couponPercentage / 100) || 0,
       discount:
         product.regularPrice * item.quantity - item.quantity * product.price,
     });
@@ -1597,10 +1638,110 @@ const verifyPayment = async (req, res) => {
       amount,
       currency,
     });
+    const orderId = ` ORD${Date.now()}`;
+    const newOrder = await failedorder.create({
+      orderId: orderId,
+      userId: userId,
+      orderedItem: orderedProduct,
+      totalPrice,
+      discount: totalPrice - finalAmount + couponDisc,
+      finalAmount: finalAmount - couponDisc,
+      deliveryAddress: deliveryAddress,
+      billingDetails: billingDetails,
+      invoiceDate: new Date(),
+      status: "Payment Pending",
+      couponApplied: couponApplied || false,
+      couponDiscount: couponDisc,
+      paymentMethod,
+      paymentId: order.id,
+    });
+    await cart.findOneAndDelete({ userId: userId });
+    req.session.paymentData = true;
+    req.session.orderId = order.id;
+
     return res.json({ orderId: order.id, amount });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error creating order");
+  }
+};
+
+const paymentFailed = async (req, res) => {
+  if (req.session.paymentData) {
+    return res.redirect("/user");
+  }
+  try {
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
+
+    res.render("user/paymentFailed");
+    req.session.paymentData = null;
+  } catch (error) {
+    console.error("Error rendering paymentFailed page:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+const retryPayment = async (req, res) => {
+  const { orderId } = req.body;
+  const razorpay = new Razorpay({
+    key_id: process.env.RZP_KEY_ID,
+    key_secret: process.env.RZP_TEST_KEY_ID,
+  });
+
+  try {
+    // Check the existing order status using Razorpay's Orders API
+    const order = await razorpay.orders.fetch(orderId);
+    console.log(order.status);
+
+    if (order.status === "paid") {
+      return res.status(400).json({ message: "Order is already paid." });
+    } else if (order.status === "expired") {
+      const newOrder = await razorpay.orders.create({
+        amount: order.amount,
+        currency: "INR",
+        receipt: `receipt_${orderId}`,
+      });
+      return res.json({ orderId: newOrder.id, amount: newOrder.amount });
+    } else if (order.status === "attempted") {
+
+      return res.json({ orderId: order.id, amount: order.amount });
+    }
+
+    // If the order is unpaid or failed, reuse the existing orderId
+    res.json({ orderId: order.id, amount: order.amount });
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    res.status(500).send("Failed to process re-payment.");
+  }
+};
+
+const updateOrder = async (req, res) => {
+  const { orderId, paymentResponse } = req.body;
+  console.log(orderId);
+
+  try {
+    const findOrder = await failedorder.findOne({ paymentId: orderId });
+    if (!findOrder) {
+      return console.log("Order not found in failedorder collection");
+    }
+    console.log(findOrder);
+    const updatedOrderData = {
+      ...findOrder.toObject(), // Clone the order object
+      status: "pending", // Update the status field
+    };
+
+    const result = await order.create(updatedOrderData);
+
+    req.session.paymentData = null;
+    req.session.orderId = null;
+
+    // Optionally, delete the order from failedorder
+    await failedorder.deleteOne({ paymentId: orderId });
+    console.log("Order removed from failedorder collection");
+  } catch (error) {
+    console.error("Error moving order:", error);
   }
 };
 
@@ -1694,6 +1835,159 @@ const removeCoupon = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+
+// generate the order invoice
+
+const generateSalesInvoice = async (req, res) => {
+  
+  try {
+    const orderId = req.params.orderId;
+    const orderDetails = await order.findOne({orderId}).populate('userId');
+
+    if (!orderDetails) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    generateInvoice(orderDetails, res);
+  } catch (error) {
+    console.error('Error generating invoice:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+
+
+
+function generateInvoice(order, res) {
+  const doc = new PDFDocument({ margin: 50 });
+  const fileName = `invoice-${order.orderId}.pdf`;
+
+  res.setHeader('Content-Disposition',` attachment; filename="${fileName}"`);
+  res.setHeader('Content-Type', 'application/pdf');
+
+
+  doc.pipe(res);
+
+
+  doc
+    .fontSize(24)
+    .text('iDeal Order Invoice', { align: 'center' })
+    .fontSize(10)
+    .fillColor('gray')
+    .text(`Generated on: ${new Date().toLocaleString()}`, { align: 'center' })
+    .moveDown(2);
+
+
+  doc
+    .fontSize(10)
+    .fillColor('#000000')
+    .text('Mapple Store Ltd.', 50, 100)
+    .text('Kasargod, VT / 82021', 50, 115)
+    .text('Phone: 8943548236', 50, 130);
+
+  doc
+    .text(`${order.billingDetails.homeAddress}`, 400, 100 , { align: 'right' })
+    .text(`${order.billingDetails.landmark}`, 400, 145 , { align: 'right' })
+    .text(`${order.billingDetails.country}, ${order.billingDetails.state}, ${order.billingDetails.city}`, 400, 115, { align: 'right' })
+    .text(`${order.billingDetails.zipCode}`, 400, 130, { align: 'right' })
+    .text(`${order.billingDetails.phoneNumber}`, 400, 160 , { align: 'right' });
+
+
+  doc
+    .moveDown(2)
+    .fontSize(10)
+    .fillColor('#333333')
+    .text(`Invoice Number: ${order.orderId}`, 50, 200)
+    .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 50, 215);
+
+
+  const tableTop = 270;
+  const tableHeaderHeight = 20;
+  doc
+    .fontSize(10)
+    .fillColor('#333333')
+    .text('Product', 50, tableTop)
+    .text('Description', 150, tableTop, { width: 100, align: 'left' })
+    .text('Rate', 300, tableTop, { width: 50, align: 'right' })
+    .text('Quantity', 380, tableTop, { width: 50, align: 'right' })
+    .text('Total', 470, tableTop, { width: 50, align: 'right' });
+
+  doc
+    .moveTo(50, tableTop + 15)
+    .lineTo(550, tableTop + 15)
+    .stroke('#cccccc');
+
+
+  let position = tableTop + tableHeaderHeight;
+  order.orderedItem.forEach((product) => {
+    doc
+      .fontSize(10)
+      .fillColor('#000000')
+      .text(product.orderedItem, 50, position)
+      .text(product.productColor, 150, position, { width: 100, align: 'left' })
+      .text(`${product.price.toFixed(2)}`, 300, position, { width: 50, align: 'right' })
+      .text(product.quantity, 380, position, { width: 50, align: 'right' })
+      .text(`${product.total.toFixed(2)}`, 470, position, { width: 50, align: 'right' });
+
+    position += tableHeaderHeight;
+  });
+
+  doc
+    .moveTo(50, position)
+    .lineTo(550, position)
+    .stroke('#cccccc')
+    .moveDown(1);
+
+  position += 10;
+
+  doc
+    .fontSize(12)
+    .fillColor('#333333')
+    .text('Subtotal:', 300, position)
+    .text(`${order.totalPrice.toFixed(2)}`, 480, position);
+
+  doc
+    .text('Discount:', 300, position + 20)
+    .text(`-${order.discount.toFixed(2)}`, 480, position + 20);
+
+  doc
+    .text('Delivery Fee:', 300, position + 40)
+    .text(`${order.discount.toFixed(2)}`, 480, position + 40);
+
+  doc
+    .text('Total Amount:', 300, position + 60)
+    .fontSize(16)
+    .text(`${order.finalAmount.toFixed(2)}`, 480, position + 60);
+
+  doc
+    .moveDown(4)
+    .fontSize(10)
+    .fillColor('#333333')
+    .text('Terms', 50, position + 100)
+    .fontSize(8)
+    .fillColor('#666666')
+    .text('Please make a transfer to:', 50, position + 115)
+    .text('Mapple Store', 50, position + 130)
+    .text('IBAN: GB23 2344 2334423234423', 50, position + 145)
+    .text('BIC: Mapple', 50, position + 160);
+
+    doc
+    .moveDown(1)
+    .fontSize(10)
+    .font('Helvetica-Oblique')
+    .fillColor('gray')
+    .text(
+      'This report was generated by Mapple. All amounts are in INR.',
+      50,
+      doc.y,
+      { align: 'center', width: 500 }
+    )
+    .text('For any queries, contact support@mapple.com.', { align: 'center' });
+
+  doc.end();
+}
 
 const addWishlist = async (req, res) => {
   if (!req.session.user) {
@@ -1789,6 +2083,7 @@ module.exports = {
   editAddress,
   loadOrders,
   loadOrdersDetails,
+  loadFailedOrdersDetails,
   returnProduct,
   cancelProduct,
   productReview,
@@ -1807,8 +2102,12 @@ module.exports = {
   loadCheckout,
   placeOrder,
   verifyPayment,
+  paymentFailed,
+  retryPayment,
+  updateOrder,
   applyCoupon,
   removeCoupon,
+  generateSalesInvoice,
 
   addWishlist,
 };

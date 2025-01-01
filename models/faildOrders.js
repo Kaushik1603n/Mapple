@@ -3,9 +3,14 @@ const { type } = require("os");
 const { Schema } = mongoose;
 const { v4: uuidv4 } = require("uuid");
 
-const orderSchema = new Schema(
+const failedorderSchema = new Schema(
   {
     orderId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    paymentId: {
       type: String,
       required: true,
       unique: true,
@@ -174,5 +179,5 @@ const orderSchema = new Schema(
   { timestamps: true }
 );
 
-const order = mongoose.model("order", orderSchema);
-module.exports = order;
+const failedorder = mongoose.model("failedorder", failedorderSchema);
+module.exports = failedorder;

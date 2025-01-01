@@ -187,7 +187,8 @@
                         </p>
                         <!-- <p>Tax: <span class="float-end">₹1,599</span></p> -->
                         <hr>
-                        <p><strong>Total: <span class="float-end" id="totalAmount">₹<%= userCart.totalActualAmount.toFixed(2) %>
+                        <p><strong>Total: <span class="float-end" id="totalAmount">₹<%=
+                                        userCart.totalActualAmount.toFixed(2) %>
                                 </span></strong></p>
                         <span class="float-end" id="totalActualAmount" hidden>₹<%= userCart.totalActualAmount %>
                         </span>
@@ -207,7 +208,7 @@
         document.getElementById('sameAsDelivery').addEventListener('change', function () {
             const selectedAddress = document.querySelector('input[name="address"]:checked');
             if (this.checked && selectedAddress) {
-                const selectedIndex = selectedAddress.value; 
+                const selectedIndex = selectedAddress.value;
 
                 const addressData = document.getElementById(`addressData${selectedIndex}`);
                 if (addressData) {
@@ -367,15 +368,15 @@
                 deliveryAddress,
                 billingDetails,
                 paymentMethod,
-                status: "pending", 
+                status: "pending",
                 couponApplied: discountAmount !== "" ? true : false,
             };
 
             const totalPrice = parseFloat(totalAmount.replace(/[₹,]/g, '').trim()) || userCart.finalAmount;
             // alert(totalPrice)
 
-            if(paymentMethod=="cod" || paymentMethod=="wallet"){
-                placeOrder();
+            if (paymentMethod == "cod" || paymentMethod == "wallet") {
+                placeOrder("");
             }
 
             if (paymentMethod === "upi") {
@@ -396,7 +397,7 @@
                             handler: function (response) {
                                 console.log('Payment successful!');
                                 console.log(response);
-                                placeOrder();
+                                placeOrder(data.orderId);
                             },
                             prefill: {
                                 name: 'John Doe',
@@ -409,13 +410,22 @@
                         };
 
                         const rzp1 = new Razorpay(options);
+
+                        rzp1.on('payment.failed', function (response) {
+                            console.error('Payment failed:', response.error);
+                            // alert("Payment failed")
+                            // Redirect to another page on payment failure
+                            window.location.href = '/user/payment-failed'; // Replace with your failure page URL
+                        });
                         rzp1.open();
-                        
+
                     })
                     .catch(error => console.error('Error:', error));
             }
 
-            function placeOrder() {
+            function placeOrder(paymentId) {
+                const paymentIds = paymentId != "" ? paymentId : null;
+                orderData.paymentIds = paymentIds
                 // console.log(orderData);
                 fetch('/user/placeOrder', {
                     method: 'POST',

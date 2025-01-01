@@ -36,6 +36,7 @@ router.delete("/address/delete/:id", userController.deleteAddress);
 router.put("/address/edit/:id", userController.editAddress);
 router.get("/orders",auth.userAuth, userController.loadOrders);
 router.get("/orderDetails/:id",auth.userAuth, userController.loadOrdersDetails);
+router.get("/failedOrderDetails/:id",auth.userAuth, userController.loadFailedOrdersDetails);
 router.post("/returnProduct", userController.returnProduct);
 router.post("/cancelProduct", userController.cancelProduct);
 router.post("/productReview", userController.productReview);
@@ -54,8 +55,12 @@ router.post("/cart/update-quantity", userController.updatequantity);
 router.get("/checkout",auth.userAuth, userController.loadCheckout);
 router.post("/placeOrder",auth.userAuth, userController.placeOrder);
 router.post("/verify-payment",auth.userAuth, userController.verifyPayment);
+router.get("/payment-failed",auth.userAuth, userController.paymentFailed);
+router.post("/retry-payment",auth.userAuth, userController.retryPayment);
+router.post("/update-order-status",auth.userAuth, userController.updateOrder);
 router.post("/applyCoupon",auth.userAuth, userController.applyCoupon);
 router.post("/removeCoupon",auth.userAuth, userController.removeCoupon);
+router.get("/downloadInvoice/:orderId",auth.userAuth, userController.generateSalesInvoice);
 
 
 router.get(

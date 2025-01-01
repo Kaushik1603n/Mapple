@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+
+    <style>
+        /* Custom Styles */
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb-item a {
+            color: #6c757d;
+            text-decoration: none;
+        }
+
+        .breadcrumb-item.active {
+            color: #000;
+        }
+
+        .order-container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 20px auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-details {
+            font-size: 14px;
+        }
+
+        .table th {
+            background-color: #e9ecef;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .btn-cancelled {
+            background-color: #d9534f;
+            color: #fff;
+            border-radius: 20px;
+            padding: 8px 25px;
+            font-weight: bold;
+        }
+
+        .btn-return {
+            background-color: #28a745;
+            color: #fff;
+            border-radius: 20px;
+            padding: 8px 25px;
+            font-weight: bold;
+        }
+
+        .product-img {
+            width: 50px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <%- include("../../views/partials/user/sidebar") %>
+
+        <div class="content p-4">
+            <div class="row">
+                <div class="col-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item text-secondary"><a href="/user/orders">Orders</a></li>
+                            <li class="breadcrumb-item text-dark fw-bold" aria-current="page">Orders details</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            <!-- Order Container -->
+            <div class="order-container m-0 bg-light p-4">
+                <!-- Order Details -->
+                <% if (orderDetails && orderDetails.length> 0) { %>
+                    <% orderDetails.forEach((order,index)=>{ %>
+                        <div class="row mb-4 text-end">
+                            <!-- Customer Info -->
+                            <div class="col-md-6 order-details">
+                                <p><strong>Customer:</strong>
+                                    <%= order.deliveryAddress.name %>
+                                </p>
+                                <p><strong>Phone:</strong>
+                                    <%= order.deliveryAddress.phoneNumber %>
+                                </p>
+                                <p><strong>Address:</strong>
+                                    <%= order.deliveryAddress.homeAddress %>
+                                </p>
+                                <p><strong>Billing Details:</strong>
+                                    <%= order.billingDetails.homeAddress %>
+                                </p>
+                            </div>
+                            <!-- Order Info -->
+                            <div class="col-md-6 order-details text-start">
+                                <p><strong>Order Date:</strong>
+                                    <%= order.createdAt.toLocaleString() %>
+                                </p>
+                                <p><strong>Payment Method:</strong>
+                                    <%= order.paymentMethod %>
+                                </p>
+                                <p><strong> Total Amount:</strong>
+                                    <%= order.totalPrice %>
+                                </p>
+                                <p><strong>Final Amount:</strong> <span class="text-success">
+                                        <%= order.finalAmount %>
+                                    </span></p>
+                            </div>
+                        </div>
+                        <% }) %>
+                            <% } %>
+
+                                <!-- Product Image
+          <div class="text-center mb-4">
+            <img
+              src="https://via.placeholder.com/250x150"
+              alt="Product Image"
+              class="img-fluid rounded"
+            />
+          </div> -->
+
+                                <!-- Order Items Table -->
+                                <h5 class="mb-3 text-center">Order Items</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered align-middle text-center">
+                                        <thead>
+                                            <tr>
+                                                <th>Image</th>
+                                                <th>Product</th>
+                                                <th>Status</th>
+                                                <th>Quantity</th>
+                                                <th>Price</th>
+                                                <th>Total</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% if (orderDetails && orderDetails.length > 0) { %>
+                                                <% orderDetails.forEach((order) => { %>
+                                                    <% order.orderedItem.forEach((item) => { %>
+                                                        <tr>
+                                                            <td>
+                                                                <img class="product-img" src="<%= item.firstImage %>" alt="Product" class="me-2">
+                                                            </td>
+                                                            <td>
+                                                                <%= item.productName %>
+                                                            </td>
+                                                            <td>
+                                                                <b>
+                                                                    <%= order.status %>
+                                                                </b>
+                                                            </td>
+                                                            <td>
+                                                                <%= item.quantity || 1 %>
+                                                            </td>
+                                                            <td>
+                                                                <%= item.price.toLocaleString() || '0.00' %>
+                                                            </td>
+                                                            <td>
+                                                                <%= item.total.toLocaleString() || '0.00' %>
+                                                            </td>
+                                                            <td>
+                                                                <button class="btn btn-success"
+                                                                    onclick="payAgain('<%= order.paymentId %>')">Re-Payment</button>
+                                                            </td>
+                                                        </tr>
+                                                    <% }) %>
+                                                <% }) %>
+                                            <% } %>
+                                            
+
+
+                                        </tbody>
+                                    </table>
+
+
+                                </div>
+
+
+            </div>
+            <% if (orderDetails && orderDetails.length> 0) { %>
+                <% orderDetails.forEach((order)=> { %>
+                    <% order.orderedItem.forEach((item,index)=> { %>
+                        <div class="container mt-5 bg-light p-4 shadow-lg ">
+                            <h2 class="text-center">Thank You for Your Purchase!</h2>
+                            <p class="text-center">Your order is <%= item.status %>. Order ID: <strong>
+                                        <%= order.orderId %>
+                                    </strong></p>
+
+                            <!-- Order Summary Section -->
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h4>Order Details</h4>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Price</th>
+                                                <th>Quantity</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Repeat for each product in the order -->
+                                            <tr>
+                                                <td>
+                                                    <img src="<%= item.firstImage %>" alt="Product" width="150"
+                                                        height="150">
+                                                    <span>
+                                                        <%= item.productName %>
+                                                    </span>
+                                                </td>
+                                                <td><b>
+                                                        <%= item.price.toLocaleString() || '0.00' %>
+                                                    </b></td>
+                                                <td>
+                                                    <%= item.quantity || 1 %>
+                                                </td>
+                                                <td><b>
+                                                        <%= item.total.toLocaleString() || '0.00' %>
+                                                    </b></td>
+                                            </tr>
+                                            <!-- More products here -->
+                                        </tbody>
+                                    </table>
+
+                                    <div class="container my-5 bg-white p-4 shadow-lg ">
+                                        <h4>Product Detais</h4>
+
+
+                                        <%- item.description %>
+                                    </div>
+
+                                    <!-- Order Summary Section -->
+                                    <h4>Order Summary</h4>
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>Subtotal:</strong></td>
+                                                <td><b>
+                                                        <%= item.regularTotal.toLocaleString() %>
+                                                    </b></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Discount:</strong></td>
+                                                <td>-<%= item.discount|| (item.regularTotal -
+                                                        item.total).toLocaleString() %>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Shipping:</strong></td>
+                                                <td>0</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Total:</strong></td>
+                                                <td><strong>
+                                                        <%= item.total.toLocaleString() %>
+                                                    </strong></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Payment and Address Section -->
+                                <div class="col-md-4">
+                                    <h4>Payment Information</h4>
+                                    <p><strong>Payment Method:</strong>
+                                        <%= order.paymentMethod %>
+                                    </p>
+                                    <p><strong>Billing Address:</strong>
+                                        <%= order.billingDetails.name %>, <br>
+                                            <%= order.billingDetails.homeAddress %>, <%= order.billingDetails.landmark
+                                                    %>, pin <%= order.billingDetails.zipCode %>,
+                                                        <%= order.billingDetails.city %>, <%= order.billingDetails.state
+                                                                %>, <%= order.billingDetails.country %>,
+                                                                    <br>
+                                                                    <%= order.billingDetails.phoneNumber %>
+                                    </p>
+                                    <p><strong>Delivery Address:</strong>
+                                        <%= order.deliveryAddress.name %>, <br>
+                                            <%= order.deliveryAddress.homeAddress %>, <%= order.deliveryAddress.landmark
+                                                    %>, pin <%= order.deliveryAddress.zipCode %>,
+                                                        <%= order.deliveryAddress.city %>, <%=
+                                                                order.deliveryAddress.state %>, <%=
+                                                                    order.deliveryAddress.country %>,
+                                                                    <br>
+                                                                    <%= order.deliveryAddress.phoneNumber %>
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <% }) %>
+                            <% }) %>
+                                <% } %>
+        </div>
+
+        <!-- Bootstrap Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
+        <script>
+            function payAgain(orderId) {
+                // alert(` ${orderId}`);
+
+                fetch('/user/retry-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId }), // Send the existing orderId to the backend
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const options = {
+                            key: 'rzp_test_teltatkxHwElFD', // Razorpay test key
+                            amount: data.amount, // Amount in paise
+                            currency: 'INR',
+                            name: 'Your Company Name',
+                            description: 'Re-Payment for Order',
+                            order_id: data.orderId, // Use the returned orderId
+                            handler: function (response) {
+                                console.log('Re-payment successful!', response);
+                                // Call a function to update the order status
+                                updateOrderStatus(data.orderId, response);
+                            },
+                            prefill: {
+                                name: 'John Doe', // Pre-fill customer details
+                                email: 'john.doe@example.com',
+                                contact: '9037608236',
+                            },
+                            theme: {
+                                color: '#3399cc',
+                            },
+                        };
+
+                        const rzp1 = new Razorpay(options);
+                        rzp1.open();
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            function updateOrderStatus(orderId, response) {
+                // alert(orderId)
+                // Optional: Send the payment response to the server to update the order status
+                fetch('/user/update-order-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId, paymentResponse: response }),
+                })
+                    .then(res => res.json())
+                    .then(data => console.log('Order status updated:', data))
+                    .catch(error => console.error('Error updating order status:', error));
+            }
+
+
+        </script>
+
+</body>
+
+</html>
