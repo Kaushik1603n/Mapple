@@ -153,12 +153,13 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <% if (orderDetails && orderDetails.length > 0) { %>
-                                                <% orderDetails.forEach((order) => { %>
-                                                    <% order.orderedItem.forEach((item) => { %>
+                                            <% if (orderDetails && orderDetails.length> 0) { %>
+                                                <% orderDetails.forEach((order)=> { %>
+                                                    <% order.orderedItem.forEach((item)=> { %>
                                                         <tr>
                                                             <td>
-                                                                <img class="product-img" src="<%= item.firstImage %>" alt="Product" class="me-2">
+                                                                <img class="product-img" src="<%= item.firstImage %>"
+                                                                    alt="Product" class="me-2">
                                                             </td>
                                                             <td>
                                                                 <%= item.productName %>
@@ -182,10 +183,10 @@
                                                                     onclick="payAgain('<%= order.paymentId %>')">Re-Payment</button>
                                                             </td>
                                                         </tr>
-                                                    <% }) %>
-                                                <% }) %>
-                                            <% } %>
-                                            
+                                                        <% }) %>
+                                                            <% }) %>
+                                                                <% } %>
+
 
 
                                         </tbody>
@@ -367,10 +368,15 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ orderId, paymentResponse: response }),
-                })
-                    .then(res => res.json())
-                    .then(data => console.log('Order status updated:', data))
-                    .catch(error => console.error('Error updating order status:', error));
+                }).then(res => res.json())
+                    .then(data => {
+                        console.log('Order status updated:', data);
+
+                        window.location.href = '/user/orders';  // Replace with your desired URL
+                    })
+                    .catch(error => {
+                        console.error('Error updating order status:', error);
+                    });
             }
 
 

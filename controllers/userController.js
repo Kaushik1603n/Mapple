@@ -1374,6 +1374,7 @@ const placeOrder = async (req, res) => {
       couponDiscount,
       finalTotalAmount,
       paymentIds,
+      deliveryChargeValue,
     } = req.body;
     const couponDisc =
       parseFloat(((couponDiscount || "0") + "").replace(/[^\d.-]/g, "")) || 0;
@@ -1391,8 +1392,10 @@ const placeOrder = async (req, res) => {
     }
     const couponPercentage = req.session.couponDiscount;
     // console.log(couponPercentage);
-
-    let finalAmount = 0;
+    // console.log(deliveryChargeValue);
+    // console.log(Number(deliveryChargeValue));
+    
+    let finalAmount = Number(deliveryChargeValue);
     let totalPrice = 0;
     const orderedProduct = [];
     for (const item of orderedItem) {
@@ -1432,32 +1435,10 @@ const placeOrder = async (req, res) => {
           product.regularPrice * item.quantity - item.quantity * product.price,
       });
     }
+    // console.log(finalAmount);
+    
 
-    // console.log(paymentMethod);
-    // if (paymentMethod == "upi") {
-    //   console.log(paymentMethod);
-
-    //   const razorpayInstance = new Razorpay({
-    //     key_id: process.env.RZP_KEY_ID,
-    //     key_secret: process.env.RZP_TEST_KEY_ID,
-    //   });
-    //   const discount = couponDisc ?? 0;
-    //   console.log((finalAmount - discount) * 100);
-
-    //   const amount = (finalAmount - discount) * 100;
-    //   const currency = "INR";
-
-    //   try {
-    //     const order = await razorpayInstance.orders.create({
-    //       amount,
-    //       currency,
-    //     });
-    //    return res.json({ orderId: order.id,amount });
-    //   } catch (error) {
-    //     console.error(error);
-    //     res.status(500).send("Error creating order");
-    //   }
-    // }
+    
 
     if (paymentMethod == "wallet") {
       let userwallet = await Wallet.findOne({ user: userId });
@@ -1465,7 +1446,7 @@ const placeOrder = async (req, res) => {
       if (!userwallet) {
         return res.status(404).json({ error: `insufficient balance` });
       }
-      console.log(finalAmount);
+      // console.log(finalAmount);
 
       if (userwallet.balance < finalAmount) {
         return res.status(404).json({ error: `insufficient balance` });
@@ -1503,7 +1484,10 @@ const placeOrder = async (req, res) => {
       couponApplied: couponApplied || false,
       couponDiscount: couponDisc,
       paymentMethod,
+      deliveryCharge:deliveryChargeValue,
     });
+    console.log(finalAmount - couponDisc);
+    
 
     if (!newOrder) {
       return res.status(404).json({ error: "Order not placed" });
@@ -1530,7 +1514,7 @@ const placeOrder = async (req, res) => {
         await Product.findByIdAndUpdate(item.product, {
           $set: { status: "Out of stock" },
         });
-        console.log(`Product ${item.product} is now out of stock.`);
+        // console.log(`Product ${item.product} is now out of stock.`);
       }
       // console.log(updatedProduct);
     }
@@ -1568,6 +1552,7 @@ const verifyPayment = async (req, res) => {
     couponApplied,
     couponDiscount,
     finalTotalAmount,
+    deliveryChargeValue,
   } = req.body;
   const couponDisc =
     parseFloat(((couponDiscount || "0") + "").replace(/[^\d.-]/g, "")) || 0;
@@ -1582,7 +1567,7 @@ const verifyPayment = async (req, res) => {
   }
   const couponPercentage = req.session.couponDiscount;
 
-  let finalAmount = 0;
+  let finalAmount = Number(deliveryChargeValue);
   let totalPrice = 0;
   const orderedProduct = [];
   for (const item of orderedItem) {
@@ -1628,7 +1613,7 @@ const verifyPayment = async (req, res) => {
     key_secret: process.env.RZP_TEST_KEY_ID,
   });
   const discount = couponDisc ?? 0;
-  console.log((finalAmount - discount) * 100);
+  // console.log((finalAmount - discount) * 100);
 
   const amount = (finalAmount - discount) * 100;
   const currency = "INR";
@@ -1654,6 +1639,7 @@ const verifyPayment = async (req, res) => {
       couponDiscount: couponDisc,
       paymentMethod,
       paymentId: order.id,
+      deliveryCharge:deliveryChargeValue
     });
     await cart.findOneAndDelete({ userId: userId });
     req.session.paymentData = true;
@@ -1667,7 +1653,7 @@ const verifyPayment = async (req, res) => {
 };
 
 const paymentFailed = async (req, res) => {
-  if (req.session.paymentData) {
+  if (!req.session.paymentData) {
     return res.redirect("/user");
   }
   try {
@@ -1740,6 +1726,7 @@ const updateOrder = async (req, res) => {
     // Optionally, delete the order from failedorder
     await failedorder.deleteOne({ paymentId: orderId });
     console.log("Order removed from failedorder collection");
+    res.status(200).json({success:true,message:"successfully Re-payment"})
   } catch (error) {
     console.error("Error moving order:", error);
   }
@@ -1873,7 +1860,7 @@ function generateInvoice(order, res) {
 
   doc
     .fontSize(24)
-    .text('iDeal Order Invoice', { align: 'center' })
+    .text('Mapple Order Invoice', { align: 'center' })
     .fontSize(10)
     .fillColor('gray')
     .text(`Generated on: ${new Date().toLocaleString()}`, { align: 'center' })
@@ -1909,10 +1896,11 @@ function generateInvoice(order, res) {
     .fontSize(10)
     .fillColor('#333333')
     .text('Product', 50, tableTop)
-    .text('Description', 150, tableTop, { width: 100, align: 'left' })
+    .text('Color', 150, tableTop, { width: 100, align: 'left' })
     .text('Rate', 300, tableTop, { width: 50, align: 'right' })
     .text('Quantity', 380, tableTop, { width: 50, align: 'right' })
-    .text('Total', 470, tableTop, { width: 50, align: 'right' });
+    .text('Status', 450, tableTop, { width: 50, align: 'right' })
+    .text('Total', 520, tableTop, { width: 50, align: 'right' });
 
   doc
     .moveTo(50, tableTop + 15)
@@ -1925,11 +1913,12 @@ function generateInvoice(order, res) {
     doc
       .fontSize(10)
       .fillColor('#000000')
-      .text(product.orderedItem, 50, position)
+      .text(product.productName, 50, position)
       .text(product.productColor, 150, position, { width: 100, align: 'left' })
       .text(`${product.price.toFixed(2)}`, 300, position, { width: 50, align: 'right' })
       .text(product.quantity, 380, position, { width: 50, align: 'right' })
-      .text(`${product.total.toFixed(2)}`, 470, position, { width: 50, align: 'right' });
+      .text(product.status, 450, position, { width: 50, align: 'right' })
+      .text(`${product.total.toFixed(2)}`, 520, position, { width: 50, align: 'right' });
 
     position += tableHeaderHeight;
   });
@@ -1954,7 +1943,7 @@ function generateInvoice(order, res) {
 
   doc
     .text('Delivery Fee:', 300, position + 40)
-    .text(`${order.discount.toFixed(2)}`, 480, position + 40);
+    .text(`${(order.deliveryCharge||0).toFixed(2)}`, 480, position + 40);
 
   doc
     .text('Total Amount:', 300, position + 60)

@@ -181,7 +181,7 @@
                     <div class="order-summary">
                         <h5 class="mb-3">Order Summary</h5>
                         <p>Sub-total: <span class="float-end">₹<%= userCart.totalAmount %></span></p>
-                        <p>Shipping: <span class="float-end">Free</span></p>
+                        <p>Shipping: <span class="float-end" id="deliveryCharge">₹0</span></p>
                         <p>Coupon Discount: <span class="float-end text-success" id="discountAmount"></span>
                         <p>Discount: <span class="float-end text-success">-₹<%= userCart.totalDiscountAmount %></span>
                         </p>
@@ -205,6 +205,20 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const cartData = JSON.parse(document.getElementById("cartData").value);
+            const totalAmount = cartData.totalActualAmount;
+            console.log(totalAmount);
+
+            let deliveryCharge = totalAmount > 10000 ? 0 : 40;
+        
+            document.getElementById("deliveryCharge").textContent = `₹${deliveryCharge}`;
+
+            const totalElement = document.getElementById("totalAmount");
+            const newTotal = totalAmount + deliveryCharge;
+            totalElement.textContent = `₹${newTotal.toFixed(2)}`;
+        });
+
         document.getElementById('sameAsDelivery').addEventListener('change', function () {
             const selectedAddress = document.querySelector('input[name="address"]:checked');
             if (this.checked && selectedAddress) {
@@ -353,6 +367,11 @@
 
             const discountAmount = document.getElementById("discountAmount").textContent;
             const totalAmount = document.getElementById("totalAmount").textContent;
+            alert(totalAmount)
+
+            let deliveryChargeText = document.getElementById("deliveryCharge").textContent;
+            let deliveryChargeValue = deliveryChargeText.replace("₹", "").trim();
+            console.log(deliveryChargeValue);
 
 
             const orderData = {
@@ -364,16 +383,24 @@
                 totalPrice: userCart.totalPrice,
                 discount: userCart.discount || 0,
                 couponDiscount: discountAmount || 0,
-                finalTotalAmount: totalAmount || userCart.finalAmount,
+                finalTotalAmount:( totalAmount || userCart.finalAmount)+deliveryChargeValue,
                 deliveryAddress,
                 billingDetails,
                 paymentMethod,
                 status: "pending",
                 couponApplied: discountAmount !== "" ? true : false,
+                deliveryChargeValue,
             };
 
             const totalPrice = parseFloat(totalAmount.replace(/[₹,]/g, '').trim()) || userCart.finalAmount;
             // alert(totalPrice)
+            if (paymentMethod == "cod") {
+                if (totalPrice > 10000) {
+                    Swal.fire('Error!', 'Cash on delivery only allows purchases below 10,000 Rs.', 'error');
+                    return;
+                }
+            }
+
 
             if (paymentMethod == "cod" || paymentMethod == "wallet") {
                 placeOrder("");

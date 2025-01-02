@@ -125,16 +125,9 @@
                                     </span></p>
                             </div>
                             <div>
-                                <% if (order.status !=="Delivered" ) { %>
-                                    <button class="btn btn-success btn-sm" onclick="getInvoice('<%= order.orderId %>')">
-                                        Download Invoice
-                                    </button>
-                                    <% } else { %>
-                                        <span class="text-muted">N/A</span>
-                                        <% } %>
-
-
-
+                                <button class="btn btn-success btn-sm" onclick="getInvoice('<%= order.orderId %>')">
+                                    Download Invoice
+                                </button>
                             </div>
                         </div>
                         <% }) %>

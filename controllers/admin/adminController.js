@@ -715,10 +715,14 @@ const updateOrderStatus = async (req, res) => {
       {
         $set: {
           "orderedItem.$.status": status,
+          status: status,
         },
+       
       },
       { new: true }
     );
+    console.log(updateStatus);
+    
     if (updateStatus) {
       res.status(200).json({
         success: true,

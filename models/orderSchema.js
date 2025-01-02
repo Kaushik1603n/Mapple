@@ -137,6 +137,9 @@ const orderSchema = new Schema(
     invoiceDate: {
       type: Date,
     },
+    deliveryCharge: {
+      type: Number,
+    },
     status: {
       type: String,
       required: true,

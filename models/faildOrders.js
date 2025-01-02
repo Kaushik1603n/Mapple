@@ -142,6 +142,10 @@ const failedorderSchema = new Schema(
     invoiceDate: {
       type: Date,
     },
+    deliveryCharge: {
+      type: Number,
+      default:0,
+    },
     status: {
       type: String,
       required: true,
