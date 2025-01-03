@@ -193,7 +193,7 @@ const salesData = async (req, res) => {
   const { filter } = req.query; // Get the filter (daily, weekly, monthly, or yearly)
   let pipeline = [];
   let result = filter || "monthly"; // Default to "monthly" if no filter is provided
-  console.log(result);
+  // console.log(result);
 
   try {
     if (result === "daily") {
@@ -386,7 +386,7 @@ const discountDdata = async (req,res)=>{
     }
 
     const salesData = await order.aggregate(pipeline);
-    console.log(salesData);
+    // console.log(salesData);
 
     res.json(salesData);
   } catch (err) {
