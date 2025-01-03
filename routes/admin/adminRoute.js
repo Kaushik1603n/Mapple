@@ -8,6 +8,9 @@ router.get("/pageerror",adminController.pageerror)
 router.get("/login", adminController.loadLogin);
 router.post("/login",adminAuth, adminController.login);
 router.get("/dashboard",checkAdminAuth,adminController.loadDashboard)
+router.get("/sales-data",checkAdminAuth,adminController.salesData)
+router.get("/discount-data",checkAdminAuth,adminController.discountDdata)
+router.get("/ledger-data",checkAdminAuth,adminController.ledgerData)
 
 router.get("/customer",checkAdminAuth,adminController.loadCustomer)
 router.put('/update-customer-status/:userId',checkAdminAuth,adminController.updateCustomerStatus)

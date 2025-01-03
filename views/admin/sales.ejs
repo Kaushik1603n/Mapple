@@ -214,56 +214,6 @@
             doc.save("Sales_Report.pdf");
         }
 
-        // function downloadPDF() {
-        //     const { jsPDF } = window.jspdf;
-        //     const doc = new jsPDF();
-
-        //     // Set up document font and size
-        //     doc.setFont("helvetica", "normal");
-        //     doc.setFontSize(12);
-
-        //     // Company name and title
-        //     doc.setFontSize(16);
-        //     doc.text("Mapple", 14, 10); // Company Name
-        //     doc.setFontSize(14);
-        //     doc.text("Sales Report", 14, 20);
-
-        //     // Add spacing after the title
-        //     doc.line(14, 22, 195, 22); // Horizontal line under the title
-        //     doc.setLineWidth(0.5);
-
-        //     // Total discount and total price (replace with dynamic calculations if needed)
-        //     const totalDiscount = 150;
-        //     const totalPrice = 1200;
-
-        //     doc.setFontSize(12); // Reset font size
-        //     doc.text(`Total Discount: $${totalDiscount.toFixed(2)}`, 14, 35);
-        //     doc.text(`Total Price: $${totalPrice.toFixed(2)}`, 14, 45);
-
-        //     // Add a line break
-        //     doc.ln(10); // Adds a line break (10 units)
-
-        //     // AutoTable for sales report (using the existing table)
-        //     doc.autoTable({
-        //         html: "#salesReportTable", // Use the existing table
-        //         startY: doc.autoTable.previous.finalY + 10, // Dynamically adjust position
-        //         theme: 'grid',
-        //         headStyles: { fillColor: [40, 115, 189], textColor: 255, fontSize: 12 }, // Header styling
-        //         bodyStyles: { fontSize: 10 },
-        //         margin: { top: 5, left: 14, right: 14 },
-        //     });
-
-        //     // Footer with additional details (e.g., date of report generation)
-        //     const date = new Date();
-        //     const dateString = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-        //     doc.setFontSize(10);
-        //     doc.text(`Report Generated on: ${dateString}`, 14, doc.internal.pageSize.height - 20); // Footer positioning
-
-        //     // Save as PDF
-        //     doc.save("Sales_Report.pdf");
-        // }
-
-
         document.querySelector(".btn-primary").addEventListener("click", (e) => {
             e.preventDefault();
             downloadPDF();
