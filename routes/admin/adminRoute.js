@@ -39,6 +39,7 @@ router.delete("/deleteProductImage/:productId",checkAdminAuth,productController.
 router.delete("/deleteProduct/:id",checkAdminAuth,productController.deleteProduct)
 
 router.get("/coupon",checkAdminAuth,adminController.loadCoupon)
+router.get("/getAllCoupon",checkAdminAuth,adminController.getAllCoupon)
 router.get("/addCoupon",checkAdminAuth,adminController.loadAddCoupon)
 router.post("/addcoupon",checkAdminAuth,adminController.addCoupon)
 router.get("/updateCoupon/:id",checkAdminAuth,adminController.loadUpdateCoupon)
@@ -47,13 +48,16 @@ router.delete("/deleteCoupon/:id",checkAdminAuth,adminController.deleteCoupon)
 router.put("/update-Coupon-status/:id",checkAdminAuth,adminController.couponStatus)
 
 router.get("/orders",checkAdminAuth,adminController.loadOrders)
+router.get("/getOrders",checkAdminAuth,adminController.getOrders)
 router.get("/viewOeder/:id",checkAdminAuth,adminController.loadViewOrders)
 router.get("/cancelReturn",checkAdminAuth,adminController.loadCancelReturn);
+router.get("/getReturnCancel",checkAdminAuth,adminController.getReturnCancel);
 router.post("/rejectCancelRequest",checkAdminAuth,adminController.rejectCancelRequest);
 router.post("/acceptRequest",checkAdminAuth,adminController.acceptRequest);
 router.patch("/updateOrderStatus/:itemId",checkAdminAuth,adminController.updateOrderStatus);
 
 router.get("/offers",checkAdminAuth,adminController.loadOffers)
+router.get("/getOffers",checkAdminAuth,adminController.getOffers)
 router.get("/addOffer",checkAdminAuth,adminController.loadAddOffers)
 router.post("/addOffer",checkAdminAuth,adminController.addOffers)
 router.get("/updateOffer/:id",checkAdminAuth,adminController.loadUpdateOffers)

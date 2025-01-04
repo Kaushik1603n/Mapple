@@ -25,32 +25,35 @@ router.post("/changePassword", userController.changePass);
 router.get("/logout", userController.logout);
 
 
-router.get("/productDetails/:productId", userController.loadProductDetails);
+router.get("/productDetails/:productId",auth.userAuth, userController.loadProductDetails);
 
 router.get("/account",auth.userAuth , userController.loadUserAccount);
-router.post("/account", userController.userAccount);
-router.post("/accountChangePass", userController.accountChangePass);
+router.post("/account",auth.userAuth, userController.userAccount);
+router.post("/accountChangePass", auth.userAuth,userController.accountChangePass);
 router.get("/address",auth.userAuth, userController.userAddress);
-router.post("/addAddress", userController.addAddress);
-router.delete("/address/delete/:id", userController.deleteAddress);
-router.put("/address/edit/:id", userController.editAddress);
+router.get("/userAddress",auth.userAuth, userController.getUserAddress);
+router.post("/addAddress",auth.userAuth, userController.addAddress);
+router.delete("/address/delete/:id",auth.userAuth, userController.deleteAddress);
+router.put("/address/edit/:id",auth.userAuth, userController.editAddress);
 router.get("/orders",auth.userAuth, userController.loadOrders);
 router.get("/orderDetails/:id",auth.userAuth, userController.loadOrdersDetails);
 router.get("/failedOrderDetails/:id",auth.userAuth, userController.loadFailedOrdersDetails);
-router.post("/returnProduct", userController.returnProduct);
-router.post("/cancelProduct", userController.cancelProduct);
-router.post("/productReview", userController.productReview);
-router.post("/wishlist", userController.addWishlist);
-router.get("/wishlist", userController.loadWishList);
-router.delete("/removeproduct/:id", userController.removeWishList);
-router.get("/wallet", userController.loadWallet);
-router.post("/addmoney", userController.addMoney);
-router.get("/referral", userController.loadReferral);
+router.post("/returnProduct",auth.userAuth, userController.returnProduct);
+router.post("/cancelProduct",auth.userAuth, userController.cancelProduct);
+router.post("/productReview",auth.userAuth, userController.productReview);
+router.post("/wishlist", auth.userAuth,userController.addWishlist);
+router.get("/wishlist",auth.userAuth, userController.loadWishList);
+router.get("/wishlistItems",auth.userAuth, userController.loadWishListItems);
+router.delete("/removeproduct/:id", auth.userAuth,userController.removeWishList);
+router.get("/wallet",auth.userAuth, userController.loadWallet);
+router.get("/transaction",auth.userAuth, userController.loadWalletHistory);
+router.post("/addmoney",auth.userAuth, userController.addMoney);
+router.get("/referral",auth.userAuth, userController.loadReferral);
 
-router.post("/cart", userController.addCart);
+router.post("/cart", auth.userAuth,userController.addCart);
 router.get("/cart",auth.userAuth, userController.loadAddCart);
-router.delete("/cart/remove/:id", userController.removeCartItem);
-router.post("/cart/update-quantity", userController.updatequantity);
+router.delete("/cart/remove/:id",auth.userAuth, userController.removeCartItem);
+router.post("/cart/update-quantity",auth.userAuth, userController.updatequantity);
 
 router.get("/checkout",auth.userAuth, userController.loadCheckout);
 router.post("/placeOrder",auth.userAuth, userController.placeOrder);

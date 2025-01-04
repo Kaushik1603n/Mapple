@@ -17,7 +17,7 @@ const Razorpay = require("razorpay");
 const Offer = require("../models/offerSchema");
 const Referral = require("../models/referralSchema");
 const failedorder = require("../models/faildOrders");
-const PDFDocument = require('pdfkit');
+const PDFDocument = require("pdfkit");
 
 const loadHomePage = async (req, res) => {
   try {
@@ -840,6 +840,23 @@ const userAddress = async (req, res) => {
     return res.status(500).json({ error: "Failed to save address." });
   }
 };
+
+const getUserAddress = async (req,res)=>{
+  const userData = req.session.user;
+  try {
+    const userId = userData._id;
+    let userAddress = await address.findOne({ userId: userId });
+    // console.log(userAddress);
+
+    return res.json({success:true,
+      userAddress: userAddress ? userAddress.address : [],
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to save address." });
+  }
+}
+
 const addAddress = async (req, res) => {
   const userData = req.session.user;
   try {
@@ -1050,9 +1067,34 @@ const loadWishList = async (req, res) => {
       }
     }
 
+    // console.log(allProduct);
+    
     res.render("user/wishlist", { allProduct });
   } catch (error) {}
 };
+const loadWishListItems = async (req, res) => {
+  const userData = req.session.user;
+  const userId = userData._id;
+  try {
+    const wishlistItems = await wishlist.find({ userId: userId });
+    // console.log(wishlistItems);
+
+    const allProduct = [];
+
+    for (const item of wishlistItems) {
+      for (const product of item.product) {
+        const wishlistProduct = await Product.findById(product.productId);
+        allProduct.push(wishlistProduct);
+      }
+    }
+
+    console.log(allProduct);
+    
+    res.json( { success:true, allProduct });
+  } catch (error) {}
+};
+
+
 
 const removeWishList = async (req, res) => {
   const { id } = req.params;
@@ -1064,6 +1106,8 @@ const removeWishList = async (req, res) => {
       { userId: userId },
       { $pull: { product: { productId: id } } }
     );
+
+    // const products = await wishlist.find({ userId: userId})
 
     if (result.modifiedCount > 0) {
       return res.status(200).json({ message: "Product removed successfully" });
@@ -1086,6 +1130,18 @@ const loadWallet = async (req, res) => {
     // console.log(user);
 
     res.render("user/wallet", { user });
+  } catch (error) {}
+};
+const loadWalletHistory = async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/user");
+  }
+  const userData = req.session.user;
+  try {
+    const walletHistory = await Wallet.findOne({ user: userData._id }).populate("user");
+    // console.log(user);
+
+    res.json( {success:true, transaction:walletHistory});
   } catch (error) {}
 };
 
@@ -1112,8 +1168,8 @@ const addMoney = async (req, res) => {
       description: "nothing",
     });
 
-    await userwallet.save();
-    res.status(200).json({ success: true, message: "successfully added" });
+    const updatedWallet= await userwallet.save();
+    res.status(200).json({ success: true, message: "successfully added",updatedWallet });
   } catch (error) {}
 };
 
@@ -1276,9 +1332,6 @@ const loadAddCart = async (req, res) => {
   }
   try {
     const userId = userData._id;
-    // const cartItems = await cart.findOne({ userId: userId });
-    // // console.log(cartItems);
-    // const items = cartItems.items;
     const userCart = await cart.findOne({ userId }).populate("items.productId");
 
     res.render("user/cart", { userCart: userCart || [] });
@@ -1300,9 +1353,16 @@ const removeCartItem = async (req, res) => {
     // console.log(updatedItems);
 
     cartItems.items = updatedItems;
-    await cartItems.save();
+    const updatedCart = await cartItems.save();
 
-    res.status(200).json({ message: "Item removed successfully" });
+    res.json({
+      items: updatedCart.items,
+      totalAmount: updatedCart.totalAmount,
+      totalDiscountAmount: updatedCart.totalDiscountAmount,
+      totalActualAmount: updatedCart.totalActualAmount,
+    });
+
+    // res.status(200).json({ message: "Item removed successfully" });
   } catch (error) {
     console.error(err);
     res.status(500).json({ message: "Error removing item from cart" });
@@ -1337,9 +1397,17 @@ const updatequantity = async (req, res) => {
         .json({ message: "Quantity cannot be less than 1" });
     }
 
-    await cartItems.save();
+    item.totalprice = item.quantity * item.price;
 
-    return res.status(200).json({ quantity: item.quantity });
+    const updatedCart = await cartItems.save();
+
+    // return res.status(200).json({ quantity: item.quantity });
+    res.json({
+      items: updatedCart.items,
+      totalAmount: updatedCart.totalAmount,
+      totalDiscountAmount: updatedCart.totalDiscountAmount,
+      totalActualAmount: updatedCart.totalActualAmount,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error updating quantity" });
@@ -1394,7 +1462,7 @@ const placeOrder = async (req, res) => {
     // console.log(couponPercentage);
     // console.log(deliveryChargeValue);
     // console.log(Number(deliveryChargeValue));
-    
+
     let finalAmount = Number(deliveryChargeValue);
     let totalPrice = 0;
     const orderedProduct = [];
@@ -1436,9 +1504,6 @@ const placeOrder = async (req, res) => {
       });
     }
     // console.log(finalAmount);
-    
-
-    
 
     if (paymentMethod == "wallet") {
       let userwallet = await Wallet.findOne({ user: userId });
@@ -1484,10 +1549,9 @@ const placeOrder = async (req, res) => {
       couponApplied: couponApplied || false,
       couponDiscount: couponDisc,
       paymentMethod,
-      deliveryCharge:deliveryChargeValue,
+      deliveryCharge: deliveryChargeValue,
     });
     console.log(finalAmount - couponDisc);
-    
 
     if (!newOrder) {
       return res.status(404).json({ error: "Order not placed" });
@@ -1639,7 +1703,7 @@ const verifyPayment = async (req, res) => {
       couponDiscount: couponDisc,
       paymentMethod,
       paymentId: order.id,
-      deliveryCharge:deliveryChargeValue
+      deliveryCharge: deliveryChargeValue,
     });
     await cart.findOneAndDelete({ userId: userId });
     req.session.paymentData = true;
@@ -1691,7 +1755,6 @@ const retryPayment = async (req, res) => {
       });
       return res.json({ orderId: newOrder.id, amount: newOrder.amount });
     } else if (order.status === "attempted") {
-
       return res.json({ orderId: order.id, amount: order.amount });
     }
 
@@ -1726,7 +1789,7 @@ const updateOrder = async (req, res) => {
     // Optionally, delete the order from failedorder
     await failedorder.deleteOne({ paymentId: orderId });
     console.log("Order removed from failedorder collection");
-    res.status(200).json({success:true,message:"successfully Re-payment"})
+    res.status(200).json({ success: true, message: "successfully Re-payment" });
   } catch (error) {
     console.error("Error moving order:", error);
   }
@@ -1823,157 +1886,152 @@ const removeCoupon = async (req, res) => {
   }
 };
 
-
-
 // generate the order invoice
 
 const generateSalesInvoice = async (req, res) => {
-  
   try {
     const orderId = req.params.orderId;
-    const orderDetails = await order.findOne({orderId}).populate('userId');
+    const orderDetails = await order.findOne({ orderId }).populate("userId");
 
     if (!orderDetails) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: "Order not found" });
     }
 
     generateInvoice(orderDetails, res);
   } catch (error) {
-    console.error('Error generating invoice:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    console.error("Error generating invoice:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-
-
 
 function generateInvoice(order, res) {
   const doc = new PDFDocument({ margin: 50 });
   const fileName = `invoice-${order.orderId}.pdf`;
 
-  res.setHeader('Content-Disposition',` attachment; filename="${fileName}"`);
-  res.setHeader('Content-Type', 'application/pdf');
-
+  res.setHeader("Content-Disposition", ` attachment; filename="${fileName}"`);
+  res.setHeader("Content-Type", "application/pdf");
 
   doc.pipe(res);
 
-
   doc
     .fontSize(24)
-    .text('Mapple Order Invoice', { align: 'center' })
+    .text("Mapple Order Invoice", { align: "center" })
     .fontSize(10)
-    .fillColor('gray')
-    .text(`Generated on: ${new Date().toLocaleString()}`, { align: 'center' })
+    .fillColor("gray")
+    .text(`Generated on: ${new Date().toLocaleString()}`, { align: "center" })
     .moveDown(2);
 
-
   doc
     .fontSize(10)
-    .fillColor('#000000')
-    .text('Mapple Store Ltd.', 50, 100)
-    .text('Kasargod, VT / 82021', 50, 115)
-    .text('Phone: 8943548236', 50, 130);
+    .fillColor("#000000")
+    .text("Mapple Store Ltd.", 50, 100)
+    .text("Kasargod, VT / 82021", 50, 115)
+    .text("Phone: 8943548236", 50, 130);
 
   doc
-    .text(`${order.billingDetails.homeAddress}`, 400, 100 , { align: 'right' })
-    .text(`${order.billingDetails.landmark}`, 400, 145 , { align: 'right' })
-    .text(`${order.billingDetails.country}, ${order.billingDetails.state}, ${order.billingDetails.city}`, 400, 115, { align: 'right' })
-    .text(`${order.billingDetails.zipCode}`, 400, 130, { align: 'right' })
-    .text(`${order.billingDetails.phoneNumber}`, 400, 160 , { align: 'right' });
-
+    .text(`${order.billingDetails.homeAddress}`, 400, 100, { align: "right" })
+    .text(`${order.billingDetails.landmark}`, 400, 145, { align: "right" })
+    .text(
+      `${order.billingDetails.country}, ${order.billingDetails.state}, ${order.billingDetails.city}`,
+      400,
+      115,
+      { align: "right" }
+    )
+    .text(`${order.billingDetails.zipCode}`, 400, 130, { align: "right" })
+    .text(`${order.billingDetails.phoneNumber}`, 400, 160, { align: "right" });
 
   doc
     .moveDown(2)
     .fontSize(10)
-    .fillColor('#333333')
+    .fillColor("#333333")
     .text(`Invoice Number: ${order.orderId}`, 50, 200)
     .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 50, 215);
-
 
   const tableTop = 270;
   const tableHeaderHeight = 20;
   doc
     .fontSize(10)
-    .fillColor('#333333')
-    .text('Product', 50, tableTop)
-    .text('Color', 150, tableTop, { width: 100, align: 'left' })
-    .text('Rate', 300, tableTop, { width: 50, align: 'right' })
-    .text('Quantity', 380, tableTop, { width: 50, align: 'right' })
-    .text('Status', 450, tableTop, { width: 50, align: 'right' })
-    .text('Total', 520, tableTop, { width: 50, align: 'right' });
+    .fillColor("#333333")
+    .text("Product", 50, tableTop)
+    .text("Color", 150, tableTop, { width: 100, align: "left" })
+    .text("Rate", 300, tableTop, { width: 50, align: "right" })
+    .text("Quantity", 380, tableTop, { width: 50, align: "right" })
+    .text("Status", 450, tableTop, { width: 50, align: "right" })
+    .text("Total", 520, tableTop, { width: 50, align: "right" });
 
   doc
     .moveTo(50, tableTop + 15)
     .lineTo(550, tableTop + 15)
-    .stroke('#cccccc');
-
+    .stroke("#cccccc");
 
   let position = tableTop + tableHeaderHeight;
   order.orderedItem.forEach((product) => {
     doc
       .fontSize(10)
-      .fillColor('#000000')
+      .fillColor("#000000")
       .text(product.productName, 50, position)
-      .text(product.productColor, 150, position, { width: 100, align: 'left' })
-      .text(`${product.price.toFixed(2)}`, 300, position, { width: 50, align: 'right' })
-      .text(product.quantity, 380, position, { width: 50, align: 'right' })
-      .text(product.status, 450, position, { width: 50, align: 'right' })
-      .text(`${product.total.toFixed(2)}`, 520, position, { width: 50, align: 'right' });
+      .text(product.productColor, 150, position, { width: 100, align: "left" })
+      .text(`${product.price.toFixed(2)}`, 300, position, {
+        width: 50,
+        align: "right",
+      })
+      .text(product.quantity, 380, position, { width: 50, align: "right" })
+      .text(product.status, 450, position, { width: 50, align: "right" })
+      .text(`${product.total.toFixed(2)}`, 520, position, {
+        width: 50,
+        align: "right",
+      });
 
     position += tableHeaderHeight;
   });
 
-  doc
-    .moveTo(50, position)
-    .lineTo(550, position)
-    .stroke('#cccccc')
-    .moveDown(1);
+  doc.moveTo(50, position).lineTo(550, position).stroke("#cccccc").moveDown(1);
 
   position += 10;
 
   doc
     .fontSize(12)
-    .fillColor('#333333')
-    .text('Subtotal:', 300, position)
+    .fillColor("#333333")
+    .text("Subtotal:", 300, position)
     .text(`${order.totalPrice.toFixed(2)}`, 480, position);
 
   doc
-    .text('Discount:', 300, position + 20)
+    .text("Discount:", 300, position + 20)
     .text(`-${order.discount.toFixed(2)}`, 480, position + 20);
 
   doc
-    .text('Delivery Fee:', 300, position + 40)
-    .text(`${(order.deliveryCharge||0).toFixed(2)}`, 480, position + 40);
+    .text("Delivery Fee:", 300, position + 40)
+    .text(`${(order.deliveryCharge || 0).toFixed(2)}`, 480, position + 40);
 
   doc
-    .text('Total Amount:', 300, position + 60)
+    .text("Total Amount:", 300, position + 60)
     .fontSize(16)
     .text(`${order.finalAmount.toFixed(2)}`, 480, position + 60);
 
   doc
     .moveDown(4)
     .fontSize(10)
-    .fillColor('#333333')
-    .text('Terms', 50, position + 100)
+    .fillColor("#333333")
+    .text("Terms", 50, position + 100)
     .fontSize(8)
-    .fillColor('#666666')
-    .text('Please make a transfer to:', 50, position + 115)
-    .text('Mapple Store', 50, position + 130)
-    .text('IBAN: GB23 2344 2334423234423', 50, position + 145)
-    .text('BIC: Mapple', 50, position + 160);
+    .fillColor("#666666")
+    .text("Please make a transfer to:", 50, position + 115)
+    .text("Mapple Store", 50, position + 130)
+    .text("IBAN: GB23 2344 2334423234423", 50, position + 145)
+    .text("BIC: Mapple", 50, position + 160);
 
-    doc
+  doc
     .moveDown(1)
     .fontSize(10)
-    .font('Helvetica-Oblique')
-    .fillColor('gray')
+    .font("Helvetica-Oblique")
+    .fillColor("gray")
     .text(
-      'This report was generated by Mapple. All amounts are in INR.',
+      "This report was generated by Mapple. All amounts are in INR.",
       50,
       doc.y,
-      { align: 'center', width: 500 }
+      { align: "center", width: 500 }
     )
-    .text('For any queries, contact support@mapple.com.', { align: 'center' });
+    .text("For any queries, contact support@mapple.com.", { align: "center" });
 
   doc.end();
 }
@@ -2067,6 +2125,7 @@ module.exports = {
   userAccount,
   accountChangePass,
   userAddress,
+  getUserAddress,
   addAddress,
   deleteAddress,
   editAddress,
@@ -2077,8 +2136,10 @@ module.exports = {
   cancelProduct,
   productReview,
   loadWishList,
+  loadWishListItems,
   removeWishList,
   loadWallet,
+  loadWalletHistory,
   addMoney,
   loadReferral,
 

@@ -45,7 +45,7 @@
                             <i class="bi bi-wallet2"></i>
                         </div>
                         <h5 class="mt-3">My Wallet Balance</h5>
-                        <h3 class="mt-3"><strong>₹<%= user.balance.toLocaleString() %> </strong></h5>
+                        <h3 class="mt-3"><strong><span id="walletAmount">₹<%= user.balance.toLocaleString() %></span> </strong></h5>
                             <button class="btn btn-secondary add-money-btn" data-bs-toggle="modal"
                                 data-bs-target="#addMoneyModal">Add Money</button>
                     </div>
@@ -153,7 +153,7 @@
                     <% } %>
 
                         <!-- Transaction Table -->
-                        <table class="table table-hover table-bordered text-center align-middle mt-5">
+                        <table class="table table-hover table-bordered text-center align-middle mt-5" id="walletTransactionTable">
                             <thead class="table-light">
                                 <tr>
                                     <th>Transaction ID</th>
@@ -165,7 +165,7 @@
                             <% if(user) { %>
                                 <% user.transactions.forEach((transaction)=>{ %>
                             <tbody>
-                                <tr>
+                                <!-- <tr>
                                     <td><%= transaction._id %></td>
                                     <td><%= transaction.date.toISOString().slice(0, 10) %></td>
                                     <td>
@@ -176,18 +176,18 @@
                                     <td><% if(transaction.transactionType==='deposit') { %>
                                        <b class="text-success"> +<%= transaction.amount %></b></td>
                                         <% } %>-
-                                </tr>
+                                </tr> -->
                             </tbody>
                             <% }) %>
                             <% } %>
                         </table>
         </div>
 
-        <!-- Bootstrap JS -->
+        <script src="/js/wallet.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.4/dist/sweetalert2.min.js"></script>
-        <script>
+        <!-- <script>
             function handleAddMoney() {
                 const amount = document.getElementById("amount").value;
 
@@ -257,7 +257,7 @@
 
 
             }
-        </script>
+        </script> -->
 
 </body>
 

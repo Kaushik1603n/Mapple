@@ -81,7 +81,7 @@
 
                     <!-- Responsive Table -->
                     <div class="table-responsive">
-                        <table class="table table-hover table-bordered text-center align-middle">
+                        <table class="table table-hover table-bordered text-center align-middle" id="wishlistTable">
                             <thead class="table-light">
                                 <tr>
                                     <th>Image</th>
@@ -92,49 +92,59 @@
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <% if(allProduct && allProduct.length>0) { %>
-                                <% allProduct.forEach((product,index)=>{ %>
-                                    <tbody>
-                                        <tr>
-                                            <td> <img src="<%= product.productImage[0] %>" alt="Product" class="me-2"
-                                                    style="width: 50px;">
-                                            <td>
-                                                <%= product.productName %>
-                                            </td>
-                                            <td>
-                                                <%= product.status %>
-                                            </td>
-                                            <td>
-                                                <%= product.salePrice %>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-primary btn-sm addToCartButton"
-                                                    id="addToCartButton" data-product-id="<%= product._id %>">
-                                                    Add to Cart
-                                                </button>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-danger btn-sm remove-btn"
-                                                    data-id="<%= product._id %>">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                    <% }) %>
-                                        <% } else { %>
-                                            <p>No WishList item available.</p>
-                                            <% } %>
+                            <!-- <% if (allProduct && allProduct.length > 0) { %> -->
+                                <tbody>
+                                    <!-- <% allProduct.forEach((product, index) => { %>
+                                        <% if (product) { %>
+                                            <tr>
+                                                <td>
+                                                    <img 
+                                                        src="<%=  product.productImage[0]  %>" 
+                                                        alt="Product" 
+                                                        class="me-2" 
+                                                        style="width: 50px;">
+                                                </td>
+                                                <td>
+                                                    <%= product.productName || "Unknown Product" %>
+                                                </td>
+                                                <td>
+                                                    <%= product.status || "Unavailable" %>
+                                                </td>
+                                                <td>
+                                                    <%= product.salePrice || "N/A" %>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-primary btn-sm addToCartButton" 
+                                                            id="addToCartButton" 
+                                                            data-product-id="<%= product._id %>">
+                                                        Add to Cart
+                                                    </button>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-danger btn-sm remove-btn" 
+                                                            data-id="<%= product._id %>">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                    <% }) %> -->
+                                </tbody>
+                            <!-- <% } else { %>
+                                <p>No WishList item available.</p>
+                            <% } %> -->
+                            
+                            
                         </table>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Bootstrap Bundle with Popper -->
+        <script src="/js/wishlist.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.4/dist/sweetalert2.min.js"></script>
-        <script>
+        <!-- <script>
             document.addEventListener("DOMContentLoaded", () => {
                 const removeButtons = document.querySelectorAll(".remove-btn");
 
@@ -249,7 +259,7 @@
                 });
             });
 
-        </script>
+        </script> -->
 
 </body>
 

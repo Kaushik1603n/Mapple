@@ -51,7 +51,6 @@
                 </div>
 
 
-                <!-- Orders Table -->
                 <div class="main-content">
                     <div class="header d-flex justify-content-between align-items-center mb-4">
                         <h2>Orders</h2>
@@ -59,20 +58,9 @@
                             <a href="/admin/addProduct" class="btn btn-dark">+ Add Product</a>
                         </div>
                     </div>
-                    <!-- <div class="status-tabs mb-4">
-                        <a href="/admin/orders"
-                            class="tab btn-outline-primary btn btn-secondary ">All</a>
-                        <a href="/admin/orders"
-                            class="tab btn btn-outline-primary ">Available</a>
-                        <a href="/admin/orders"
-                            class="tab btn btn-outline-primary  ">Out of Stock</a>
-                        <a href="/admin/orders"
-                            class="tab btn btn-outline-primary ">Discontinued</a>
-                    </div> -->
 
-                    <!-- Product Table -->
                     <div class="table-responsive">
-                        <table class="table table-striped table-bordered">
+                        <table class="table table-striped table-bordered" id="orderTable">
                             <thead class="table-light">
                                 <tr>
                                     <th>Image</th>
@@ -87,110 +75,31 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <% orders.forEach(order=> { %>
-                                    <tr>
-                                        <td class="text-center">
-                                            <img src="<%= order.orderedItem.firstImage || 'default-image.jpg' %>"
-                                                alt="<%= order.orderedItem.productName %>" class="img-fluid"
-                                                style="width: 30px; height: 30px;">
-                                        </td>
-                                        <td>
-                                            <%= order.orderedItem.productName %>
-                                        </td>
-                                        <td>
-                                            <%= order.orderedItem.quantity %>
-                                        </td>
-                                        <td>
-                                            <%= order.orderedItem.productColor %>
-                                        </td>
-                                        <td>
-                                            <%= order.orderedItem.productStorage %>
-                                        </td>
-                                        <td>₹<%= order.orderedItem.total.toLocaleString() %>
-                                        </td>
-                                        <td>
-                                            <select class="form-select form-select-sm" aria-label="Status"
-                                                onchange="updateOrderStatus('<%= order.orderedItem._id %>', this.value)"
-                                                <%=["Delivered", "Canceled" , "Returned"
-                                                ].includes(order.orderedItem.status) ? "disabled" : "" %> >
-                                                <option value="pending" <%=order.orderedItem.status==='pending'
-                                                    ? 'selected' : '' %>
-                                                    >Pending</option>
-                                                <option value="processing" <%=order.orderedItem.status==='processing'
-                                                    ? 'selected' : '' %>>Processing</option>
-                                                <option value="shipped" <%=order.orderedItem.status==='shipped'
-                                                    ? 'selected' : '' %>
-                                                    >Shipped</option>
-                                                <option value="Delivered" <%=order.orderedItem.status==='Delivered'
-                                                    ? 'selected' : '' %>>Delivered</option>
-                                                <option value="Cancel" <%=order.orderedItem.status==='Canceled'
-                                                    ? 'selected' : '' %>
-                                                    >Canceled</option>
-                                                <option value="Cancel Request"
-                                                    <%=order.orderedItem.status==='Cancel Request' ? 'selected' : '' %>
-                                                    >Cancel Request</option>
-                                                <option value="Return Request"
-                                                    <%=order.orderedItem.status==='Return Request' ? 'selected' : '' %>
-                                                    >Return Request</option>
-                                                <option value="Returned" <%=order.orderedItem.status==='Returned'
-                                                    ? 'selected' : '' %>>Returned</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <%= order.createdAt.toLocaleDateString() %>
-                                        </td>
-                                        <td><button onclick="window.location.href='/admin/viewOeder/<%=order.orderedItem._id %>'"
-                                            class="btn btn-sm btn-outline-primary">View</button>
-                                    </td></td>
-                                    </tr>
-                                    <% }) %>
-
+                            
                             </tbody>
                         </table>
                     </div>
-
                     <div class="d-flex justify-content-between align-items-center flex-wrap">
                         <p class="mb-2 mb-md-0">
-                            Showing <%= (currentPage - 1) * 5 + 1 %> to <%= Math.min(currentPage * 5, totalOrders) %> of
-                                    <%= totalOrders %> products
+                            Showing <span id="start-count"></span> to <span id="end-count"></span> of <span
+                                id="total-count"></span> offers
                         </p>
                         <nav>
-                            <ul class="pagination pagination-sm mb-0">
-                                <!-- Previous Button -->
-                                <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                                    <a class="page-link" href="?page=<%= currentPage - 1 %>&limit=5">←</a>
-                                </li>
-
-                                <!-- Page Numbers -->
-                                <% for(let i=1; i <=totalPages; i++) { %>
-                                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                        <a class="page-link" href="?page=<%= i %>&limit=5">
-                                            <%= i %>
-                                        </a>
-                                    </li>
-                                    <% } %>
-
-                                        <!-- Next Button -->
-                                        <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                                            <a class="page-link" href="?page=<%= currentPage + 1 %>&limit=5">→</a>
-                                        </li>
+                            <ul class="pagination pagination-sm mb-0" id="pagination-controls">
                             </ul>
                         </nav>
                     </div>
-
                 </div>
-
-
             </div>
-
     </div>
 
+    <script src="/js/admin/orders.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
+    <!-- <script>
         function updateOrderStatus(itemId, status) {
             if (confirm("Are you sure you want to change the Order status?")) {
                 console.log(itemId, status);
@@ -210,7 +119,7 @@
                                 text: 'Order status updated successfully!',
                                 icon: 'success',
                                 confirmButtonText: 'OK'
-                            }).then(()=>{
+                            }).then(() => {
                                 window.location.reload()
                             })
                         } else {
@@ -236,71 +145,6 @@
             }
         }
 
-    </script>
-    <!-- <script>
-
-        function updateProductStatus(prdId, status) {
-            if (confirm("Are you sure you want to change the Product status?")) {
-                fetch(`/admin/updateProductStatus/${prdId}`, {
-                    method: 'PATCH', // PATCH is appropriate for partial updates
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ status: status }), // Adjust based on your backend logic
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Product status updated successfully!');
-                        } else {
-                            alert('Failed to update Product status.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred. Please try again.');
-                    });
-            }
-        }
-
-
-
-        function deleteProduct(prdId) {
-            if (confirm("Are you sure you want to delete this Product?")) {
-                fetch(`/admin/deleteProduct/${prdId}`, { method: 'DELETE' })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showAlert(data.message, "success")
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 3100);
-                        } else {
-                            showAlert(data.message, "danger")
-                        }
-
-                    })
-                    .catch(error => {
-                        console.error("error: ", error);
-                        alert('An error occurred while deleting the Product.');
-                    })
-            }
-        }
-
-        function showAlert(message, type) {
-
-            const alertBox = document.createElement('div');
-            alertBox.id = 'alertBox';
-            alertBox.className = `alert alert-${type} show`;
-            alertBox.role = 'alert';
-            alertBox.innerHTML = message;
-            document.body.appendChild(alertBox);
-            setTimeout(() => {
-                alertBox.classList.remove('show');
-                alertBox.classList.add('hide');
-                setTimeout(() => alertBox.remove(), 700);
-            }, 3000);
-        }
     </script> -->
 </body>
 

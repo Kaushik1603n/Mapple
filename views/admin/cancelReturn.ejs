@@ -60,13 +60,12 @@
 
                     <!-- Product Table -->
                     <div class="table-responsive">
-                        <table class="table table-striped table-bordered">
+                        <table class="table table-striped table-bordered" id="returnCancelTable">
                             <thead class="table-light">
                                 <tr>
                                     <th>Image</th>
                                     <th>Product</th>
                                     <th>Quantity</th>
-                                    <!-- <th>Color</th> -->
                                     <th>Variant</th>
                                     <th>Price</th>
                                     <th>Status</th>
@@ -76,112 +75,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <% orders.forEach(order=> { %>
-                                    <% order.orderedItem.forEach(product=> { %>
-                                        <tr>
-                                            <td class="text-center">
-                                                <img src="<%= product.firstImage %>" alt="<%= product.productName %>"
-                                                    class="img-fluid" style="width: 30px; height: 30px;">
-                                            </td>
-                                            <td>
-                                                <%= product.productName %>
-                                            </td>
-                                            <td>
-                                                <%= product.quantity %>
-                                            </td>
-                                            <!-- <td>
-                                                <%= product.productColor %>
-                                            </td> -->
-                                            <td>
-                                                <%= product.productStorage %>
-                                            </td>
-                                            <td>₹<%= product.total.toLocaleString() %>
-                                            </td>
-                                            <td>
-                                                <div class="form-select form-select-sm" aria-label="Status">
-                                                    <%= product.status %>
-                                                </div>
-
-                                            </td>
-                                            <td>
-                                                <%= new Date(order.invoiceDate).toLocaleDateString() %>
-                                            </td>
-                                            <td>
-                                                <%= product.reason %>
-
-                                            </td>
-                                            <td>
-                                                <!-- <input type="hidden" value="<%= product.paymentMethod %>"> -->
-                                                <button class="btn btn-success p-1"
-                                                    onclick="submitAcceptForm('<%= order.orderId %>','<%= product.product %>','<%= product.quantity %>','<%= product._id %>','<%= product.status %>','<%= product.paymentMethod %>')">Accept</button>
-                                                <button class="btn btn-danger me-2" data-bs-toggle="modal"
-                                                    data-bs-target="#rejectModal<%= product._id %>">
-                                                    Cancel
-                                                </button>
-                                                
-                                                <div class="modal fade" id="rejectModal<%= product._id %>" tabindex="-1"
-                                                    aria-labelledby="rejectModalLabel" aria-hidden="true">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="rejectModalLabel">Reject
-                                                                    Cancel Request</h5>
-                                                                <button type="button" class="btn-close"
-                                                                    data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <!-- Reason for rejection -->
-                                                                <form id="rejectForm<%= product._id %>">
-                                                                    <div class="mb-3">
-                                                                        <label for="rejectReason<%= product._id %>"
-                                                                            class="form-label">Reason for
-                                                                            Rejection:</label>
-                                                                        <textarea class="form-control"
-                                                                            id="rejectReason<%= product._id %>"
-                                                                            name="rejectReason" rows="3"
-                                                                            required></textarea>
-                                                                    </div>
-                                                                    <input type="hidden" name="productId"
-                                                                        value="<%= product._id %>">
-                                                                    <input type="hidden" name="orderId"
-                                                                        value="<%= order._id %>">
-                                                                    <button type="button" class="btn btn-danger"
-                                                                        onclick="submitRejectForm('<%= product._id %>')">Reject
-                                                                        Request</button>
-                                                                </form>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-
-                                            </td>
-                                        </tr>
-                                        <% }) %>
-                                            <% }) %>
+                               
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- <div class="d-flex justify-content-between align-items-center flex-wrap">
-                        <p class="mb-2 mb-md-0">Showing 1 to 4 of 100 products</p>
-                        <nav>
-                            <ul class="pagination pagination-sm mb-0">
-                                <li class="page-item">
-                                    <a class="page-link" href="?search=&page=1">←</a>
-                                </li>
-                                <li class="page-item active">
-                                    <a class="page-link" href="?search=&page=1">1</a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="?search=&page=2">2</a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="?search=&page=3">→</a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div> -->
+                    
                 </div>
 
 
@@ -190,185 +89,117 @@
             </div>
 
     </div>
-
+    <script src="/js/admin/returnCancel.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        function submitRejectForm(productId) {
-            // Get the form and rejection reason
-            const form = document.getElementById(`rejectForm${productId}`);
-            const rejectReason = document.getElementById(`rejectReason${productId}`).value;
-            const orderId = form.querySelector('input[name="orderId"]').value;
-            const productIdValue = form.querySelector('input[name="productId"]').value;
+        // function submitRejectForm(productId) {
+        //     const form = document.getElementById(`rejectForm${productId}`);
+        //     const rejectReason = document.getElementById(`rejectReason${productId}`).value;
+        //     const orderId = form.querySelector('input[name="orderId"]').value;
+        //     const productIdValue = form.querySelector('input[name="productId"]').value;
 
-            // Prepare the data to send via fetch
-            const data = {
-                rejectReason: rejectReason,
-                orderId: orderId,
-                productId: productIdValue
-            };
+        //     const data = {
+        //         rejectReason: rejectReason,
+        //         orderId: orderId,
+        //         productId: productIdValue
+        //     };
 
-            fetch('/admin/rejectCancelRequest', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    // Handle success response
-                    if (data.success) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'Cancel request rejected successfully.',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            location.reload(); // Reload the page after confirmation
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Error rejecting cancel request: ' + data.message,
-                            icon: 'error',
-                            confirmButtonText: 'Try Again'
-                        });
-                    }
+        //     fetch('/admin/rejectCancelRequest', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify(data),
+        //     })
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             if (data.success) {
+        //                 Swal.fire({
+        //                     title: 'Success!',
+        //                     text: 'Cancel request rejected successfully.',
+        //                     icon: 'success',
+        //                     confirmButtonText: 'OK'
+        //                 }).then(() => {
+        //                     location.reload(); // Reload the page after confirmation
+        //                 });
+        //             } else {
+        //                 Swal.fire({
+        //                     title: 'Error!',
+        //                     text: 'Error rejecting cancel request: ' + data.message,
+        //                     icon: 'error',
+        //                     confirmButtonText: 'Try Again'
+        //                 });
+        //             }
 
-                })
-                .catch(error => {
-                    // Handle error
-                    console.error('Error:', error);
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'An error occurred while processing your request. Please try again later.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                });
-        }
+        //         })
+        //         .catch(error => {
+        //             // Handle error
+        //             console.error('Error:', error);
+        //             Swal.fire({
+        //                 title: 'Error!',
+        //                 text: 'An error occurred while processing your request. Please try again later.',
+        //                 icon: 'error',
+        //                 confirmButtonText: 'OK'
+        //             });
+        //         });
+        // }
 
-        function submitAcceptForm(orderId, productId, quantity, itemId, status,paymentMethod) {
-            console.log(orderId, productId, quantity, status);
-            const data = {
-                orderId: orderId,
-                productId: productId,
-                quantity,
-                itemId,
-                status,
-                paymentMethod
-            };
-            fetch('/admin/acceptRequest', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'Accept request processed successfully.',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            location.reload(); // Reload the page after confirmation
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Error processing accept request: ' + data.message,
-                            icon: 'error',
-                            confirmButtonText: 'Try Again'
-                        });
-                    }
+        // function submitAcceptForm(orderId, productId, quantity, itemId, status,paymentMethod) {
+        //     console.log(orderId, productId, quantity, status);
+        //     const data = {
+        //         orderId: orderId,
+        //         productId: productId,
+        //         quantity,
+        //         itemId,
+        //         status,
+        //         paymentMethod
+        //     };
+        //     fetch('/admin/acceptRequest', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify(data),
+        //     })
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             if (data.success) {
+        //                 Swal.fire({
+        //                     title: 'Success!',
+        //                     text: 'Accept request processed successfully.',
+        //                     icon: 'success',
+        //                     confirmButtonText: 'OK'
+        //                 }).then(() => {
+        //                     location.reload(); // Reload the page after confirmation
+        //                 });
+        //             } else {
+        //                 Swal.fire({
+        //                     title: 'Error!',
+        //                     text: 'Error processing accept request: ' + data.message,
+        //                     icon: 'error',
+        //                     confirmButtonText: 'Try Again'
+        //                 });
+        //             }
 
-                })
-                .catch(error => {
-                    // Handle error
-                    console.error('Error:', error);
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'An error occurred while processing your request. Please try again later.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                });
+        //         })
+        //         .catch(error => {
+        //             // Handle error
+        //             console.error('Error:', error);
+        //             Swal.fire({
+        //                 title: 'Error!',
+        //                 text: 'An error occurred while processing your request. Please try again later.',
+        //                 icon: 'error',
+        //                 confirmButtonText: 'OK'
+        //             });
+        //         });
 
-        }
+        // }
 
     </script>
-    <!-- <script>
-
-        function updateProductStatus(prdId, status) {
-            if (confirm("Are you sure you want to change the Product status?")) {
-                fetch(`/admin/updateProductStatus/${prdId}`, {
-                    method: 'PATCH', // PATCH is appropriate for partial updates
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ status: status }), // Adjust based on your backend logic
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Product status updated successfully!');
-                        } else {
-                            alert('Failed to update Product status.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred. Please try again.');
-                    });
-            }
-        }
-
-
-
-        function deleteProduct(prdId) {
-            if (confirm("Are you sure you want to delete this Product?")) {
-                fetch(`/admin/deleteProduct/${prdId}`, { method: 'DELETE' })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showAlert(data.message, "success")
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 3100);
-                        } else {
-                            showAlert(data.message, "danger")
-                        }
-
-                    })
-                    .catch(error => {
-                        console.error("error: ", error);
-                        alert('An error occurred while deleting the Product.');
-                    })
-            }
-        }
-
-        function showAlert(message, type) {
-
-            const alertBox = document.createElement('div');
-            alertBox.id = 'alertBox';
-            alertBox.className = `alert alert-${type} show`;
-            alertBox.role = 'alert';
-            alertBox.innerHTML = message;
-            document.body.appendChild(alertBox);
-            setTimeout(() => {
-                alertBox.classList.remove('show');
-                alertBox.classList.add('hide');
-                setTimeout(() => alertBox.remove(), 700);
-            }, 3000);
-        }
-    </script> -->
-</body>
+   </body>
 
 </html>

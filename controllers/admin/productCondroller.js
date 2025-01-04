@@ -27,9 +27,7 @@ const upload = multer({ storage: storage });
 const uploadImages = upload.array("images"); 
 
 const loadproducts = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
+
   try {
     const searchQuery = req.query.search || "";
     const isStatusFilter = req.query.status || "all"; 
@@ -95,9 +93,7 @@ const loadproducts = async (req, res) => {
 };
 
 const loadAddProducts = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
+
   try {
     const category = await Category.find({ status: true });
 
@@ -180,9 +176,7 @@ const addProducts = async (req, res) => {
 };
 
 const loadUpdateProduct = async (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
+
   const { id } = req.params;
   try {
     const product = await Product.findOne({ _id: id }).populate("category");

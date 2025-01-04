@@ -293,10 +293,10 @@ const salesData = async (req, res) => {
   }
 };
 
-const discountDdata = async (req,res)=>{
-  const { filter } = req.query; 
+const discountDdata = async (req, res) => {
+  const { filter } = req.query;
   let pipeline = [];
-  let result = filter || "monthly"; 
+  let result = filter || "monthly";
   try {
     if (result === "daily") {
       pipeline = [
@@ -315,13 +315,13 @@ const discountDdata = async (req,res)=>{
         },
         {
           $match: {
-            "_id.dayOfYear": { $lte: 365 }, 
+            "_id.dayOfYear": { $lte: 365 },
           },
         },
         {
           $sort: {
             "_id.year": 1,
-            "_id.dayOfYear": 1, 
+            "_id.dayOfYear": 1,
           },
         },
       ];
@@ -335,7 +335,7 @@ const discountDdata = async (req,res)=>{
           $group: {
             _id: {
               year: { $year: "$createdAt" },
-              isoWeek: { $isoWeek: "$createdAt" }, 
+              isoWeek: { $isoWeek: "$createdAt" },
             },
             totalDiscount: { $sum: "$discount" },
           },
@@ -343,7 +343,7 @@ const discountDdata = async (req,res)=>{
         {
           $sort: {
             "_id.year": 1,
-            "_id.isoWeek": 1, 
+            "_id.isoWeek": 1,
           },
         },
       ];
@@ -357,15 +357,15 @@ const discountDdata = async (req,res)=>{
           $group: {
             _id: {
               year: { $year: "$createdAt" },
-              month: { $month: "$createdAt" }, 
+              month: { $month: "$createdAt" },
             },
             totalDiscount: { $sum: "$discount" },
           },
         },
         {
           $sort: {
-            "_id.year": 1, 
-            "_id.month": 1, 
+            "_id.year": 1,
+            "_id.month": 1,
           },
         },
       ];
@@ -393,7 +393,7 @@ const discountDdata = async (req,res)=>{
     console.error("Error fetching sales data:", err);
     res.status(500).send("Internal Server Error");
   }
-}
+};
 
 const ledgerData = async (req, res) => {
   try {
@@ -426,8 +426,6 @@ const ledgerData = async (req, res) => {
     res.status(500).json({ message: "Failed to generate ledger data." });
   }
 };
-
-
 
 const loadCustomer = async (req, res) => {
   try {
@@ -857,6 +855,38 @@ const loadOrders = async (req, res) => {
   }
 };
 
+const getOrders = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 5;
+    const skip = (page - 1) * limit;
+
+    const totalOrders = await order.countDocuments();
+
+    const orders = await order.aggregate([
+      { $unwind: "$orderedItem" },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    res.json({
+      success: true,
+      orders,
+      currentPage: page,
+      totalPages,
+      totalOrders,
+    });
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+
+
 const loadViewOrders = async (req, res) => {
   try {
     const { id } = req.params;
@@ -912,11 +942,50 @@ const loadCancelReturn = async (req, res) => {
       },
     ]);
 
-    console.log(orders);
+    // console.log(orders);
 
     // console.log(orders);
 
     res.render("admin/cancelReturn", { orders });
+  } catch (error) {
+    console.log("products error:", error);
+    res.redirect("/admin/pageerror");
+  }
+};
+
+const getReturnCancel = async (req, res) => {
+  try {
+    const orders = await order.aggregate([
+      {
+        $match: {
+          "orderedItem.status": { $in: ["Return Request", "Cancel Request"] },
+        },
+      },
+      {
+        $project: {
+          orderId: 1,
+          createdAt: 1,
+          orderedItem: {
+            $filter: {
+              input: "$orderedItem",
+              as: "item",
+              cond: {
+                $in: ["$$item.status", ["Return Request", "Cancel Request"]],
+              },
+            },
+          },
+        },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+    ]);
+
+    // console.log(orders);
+
+    console.log(orders);
+
+    res.status(200).json({ success: true, orders });
   } catch (error) {
     console.log("products error:", error);
     res.redirect("/admin/pageerror");
@@ -1100,6 +1169,13 @@ const loadCoupon = async (req, res) => {
     const allCoupons = await coupon.find();
 
     res.render("admin/coupon", { coupons: allCoupons });
+  } catch (error) {}
+};
+const getAllCoupon = async (req, res) => {
+  try {
+    const allCoupons = await coupon.find();
+
+    res.json({ success: true, coupons: allCoupons });
   } catch (error) {}
 };
 
@@ -1315,6 +1391,30 @@ const loadOffers = async (req, res) => {
     const allOffers = await Offer.find();
     res.render("admin/offers", { allOffers });
   } catch (error) {}
+};
+const getOffers = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 6;
+    const skip = (page - 1) * limit;
+
+    const allOffers = await Offer.find().skip(skip).limit(limit);
+
+    const totalOffers = await Offer.countDocuments();
+
+    const totalPages = Math.ceil(totalOffers / limit);
+
+    res.status(200).json({
+      success: true,
+      allOffers,
+      totalPages,
+      currentPage: page,
+      totalOffers,
+    });
+  } catch (error) {
+    console.error("Error fetching offers:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
 };
 
 const loadAddOffers = async (req, res) => {
@@ -1660,13 +1760,16 @@ module.exports = {
   logout,
 
   loadOrders,
+  getOrders,
   loadViewOrders,
   loadCancelReturn,
+  getReturnCancel,
   rejectCancelRequest,
   acceptRequest,
   updateOrderStatus,
 
   loadCoupon,
+  getAllCoupon,
   loadAddCoupon,
   addCoupon,
   loadUpdateCoupon,
@@ -1675,6 +1778,7 @@ module.exports = {
   couponStatus,
 
   loadOffers,
+  getOffers,
   loadAddOffers,
   addOffers,
   loadUpdateOffers,

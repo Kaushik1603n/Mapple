@@ -85,7 +85,7 @@
 
                     <!-- Loop through each address -->
                     <div class="collapse mt-3" id="addressDetails">
-                        <% if (userAddress && userAddress.length> 0) { %>
+                        <!-- <% if (userAddress && userAddress.length> 0) { %>
                             <% userAddress.forEach((addr, index)=> { %>
                                 <div class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
                                     <div>
@@ -132,14 +132,11 @@
                                                 </b></span>
                                         </div>
                                     </div>
-                                    <!-- Action Buttons -->
                                     <div>
-                                        <!-- Edit Button -->
                                         <button class="btn btn-warning btn-sm me-2"
                                             onclick="editAddress('<%= JSON.stringify(addr) %>')">
                                             <i class="fa-solid fa-pen"></i> Edit
                                         </button>
-                                        <!-- Delete Button -->
                                         <button class="btn btn-danger btn-sm"
                                             onclick="deleteAddress('<%= addr._id %>')">
                                             <i class="fa-solid fa-trash"></i> Delete
@@ -149,7 +146,7 @@
                                 <% }); %>
                                     <% } else { %>
                                         <p>No address available.</p>
-                                        <% } %>
+                                        <% } %> -->
                     </div>
 
 
@@ -276,9 +273,10 @@
             </div>
 
         </div>
+        <script src="/js/address.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script>
+        <!-- <script>
             document.querySelector('[data-bs-toggle="collapse"]').addEventListener('click', function () {
                 const icon = this.querySelector('i');
                 if (icon.classList.contains('fa-angle-down')) {
@@ -546,7 +544,7 @@
 
                     });
             }
-        </script>
+        </script> -->
 
 </body>
 

@@ -17,24 +17,24 @@
                 <div class="col-lg-10 col-md-12 card shadow-lg p-4">
                     <% if (userData) { %>
                         <div><span>Name :</span>
-                            <span><b>
+                            <b><span id="userName">
                                     <%= userData.name %>
-                                </b></span>
+                                </span></b>
                         </div>
                         <div><span>Email :</span>
-                            <span><b>
+                            <b><span  id="userEmail">
                                     <%= userData.email %>
-                                </b></span>
+                                </span></b>
                         </div>
-                        <div><span>Secondary Email :</span>
-                            <span><b>
+                        <div><span >Secondary Email :</span>
+                            <b><span id="secondEmail">
                                     <%= userData.secondaryEmail %>
-                                </b></span>
+                                </span></b>
                         </div>
                         <div><span>Phone :</span>
-                            <span><b>
+                            <b><span id="phoneNum">
                                     <%= userData.phone %>
-                                </b></span>
+                                </span></b>
                         </div>
                         <!-- <input type="text" class="form-control fw-bold" id="name" name="name" placeholder="Full Name" value="<%= userData.name %>"> -->
                         <% } else { %>
@@ -178,8 +178,9 @@
 
 
         </div>
+        <script src="/js/userAccount.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script>
+        <!-- <script>
             document.addEventListener("DOMContentLoaded", () => {
                 const form = document.getElementById("accountForm");
 
@@ -388,99 +389,8 @@
                 });
             });
 
-        </script>
-        <!-- 
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const form = document.getElementById("accountForm");
-
-                form.addEventListener("submit", async (event) => {
-                    // Clear previous error messages
-                    let errorMessages = document.querySelectorAll('.error-message');
-                    errorMessages.forEach(function (msg) {
-                        msg.textContent = '';
-                    });
-
-                    // Flag for form validity
-                    let formIsValid = true;
-
-                    // Get the form data
-                    const name = document.getElementById("name").value;
-                    const email = document.getElementById("email").value;
-                    const newemail = document.getElementById("newemail").value;
-                    const secondaryEmail = document.getElementById("secondaryEmail").value;
-                    const phone = document.getElementById("phoneNumber").value;
-
-                    // Name validation: Check if the name is filled
-                    if (name.trim() === '') {
-                        document.querySelector('#name + .error-message').textContent = 'Full Name is required';
-                        formIsValid = false;
-                    }
-
-                    // Email validation: Check if the email is valid
-                    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-                    if (newemail.trim() === '') {
-                        document.querySelector('#newemail + .error-message').textContent = 'Email is required';
-                        formIsValid = false;
-                    } else if (!emailPattern.test(newemail)) {
-                        document.querySelector('#newemail + .error-message').textContent = 'Enter a valid email address';
-                        formIsValid = false;
-                    }
-
-                    // Secondary Email validation: Check if it's valid
-                    if (secondaryEmail.trim() !== '' && !emailPattern.test(secondaryEmail)) {
-                        document.querySelector('#secondaryEmail + .error-message').textContent = 'Enter a valid secondary email';
-                        formIsValid = false;
-                    }
-
-                    // Phone number validation: Check if the phone number is filled
-                    if (phone.trim() === '') {
-                        document.querySelector('#phoneNumber + .error-message').textContent = 'Phone Number is required';
-                        formIsValid = false;
-                    } else if (!/^\d{10}$/.test(phone)) {
-                        document.querySelector('#phoneNumber + .error-message').textContent = 'Enter a valid phone number';
-                        formIsValid = false;
-                    }
-
-                    // Prevent form submission if validation fails
-                    if (!formIsValid) {
-                        event.preventDefault();
-                        return;
-                    }
-
-                    // If form is valid, proceed with the fetch request
-                    event.preventDefault();
-                    const data = {
-                        name: name,
-                        email: document.getElementById("email").value,
-                        newemail: newemail, 
-                        secondaryEmail: secondaryEmail,
-                        phone: phone,
-                    };
-
-                    try {
-                        const response = await fetch(form.action, {
-                            method: form.method,
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify(data), // Send data as JSON
-                        });
-
-                        const result = await response.json();
-                        if (response.ok) {
-                            alert(result.message || "Account updated successfully!");
-                            window.location.reload();
-                        } else {
-                            alert(result.message || "An error occurred while updating the account.");
-                        }
-                    } catch (error) {
-                        console.error("Error:", error);
-                        alert("Something went wrong. Please try again.");
-                    }
-                });
-            });
         </script> -->
+        
 
 </body>
 
