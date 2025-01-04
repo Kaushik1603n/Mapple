@@ -21,7 +21,6 @@ const PDFDocument = require("pdfkit");
 const loadHomePage = async (req, res) => {
   try {
     const user = req.session.user;
-    // const products = await Product.aggregate([{ $sample: { size: 8 } }]);
 
     const products = await Product.aggregate([
       { $sample: { size: 8 } },
@@ -69,15 +68,6 @@ const loadHomePage = async (req, res) => {
       })
     );
 
-    // console.log(categories);
-
-    //   const productss = await Product.find()
-    // .populate({
-    //   path: "category",
-    //   match: { status: true }
-    // })
-    // .limit(8)
-    // console.log(productss);
 
     if (user) {
       const wishlistItems = await wishlist.find({ userId: user._id });
@@ -160,7 +150,6 @@ const loadShope = async (req, res) => {
     } else {
       sort = { createdAt: -1 };
     }
-    // console.log(priceRange);
 
     const allProduct = await Product.find(filter)
       .populate("category")
@@ -246,7 +235,6 @@ async function sendVerificationEmail(email, otp) {
 const signup = async (req, res) => {
   try {
     const { name, email, password, cpassword, referral } = req.body;
-    // console.log(referral);
 
     if (password !== cpassword) {
       return res.render("user/signup", { message: "Password do not match" });
@@ -264,7 +252,6 @@ const signup = async (req, res) => {
       return res.json("email-error");
     }
     req.session.userOtp = otp;
-    // console.log("session otp ", req.session.userOtp);
 
     req.session.userData = { name, email, password, referral };
     console.log(req.session.userData);
@@ -311,8 +298,7 @@ const verifyOTP = async (req, res) => {
 
       await saveUserData.save();
       req.session.user = saveUserData;
-      // console.log(saveUserData);
-      // console.log(referral);
+
 
       const findReferral = await User.findOne({ referralCode: user.referral });
       if (!findReferral) {
@@ -333,7 +319,6 @@ const verifyOTP = async (req, res) => {
             { $push: { referredUsers: saveUserData._id } }, // Add the new user to referredUsers array
             { new: true }
           );
-          // console.log(findOwner);
 
           console.log("Referral successfully added:", addReferral);
         } else {
@@ -543,9 +528,7 @@ const loadChangePass = async (req, res) => {
     if (req.session.user) {
       return res.redirect("/user");
     }
-    // if (!req.session.emailVerify) {
-    //   return res.redirect("/user");
-    // }
+
 
     const email = req.session.emailVerify;
     if (!email) {
@@ -640,6 +623,4 @@ module.exports = {
   loadChangePass,
   changePass,
   logout,
-
-
 };

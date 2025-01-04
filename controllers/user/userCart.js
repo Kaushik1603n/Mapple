@@ -55,22 +55,7 @@ const loadProductDetails = async (req, res) => {
     }
 
     const productCategoryOffer = (productOffer || 0) + (cattegoryOffer || 0);
-    // console.log(productCategoryOffer);
-
-    // console.log(productOffer);
-
-    // if (findPrdOffer && findCatOffer) {
-    //   if (findPrdOffer.offer >= findCatOffer.offer) {
-    //     productCategory = findPrdOffer.offer;
-    //   } else {
-    //     productCategory=findCatOffer.offer
-    //   }
-    // } else if (findPrdOffer) {
-    //   productCategory = findPrdOffer.offer;
-    // } else if (findCatOffer) {
-    //   productCategory = findCatOffer.offer;
-    // }
-    // console.log(productCategory);
+  
 
     let allReview = await Review.find({ product: productId }).populate(
       "user",
@@ -116,10 +101,7 @@ const loadProductDetails = async (req, res) => {
     ];
 
     const availableColors = [...new Set(variantColors)];
-    // const availableColors = ['#1D2536','#C0C0C0','#C0C0C0']
-    // console.log(availableColors);
-    // console.log(productCategoryOffer);
-
+ 
     res.render("user/productDetails", {
       productDetails,
       availableColors,
