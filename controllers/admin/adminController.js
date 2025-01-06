@@ -91,7 +91,6 @@ const loadSales = async (req, res) => {
       },
       {
         $match: {
-          // Match the filter and date conditions
           "orderedItem.status": "Delivered",
         },
       },

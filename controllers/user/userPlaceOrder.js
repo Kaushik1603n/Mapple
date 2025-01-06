@@ -33,6 +33,8 @@ const loadCheckout = async (req, res) => {
 const placeOrder = async (req, res) => {
   const userData = req.session.user;
   const userId = userData._id;
+  const couponCode = req.session.couponCode;
+
   try {
     const {
       orderedItem,
@@ -48,11 +50,8 @@ const placeOrder = async (req, res) => {
     } = req.body;
     const couponDisc =
       parseFloat(((couponDiscount || "0") + "").replace(/[^\d.-]/g, "")) || 0;
-    // console.log("couponDiscount:", couponDiscount, "couponDisc:", couponDisc);
     const totalAmounts =
       parseFloat(((finalTotalAmount || "0") + "").replace(/[^\d.-]/g, "")) || 0;
-
-    // const couponCode = req.session.couponCode
 
     if (!orderedItem || orderedItem.length === 0) {
       return res.status(400).json({ error: "Ordered items are required." });
@@ -61,9 +60,66 @@ const placeOrder = async (req, res) => {
       return res.status(400).json({ message: "All fields are required." });
     }
     const couponPercentage = req.session.couponDiscount;
-    // console.log(couponPercentage);
-    // console.log(deliveryChargeValue);
-    // console.log(Number(deliveryChargeValue));
+
+    let findcoupon;
+    if (couponCode) {
+      findcoupon = await coupon.findOne({
+        couponCode: couponCode,
+        isList: true,
+      });
+      findcoupon.userId.push(userData._id);
+      await findcoupon.save();
+    }
+
+    const maxDiscount = findcoupon.maxDiscount; // Max discount from coupon
+    let totalCouponDiscount = 0; // Initialize total discount
+    let adjustedDiscounts = 0; // Store adjusted discounts for each product
+    
+    if (orderedItem.length === 1) {
+      // Single product case
+      const item = orderedItem[0];
+      const itemDiscount = item.quantity * item.price * (couponPercentage / 100);
+      totalCouponDiscount = Math.min(itemDiscount, maxDiscount); // Cap to maxDiscount
+      item.couponDisnd = totalCouponDiscount;
+    } else {
+      let totalDiscount = 0;
+    
+      // Calculate the initial discount for each product
+      const productDiscounts = orderedItem.map((item) => {
+        const itemDiscount = item.quantity * item.price * (couponPercentage / 100);
+        totalDiscount += itemDiscount;
+        return { ...item, itemDiscount }; // Store item-specific discount
+      });
+    
+      if (totalDiscount > maxDiscount) {
+        // Adjust discounts proportionally if total exceeds maxDiscount
+        const discountRatio = maxDiscount / totalDiscount;
+        adjustedDiscounts = productDiscounts.map((item) => ({
+          ...item,
+          finalDiscount: item.itemDiscount * discountRatio, // Adjusted discount
+        }));
+        totalCouponDiscount = maxDiscount; // Total discount capped to maxDiscount
+      } else {
+        // No adjustment needed, use the original discounts
+        adjustedDiscounts = productDiscounts.map((item) => ({
+          ...item,
+          finalDiscount: item.itemDiscount,
+        }));
+        totalCouponDiscount = totalDiscount; // Total discount is the sum of item discounts
+      }
+    
+      // Update original orderedItem with calculated discounts
+      adjustedDiscounts.forEach((item, index) => {
+        orderedItem[index].couponDisnd = item.finalDiscount;
+      });
+    }
+    
+    
+    // Log the final discount
+    // console.log(`Final coupon discount: ${couponDisnd}`);
+    
+    // Optional: Log individual product discounts
+    
 
     let finalAmount = Number(deliveryChargeValue);
     let totalPrice = 0;
@@ -80,6 +136,22 @@ const placeOrder = async (req, res) => {
           .json({ error: `Product with ID ${item.product} not found.` });
       }
 
+      // const maxDiscount = findcoupon.maxDiscount;
+      // let couponDisc=0
+      // if (orderedItem.length === 1) {
+      //    couponDisc =
+      //     item.quantity * item.price -
+      //       item.quantity * item.price * (1 - couponPercentage / 100) || 0;
+
+      //   if(couponDisc>maxDiscount){
+      //     console.log(couponDisc);
+      //     couponDisc=maxDiscount;
+      //   }
+      // }else{
+      //   const totalPrd = orderedItem.length;
+
+      // }
+
       totalPrice += item.quantity * product.regularPrice;
       finalAmount += item.quantity * item.price;
       orderedProduct.push({
@@ -95,12 +167,12 @@ const placeOrder = async (req, res) => {
         regularTotal: product.regularPrice * item.quantity,
         price: item.price,
         total:
-          item.quantity * item.price -
-          (item.quantity * item.price -
-            item.quantity * item.price * (1 - couponPercentage / 100) || 0),
+          item.quantity * item.price - item.couponDisnd,
+          // (item.quantity * item.price -
+          //   item.quantity * item.price * (1 - couponPercentage / 100) || 0),
         couponDiscount:
-          item.quantity * item.price -
-            item.quantity * item.price * (1 - couponPercentage / 100) || 0,
+          item.quantity * item.price -item.couponDisnd,
+            // item.quantity * item.price * (1 - couponPercentage / 100) || 0,
         discount:
           product.regularPrice * item.quantity - item.quantity * product.price,
       });
@@ -118,7 +190,7 @@ const placeOrder = async (req, res) => {
       if (userwallet.balance < finalAmount) {
         return res.status(404).json({ error: `insufficient balance` });
       }
-      const amountToDebit = finalAmount;
+      const amountToDebit = finalAmount - couponDisc;
       userwallet.balance = Number(userwallet.balance) - amountToDebit;
       console.log("Updated Wallet Balance:", userwallet.balance);
 
@@ -153,20 +225,10 @@ const placeOrder = async (req, res) => {
       paymentMethod,
       deliveryCharge: deliveryChargeValue,
     });
-    console.log(finalAmount - couponDisc);
+    // console.log(finalAmount - couponDisc);
 
     if (!newOrder) {
       return res.status(404).json({ error: "Order not placed" });
-    }
-    const couponCode = req.session.couponCode;
-    let findcoupon;
-    if (couponCode) {
-      findcoupon = await coupon.findOne({
-        couponCode: couponCode,
-        isList: true,
-      });
-      findcoupon.userId.push(userData._id);
-      await findcoupon.save();
     }
 
     for (const item of orderedProduct) {

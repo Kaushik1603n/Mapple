@@ -17,6 +17,7 @@ const Offer = require("../models/offerSchema");
 const Referral = require("../models/referralSchema");
 const failedorder = require("../models/faildOrders");
 const PDFDocument = require("pdfkit");
+const categoty = require("../models/categorySchema");
 
 const loadHomePage = async (req, res) => {
   try {
@@ -94,7 +95,6 @@ const loadShope = async (req, res) => {
   const user = req.session.user;
   try {
     const { search, variant, sortOption, priceRange, category } = req.query;
-    console.log(category);
 
     const page = parseInt(req.query.page, 10) || 1;
     const limit = 8;
@@ -191,40 +191,107 @@ const loadShope = async (req, res) => {
 };
 
 const shopData = async (req, res) => {
-  const { search, sortOption, page = 1, variant = [], category = [], priceRange = [] } = req.query;
-  const ITEMS_PER_PAGE = 4;
+  const {
+    search,
+    sortOption,
+    page = 1,
+    variant = [],
+    category = [],
+    priceRange = [],
+  } = req.query;
+  const ITEMS_PER_PAGE = 8;
+  // console.log(req.query);
 
-  const query = {}; // Construct query based on filters
-  if (search) query.productName = { $regex: search, $options: 'i' }; // Case-insensitive search
-  if (variant.length) query.variant = { $in: variant };
-  if (category.length) query.category = { $in: category };
-  if (priceRange.length) {
-      const ranges = priceRange.map(range => range.split('-').map(Number));
-      query.salePrice = {
-          $or: ranges.map(([min, max]) => ({ $gte: min, $lte: max })),
+  const query = {};
+  if (search) query.productName = { $regex: search, $options: "i" }; // Case-insensitive search
+  if (variant) {
+    const variantFilter = Array.isArray(variant)
+      ? variant
+      : variant.split(",").map((item) => item.trim());
+    if (variantFilter.length) {
+      query.variant = { $in: variantFilter };
+    }
+  }
+  let categoryFilter = {};
+  if (category && category.length) {
+    // Ensure that the category input is always an array
+    const categoryArray = Array.isArray(category)
+      ? category
+      : category.split(",").map((item) => item.trim());
+  
+    if (categoryArray.length) {
+      categoryFilter.name = { 
+        $in: categoryArray.map(item => new RegExp(item, 'i'))
       };
+    }
+  }
+  
+
+  if (priceRange) {
+    // Split the ranges
+    const ranges = priceRange
+      .split(",")
+      .map((range) => range.split("-").map(Number));
+
+    // For a single range, apply $gte and $lte directly
+    if (ranges.length === 1) {
+      const [min, max] = ranges[0];
+      query.salePrice = { $gte: min, $lte: max };
+    } else {
+      // For multiple ranges, use $or
+      query.$or = ranges.map(([min, max]) => ({
+        salePrice: { $gte: min, $lte: max },
+      }));
+    }
   }
 
+  // console.log(query);
+
   const sortOptions = {
-      lowToHigh: { salePrice: 1 },
-      highToLow: { salePrice: -1 },
-      aToZ: { productName: 1 },
-      zToA: { productName: -1 },
+    lowToHigh: { salePrice: 1 },
+    highToLow: { salePrice: -1 },
+    aToZ: { productName: 1 },
+    zToA: { productName: -1 },
   };
 
-  const products = await Product.find(query)
-      .sort(sortOptions[sortOption] || { createdAt: -1 }) // Default to newest products
-      .skip((page - 1) * ITEMS_PER_PAGE)
-      .limit(ITEMS_PER_PAGE);
+  const productsQuery = await Product.find(query)
+  .populate({
+    path: "category",
+    match: Object.keys(categoryFilter).length ? categoryFilter : undefined, // Apply match only if categoryFilter has conditions
+  })
+  .sort(sortOptions[sortOption] || { createdAt: -1 })
+  .skip((page - 1) * ITEMS_PER_PAGE)
+  .limit(ITEMS_PER_PAGE);
 
-  const totalProducts = await Product.countDocuments(query);
+  
+// Execute the query
+const products = await productsQuery;
 
-  res.json({
-      products,
-      currentPage: page,
-      totalPages: Math.ceil(totalProducts / ITEMS_PER_PAGE),
-      totalProducts,
-  });
+// Filter products based on category match
+const filteredProducts = Object.keys(categoryFilter).length
+  ? products.filter((product) => product.category)
+  : products;
+  
+
+// Calculate the total number of filtered products
+const totalFilteredProducts = Object.keys(categoryFilter).length
+  ? await Product.countDocuments({
+      ...query,
+      category: { $in: await categoty.find(categoryFilter).select("_id") },
+    })
+  : await Product.countDocuments(query);
+
+  
+const totalPages = Math.ceil(totalFilteredProducts / ITEMS_PER_PAGE);
+
+// Respond with filtered data
+res.json({
+  products: filteredProducts,
+  currentPage: page,
+  totalPages,
+  totalProducts: totalFilteredProducts,
+});
+
 };
 
 const loadSignup = async (req, res) => {
