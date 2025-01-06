@@ -55,7 +55,6 @@ const loadProductDetails = async (req, res) => {
     }
 
     const productCategoryOffer = (productOffer || 0) + (cattegoryOffer || 0);
-  
 
     let allReview = await Review.find({ product: productId }).populate(
       "user",
@@ -101,7 +100,7 @@ const loadProductDetails = async (req, res) => {
     ];
 
     const availableColors = [...new Set(variantColors)];
- 
+
     res.render("user/productDetails", {
       productDetails,
       availableColors,
@@ -143,6 +142,11 @@ const addCart = async (req, res) => {
       (item) => item.productId.toString() === productId
     );
     const product = await Product.findById(productId).populate("category");
+    if (product.quantity === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Insufficient stock" });
+    }
 
     const productCategory = product.category.name;
     let findcategoryOffer = { offer: 0 };
@@ -180,7 +184,7 @@ const addCart = async (req, res) => {
       } else {
         return res
           .status(404)
-          .json({ success: false, message: "Stock out Product" });
+          .json({ success: false, message: "Insufficient stock" });
       }
     } else {
       const product = await Product.findById(productId);

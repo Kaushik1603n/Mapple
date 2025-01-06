@@ -68,7 +68,6 @@ const loadHomePage = async (req, res) => {
       })
     );
 
-
     if (user) {
       const wishlistItems = await wishlist.find({ userId: user._id });
 
@@ -191,6 +190,43 @@ const loadShope = async (req, res) => {
   }
 };
 
+const shopData = async (req, res) => {
+  const { search, sortOption, page = 1, variant = [], category = [], priceRange = [] } = req.query;
+  const ITEMS_PER_PAGE = 4;
+
+  const query = {}; // Construct query based on filters
+  if (search) query.productName = { $regex: search, $options: 'i' }; // Case-insensitive search
+  if (variant.length) query.variant = { $in: variant };
+  if (category.length) query.category = { $in: category };
+  if (priceRange.length) {
+      const ranges = priceRange.map(range => range.split('-').map(Number));
+      query.salePrice = {
+          $or: ranges.map(([min, max]) => ({ $gte: min, $lte: max })),
+      };
+  }
+
+  const sortOptions = {
+      lowToHigh: { salePrice: 1 },
+      highToLow: { salePrice: -1 },
+      aToZ: { productName: 1 },
+      zToA: { productName: -1 },
+  };
+
+  const products = await Product.find(query)
+      .sort(sortOptions[sortOption] || { createdAt: -1 }) // Default to newest products
+      .skip((page - 1) * ITEMS_PER_PAGE)
+      .limit(ITEMS_PER_PAGE);
+
+  const totalProducts = await Product.countDocuments(query);
+
+  res.json({
+      products,
+      currentPage: page,
+      totalPages: Math.ceil(totalProducts / ITEMS_PER_PAGE),
+      totalProducts,
+  });
+};
+
 const loadSignup = async (req, res) => {
   try {
     return res.render("user/signup");
@@ -298,7 +334,6 @@ const verifyOTP = async (req, res) => {
 
       await saveUserData.save();
       req.session.user = saveUserData;
-
 
       const findReferral = await User.findOne({ referralCode: user.referral });
       if (!findReferral) {
@@ -529,7 +564,6 @@ const loadChangePass = async (req, res) => {
       return res.redirect("/user");
     }
 
-
     const email = req.session.emailVerify;
     if (!email) {
       return res.redirect("/user/forgotPassword");
@@ -595,7 +629,6 @@ const logout = async (req, res) => {
   }
 };
 
-
 const pageNotFount = async (req, res) => {
   try {
     res.render("user/pageNotFount");
@@ -607,6 +640,7 @@ const pageNotFount = async (req, res) => {
 module.exports = {
   loadHomePage,
   loadShope,
+  shopData,
   loadSignup,
   signup,
   loadVerifyOTP,

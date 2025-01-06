@@ -191,22 +191,22 @@
                     <div class="px-4 mb-4">
                         <h6>Category</h6>
                         <div>
-                            <input type="checkbox" class="categorycheckboxes" name="category" id="MacBookPro"
+                            <input type="radio"  class="categorycheckboxes" name="category" id="MacBookPro"
                                 value="MacBook Pro" <%=Category.includes('MacBook Pro') ? 'checked' : '' %>>
                             <label for="MacBookPro">MacBook Pro</label>
                         </div>
                         <div>
-                            <input type="checkbox" class="categorycheckboxes" name="category" id="MacBookAir"
+                            <input type="radio"  class="categorycheckboxes" name="category" id="MacBookAir"
                                 value="MacBook Air" <%=Category.includes('MacBook Air') ? 'checked' : '' %>>
                             <label for="MacBookAir">MacBook Air</label>
                         </div>
                         <div>
-                            <input type="checkbox" class="categorycheckboxes" name="category" id="MacMini"
+                            <input type="radio"  class="categorycheckboxes" name="category" id="MacMini"
                                 value="Mac Mini" <%=Category.includes('Mac Mini') ? 'checked' : '' %>>
                             <label for="MacMini">Mac Mini</label>
                         </div>
                         <div>
-                            <input type="checkbox" class="categorycheckboxes" name="category" id="iMac" value="iMac"
+                            <input type="radio"  class="categorycheckboxes" name="category" id="iMac" value="iMac"
                                 <%=Category.includes('iMac') ? 'checked' : '' %>>
                             <label for="iMac">iMac</label>
                         </div>
@@ -216,6 +216,21 @@
                     <form id="priceSearch" action="/user/shop" method="GET">
                         <div class="px-4 mb-4" id="priceFilterContainer">
                             <h6>Price</h6>
+                            <div>
+                                <input type="checkbox" class="priceRange-checkbox" id="0-10000" name="priceRange"
+                                value="0-10000" <%=priceRange.includes('0-10000') ? 'checked' : '' %>>
+                            <label for="0-10000">₹0 - ₹10,000</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" class="priceRange-checkbox" id="10000-20000" name="priceRange"
+                                    value="10000-20000" <%=priceRange.includes('10000-20000') ? 'checked' : '' %>>
+                                <label for="10000-20000">₹10,000 - ₹20,000</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" class="priceRange-checkbox" id="20000-100000" name="priceRange"
+                                    value="20000-100000" <%=priceRange.includes('20000-100000') ? 'checked' : '' %>>
+                                <label for="20000-100000">₹20,000 - ₹1,00,000</label>
+                            </div>
                             <div>
                                 <input type="checkbox" class="priceRange-checkbox" id="100000-150000" name="priceRange"
                                     value="100000-150000" <%=priceRange.includes('100000-150000') ? 'checked' : '' %>>

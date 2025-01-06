@@ -106,8 +106,10 @@ function submitRejectForm(productId) {
           text: "Cancel request rejected successfully.",
           icon: "success",
           confirmButtonText: "OK",
-        })
-        getReturnCancel();
+        }).then(() => {
+          getReturnCancel();
+          // window.location.reload(); 
+        });
       } else {
         Swal.fire({
           title: "Error!",

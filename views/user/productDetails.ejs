@@ -481,7 +481,6 @@
                     if (addToWishlist) {
                         addToWishlist.addEventListener('click', () => {
                             const productId = addToWishlist.getAttribute('data-id');
-                            alert(productId)
 
                             fetch("/user/wishlist", {
                                 method: "POST",

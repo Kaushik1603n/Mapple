@@ -165,7 +165,7 @@ const getReturnCancel = async (req, res) => {
 
     // console.log(orders);
 
-    console.log(orders);
+    // console.log(orders);
 
     res.status(200).json({ success: true, orders });
   } catch (error) {
@@ -178,11 +178,21 @@ const rejectCancelRequest = async (req, res) => {
   // console.log(req.body);
 
   try {
+    const findOrder = await order.findOne({"orderedItem._id": productId},{"orderedItem.status":1})
+    const status =findOrder.orderedItem[0].status;
+    let oldStatus;
+    // console.log(status)
+    if(status =="Cancel Request"){
+      oldStatus="pending";
+    }else{
+      oldStatus = "Delivered"
+    }
+    
     const updatedOrder = await order.findOneAndUpdate(
       { _id: orderId, "orderedItem._id": productId },
       {
         $set: {
-          "orderedItem.$.status": "pending",
+          "orderedItem.$.status": oldStatus,
           "orderedItem.$.rejectionReason": rejectReason,
         },
       },
