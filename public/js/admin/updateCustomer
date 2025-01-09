@@ -1,0 +1,115 @@
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.querySelector("form");
+  const nameInput = document.getElementById("name");
+  const emailInput = document.getElementById("email");
+  const secondaryEmailInput = document.getElementById("secondaryEmail");
+  const phoneInput = document.getElementById("phoneNumber");
+  const passwordInput = document.getElementById("password");
+  const confirmPasswordInput = document.getElementById("password-confirm");
+
+  const showError = (input, message) => {
+    const errorContainer = input.nextElementSibling;
+    if (errorContainer) {
+      errorContainer.textContent = message;
+      errorContainer.style.display = "block";
+    }
+  };
+
+  const clearError = (input) => {
+    const errorContainer = input.nextElementSibling;
+    if (errorContainer) {
+      errorContainer.textContent = "";
+      errorContainer.style.display = "none";
+    }
+  };
+
+  const validateName = () => {
+    const namePattern = /^[A-Za-z\s]+$/;
+    if (!nameInput.value.trim()) {
+      showError(nameInput, "Name is required.");
+      return false;
+    } else if (!namePattern.test(nameInput.value)) {
+      showError(nameInput, "Name can only contain letters and spaces.");
+      return false;
+    }
+    clearError(nameInput);
+    return true;
+  };
+
+  const validateEmail = (emailInput) => {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailInput.value.trim()) {
+      showError(emailInput, "Email is required.");
+      return false;
+    } else if (!emailPattern.test(emailInput.value)) {
+      showError(emailInput, "Invalid email format.");
+      return false;
+    }
+    clearError(emailInput);
+    return true;
+  };
+
+  const validatePhone = () => {
+    const phonePattern = /^[0-9]{10}$/;
+    if (!phoneInput.value.trim()) {
+      showError(phoneInput, "Phone number is required.");
+      return false;
+    } else if (!phonePattern.test(phoneInput.value)) {
+      showError(phoneInput, "Phone number must be 10 digits.");
+      return false;
+    }
+    clearError(phoneInput);
+    return true;
+  };
+
+  const validatePassword = () => {
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+    if (password.length < 8) {
+      showError(passwordInput, "Password must be at least 8 characters");
+      return false;
+    } else if (!/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
+      showError(passwordInput, "Password must contain letters and numbers.");
+      return false;
+    }
+    clearError(passwordInput);
+
+    if (password !== confirmPassword) {
+      showError(confirmPasswordInput, "Passwords do not match.");
+      return false;
+    }
+    clearError(confirmPasswordInput);
+    return true;
+  };
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const isNameValid = validateName();
+    const isEmailValid = validateEmail(emailInput);
+    const isSecondaryEmailValid = validateEmail(secondaryEmailInput);
+    const isPhoneValid = validatePhone();
+    const isPasswordValid = validatePassword();
+
+    if (
+      isNameValid &&
+      isEmailValid &&
+      isSecondaryEmailValid &&
+      isPhoneValid &&
+      isPasswordValid
+    ) {
+      form.submit();
+    }
+  });
+});
+
+window.onload = function () {
+  const alertMessage = document.getElementById("alertMessage");
+  if (alertMessage) {
+    setTimeout(() => {
+      alertMessage.classList.remove("show");
+      alertMessage.classList.add("d-none");
+      alertMessage.innerText = "";
+    }, 4000);
+  }
+};

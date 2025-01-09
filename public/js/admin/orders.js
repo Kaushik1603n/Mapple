@@ -139,44 +139,57 @@ function renderPagination(totalPages, currentPage, totalOrders) {
 getOffers(currentPage);
 
 function updateOrderStatus(itemId, status) {
-  if (confirm("Are you sure you want to change the Order status?")) {
-    console.log(itemId, status);
+  Swal.fire({
+      title: 'Are you sure?',
+      text: "Do you want to change the Order status?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, update it!',
+      cancelButtonText: 'Cancel'
+  }).then((result) => {
+      if (result.isConfirmed) {
+          console.log(itemId, status);
 
-    fetch(`/admin/updateOrderStatus/${itemId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ status: status }), // Adjust based on your backend logic
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          Swal.fire({
-            title: "Success!",
-            text: "Order status updated successfully!",
-            icon: "success",
-            confirmButtonText: "OK",
-          }).then(() => {
-            getOffers(currentPage);
-          });
-        } else {
-          Swal.fire({
-            title: "Error!",
-            text: "Failed to update Order status.",
-            icon: "error",
-            confirmButtonText: "Try Again",
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        Swal.fire({
-          title: "Error!",
-          text: "An error occurred. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-      });
-  }
+          fetch(`/admin/updateOrderStatus/${itemId}`, {
+              method: "PATCH",
+              headers: {
+                  "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ status: status }), // Adjust based on your backend logic
+          })
+              .then((response) => response.json())
+              .then((data) => {
+                  if (data.success) {
+                      Swal.fire({
+                          title: "Success!",
+                          text: "Order status updated successfully!",
+                          icon: "success",
+                          confirmButtonText: "OK",
+                      }).then(() => {
+                          // Call getOffers or any other logic after success
+                          getOffers(currentPage);
+                      });
+                  } else {
+                      Swal.fire({
+                          title: "Error!",
+                          text: "Failed to update Order status.",
+                          icon: "error",
+                          confirmButtonText: "Try Again",
+                      });
+                  }
+              })
+              .catch((error) => {
+                  console.error("Error:", error);
+                  Swal.fire({
+                      title: "Error!",
+                      text: "An error occurred. Please try again.",
+                      icon: "error",
+                      confirmButtonText: "OK",
+                  });
+              });
+      }
+  });
 }
+

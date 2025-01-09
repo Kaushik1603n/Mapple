@@ -136,43 +136,56 @@ document
     }
   });
 
-function deleteAddress(addressId) {
-  if (confirm("Are you sure you want to delete this address?")) {
-    fetch(`/user/address/delete/${addressId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        if (response.ok) {
-          Swal.fire({
-            title: "Success!",
-            text: "Address deleted successfully!",
-            icon: "success",
-            confirmButtonText: "OK",
-          });
-          getAddress();
-        } else {
-          Swal.fire({
-            title: "Error!",
-            text: "Failed to delete address.",
-            icon: "error",
-            confirmButtonText: "Try Again",
-          });
+  function deleteAddress(addressId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to delete this address? This action cannot be undone.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/user/address/delete/${addressId}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        Swal.fire({
+                            title: "Success!",
+                            text: "Address deleted successfully!",
+                            icon: "success",
+                            confirmButtonText: "OK",
+                        }).then(() => {
+                            getAddress(); // Refresh the address list
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Error!",
+                            text: "Failed to delete address.",
+                            icon: "error",
+                            confirmButtonText: "Try Again",
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    Swal.fire({
+                        title: "Error!",
+                        text: "An error occurred. Please try again.",
+                        icon: "error",
+                        confirmButtonText: "OK",
+                    });
+                });
         }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        Swal.fire({
-          title: "Error!",
-          text: "An error occurred. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-      });
-  }
+    });
 }
+
 
 function editAddress(addressData) {
   console.log(addressData);
@@ -321,14 +334,11 @@ function renderUserAddress(userAddress) {
           </div>
         `;
 
-      // Append the address HTML to the container
       container.insertAdjacentHTML("beforeend", addressHTML);
     });
   } else {
-    // No addresses available
     container.innerHTML = "<p>No address available.</p>";
   }
 }
 
-// Call the function to fetch and render addresses on page load
 document.addEventListener("DOMContentLoaded", getAddress);

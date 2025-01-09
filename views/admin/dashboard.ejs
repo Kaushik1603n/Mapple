@@ -129,7 +129,7 @@
 
             </div>
     </div>
-
+    <!-- <script src="/js/admin/dashboard.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
@@ -137,33 +137,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script>
-        // const timeFilter = document.getElementById('time-filter');
-        // const salesChartCanvas = document.getElementById('salesChart');
-
-        // let salesChart = new Chart(salesChartCanvas, {
-        //     type: 'line', // or 'bar', 'pie', etc.
-        //     data: {
-        //         labels: [], // Labels will be dynamically set
-        //         datasets: [{
-        //             label: 'Total Sales',
-        //             data: [], // Data will be dynamically set
-        //             borderColor: 'rgba(75, 192, 192, 1)',
-        //             fill: false,
-        //         }],
-        //     },
-        //     options: {
-        //         responsive: true,
-        //         scales: {
-        //             x: { // Time-related axis
-        //                 ticks: { beginAtZero: true },
-        //             },
-        //             y: {
-        //                 beginAtZero: true,
-        //             },
-        //         },
-        //     },
-        // });
-
+     
         const timeFilter = document.getElementById('time-filter');
         const combinedChartCanvas = document.getElementById('combinedChart');
 
@@ -243,41 +217,6 @@
         timeFilter.addEventListener('change', (e) => {
             fetchSalesAndDiscountData(e.target.value);
         });
-
-
-        // async function fetchSalesData(filter) {
-        //     const response = await fetch(`/admin/sales-data?filter=${filter}`);
-        //     const salesData = await response.json();
-
-        //     // Prepare chart labels and data based on the filter type
-        //     let labels = [];
-        //     if (filter === 'daily') {
-        //         labels = salesData.map(data => `Day ${data._id.dayOfYear}`);
-        //     } else if (filter === 'weekly') {
-        //         labels = salesData.map(data => `Week ${data._id.isoWeek}`);
-        //     } else if (filter === 'monthly') {
-        //         labels = salesData.map(data => `${data._id.year} Month ${data._id.month}`);
-        //     } else if (filter === 'yearly') {
-        //         labels = salesData.map(data => `Year ${data._id}`);
-        //     }
-
-        //     const data = salesData.map(data => data.totalSales);
-
-        //     // Update chart
-        //     salesChart.data.labels = labels;
-        //     salesChart.data.datasets[0].data = data;
-        //     salesChart.update();
-        // }
-
-        // // Initial data fetch for 'monthly'
-        // fetchSalesData('daily');
-
-        // // Listen for filter changes and update chart
-        // timeFilter.addEventListener('change', (e) => {
-        //     fetchSalesData(e.target.value);
-        // });
-
-
 
 
     </script>

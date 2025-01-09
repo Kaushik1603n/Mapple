@@ -1,66 +1,70 @@
 async function getWishlistItems() {
-    try {
-      const response = await fetch("/user/wishlistItems");
-      if (!response.ok) throw new Error("Failed to fetch wishlistItems data");
-  
-      const result = await response.json();
-  
-      // Process and display data
-      console.log(result.allProduct);
-      renderwishlistTable(result.allProduct);
-    } catch (error) {
-      console.error("Error fetching wishlist data:", error);
-    }
-  }
-  
-  function renderwishlistTable(products) {
-    const tableBody = document.querySelector("#wishlistTable tbody");
-    tableBody.innerHTML = "";
-  
-    if (!products || products.length === 0) {
-      const row = `<tr><td colspan="6" class="text-center">No records found</td></tr>`;
-      tableBody.insertAdjacentHTML("beforeend", row);
-      return;
-    }
-  
-    products.forEach((product) => {
-      // console.log(product);
-  
-      const productImage = product.productImage && product.productImage.length > 0 
-                           ? `<img src="${product.productImage[0]}" alt="Product Image" style="width: 50px;">` 
-                           : "N/A";
-  
-      const row = `
-          <tr>
-            <td>${productImage}</td>
-            <td>${product.productName || "N/A"}</td>
-            <td>${product.status || "N/A"}</td>
-            <td>${product.salePrice || "N/A"}</td>
-            <td>
-              <button class="btn btn-primary btn-sm addToCartButton" 
-                      id="addToCartButton" 
-                      data-product-id="${product._id}">
-                Add to Cart
-              </button>
-            </td>
-            <td>
-              <button class="btn btn-danger btn-sm remove-btn" 
-                      data-id="${product._id}">
-                <i class="fas fa-trash"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      tableBody.insertAdjacentHTML("beforeend", row);
-    });
-  }
-  
+  try {
+    const response = await fetch("/user/wishlistItems");
+    if (!response.ok) throw new Error("Failed to fetch wishlistItems data");
 
-  document.addEventListener("DOMContentLoaded", () => {
-    document.querySelector("#wishlistTable").addEventListener("click", async (event) => {
+    const result = await response.json();
+
+    // Process and display data
+    console.log(result.allProduct);
+    renderwishlistTable(result.allProduct);
+  } catch (error) {
+    console.error("Error fetching wishlist data:", error);
+  }
+}
+
+function renderwishlistTable(products) {
+  const tableBody = document.querySelector("#wishlistTable tbody");
+  tableBody.innerHTML = "";
+
+  if (!products || products.length === 0) {
+    const row = `<tr><td colspan="6" class="text-center">No records found</td></tr>`;
+    tableBody.insertAdjacentHTML("beforeend", row);
+    return;
+  }
+
+  products.forEach((product) => {
+    // console.log(product);
+
+    const productImage =
+      product.productImage && product.productImage.length > 0
+        ? `<img src="${product.productImage[0]}" alt="Product Image" style="width: 50px;">`
+        : "N/A";
+
+    const row = `
+            <tr>
+              <td>${productImage}</td>
+              <td>${product.productName || "N/A"}</td>
+              <td>${product.status || "N/A"}</td>
+              <td>${product.salePrice || "N/A"}</td>
+              <td>
+                <button class="btn btn-primary btn-sm addToCartButton" 
+                        id="addToCartButton" 
+                        data-product-id="${product._id}">
+                  Add to Cart
+                </button>
+              </td>
+              <td>
+                <button class="btn btn-danger btn-sm remove-btn" 
+                        data-id="${product._id}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+    tableBody.insertAdjacentHTML("beforeend", row);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  document
+    .querySelector("#wishlistTable")
+    .addEventListener("click", async (event) => {
       if (event.target.closest(".remove-btn")) {
-        const productId = event.target.closest(".remove-btn").getAttribute("data-id");
-        
+        const productId = event.target
+          .closest(".remove-btn")
+          .getAttribute("data-id");
+
         try {
           const response = await fetch(`/user/removeproduct/${productId}`, {
             method: "DELETE",
@@ -68,15 +72,15 @@ async function getWishlistItems() {
               "Content-Type": "application/json",
             },
           });
-  
+
           if (response.ok) {
             Swal.fire({
               icon: "success",
               title: "Product removed successfully!",
               showConfirmButton: false,
               timer: 1500, // The popup will close after 1.5 seconds
-            })
-            getWishlistItems()
+            });
+            getWishlistItems();
           } else {
             Swal.fire({
               icon: "error",
@@ -95,16 +99,17 @@ async function getWishlistItems() {
         }
       }
     });
-  });
-  
+});
 
-  document.addEventListener("DOMContentLoaded", () => {
-    document.querySelector("#wishlistTable").addEventListener("click", async (event) => {
+document.addEventListener("DOMContentLoaded", () => {
+  document
+    .querySelector("#wishlistTable")
+    .addEventListener("click", async (event) => {
       if (event.target.closest(".addToCartButton")) {
         const button = event.target.closest(".addToCartButton");
         const productId = button.getAttribute("data-product-id");
         const defaultQuantity = 1;
-  
+
         if (!productId || defaultQuantity <= 0) {
           Swal.fire({
             title: "Invalid Input!",
@@ -114,12 +119,12 @@ async function getWishlistItems() {
           });
           return;
         }
-  
+
         const cartData = {
           productId,
           quantity: defaultQuantity,
         };
-  
+
         try {
           const response = await fetch("/user/cart", {
             method: "POST",
@@ -128,9 +133,9 @@ async function getWishlistItems() {
             },
             body: JSON.stringify(cartData),
           });
-  
+
           const data = await response.json();
-  
+
           if (response.ok && data.success) {
             Swal.fire({
               title: "Success!",
@@ -159,7 +164,6 @@ async function getWishlistItems() {
         }
       }
     });
-  });
-  
+});
 
-getWishlistItems()
+getWishlistItems();
