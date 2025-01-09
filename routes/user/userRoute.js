@@ -29,7 +29,7 @@ router.post("/changePassword", userController.changePass);
 router.get("/logout", userController.logout);
 
 
-router.get("/productDetails/:productId",auth.userAuth, userCart.loadProductDetails);
+router.get("/productDetails/:productId", userCart.loadProductDetails);
 router.post("/cart", auth.userAuth,userCart.addCart);
 router.get("/cart",auth.userAuth, userCart.loadAddCart);
 router.delete("/cart/remove/:id",auth.userAuth, userCart.removeCartItem);

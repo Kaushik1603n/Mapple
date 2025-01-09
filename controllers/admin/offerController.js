@@ -74,14 +74,14 @@ const addOffers = async (req, res) => {
     status,
   } = req.body;
 
-  // console.log(productCategory);
+  console.log(productCategory);
 
-  const [productName, model] = productCategory.split(" ");
-  const [prdname, prdseries, varient, processor, color] =
-    productCategory.split(" ");
-  const products = [productName, model].join(" ");
-  // console.log(prdname, prdseries, varient, processor, color);
-  console.log(products, varient, color);
+  // const [productName, model] = productCategory.split(" ");
+  // const [prdname, prdseries, varient, processor, color] =
+  //   productCategory.split(" ");
+  // const products = [productName, model].join(" ");
+  // // console.log(prdname, prdseries, varient, processor, color);
+  // console.log(products, varient, color);
 
   try {
     const findOffer = await Offer.find({ productCategory: productCategory });
@@ -100,15 +100,13 @@ const addOffers = async (req, res) => {
 
     if (offers === "product") {
       let productDetails = await product.findOne({
-        productName: products,
-        variant: varient,
-        color: color,
+        _id: productCategory,
       });
       // console.log(productDetails);
 
       productCategoryID = productDetails._id;
     } else {
-      categoryDetails = await Category.findOne({ name: productCategory });
+      categoryDetails = await Category.findOne({ _id: productCategory });
       productCategoryID = categoryDetails._id;
     }
     if (offers === "product") {

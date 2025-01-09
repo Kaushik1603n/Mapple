@@ -27,18 +27,18 @@ const loadProductDetails = async (req, res) => {
       "category"
     );
 
-    const productName = `${productDetails.productName} ${productDetails.variant} ${productDetails.processor} ${productDetails.color}`;
+    const productCategoryId = productDetails.id;
 
     const findPrdOffer = await Offer.findOne({
-      productCategory: productName,
+      productCategory: productCategoryId,
       status: "Active",
     });
     const findCatOffer = await Offer.findOne({
-      productCategory: productDetails.category.name,
+      productCategory: productDetails.category._id,
       status: "Active",
     });
-    // console.log(findPrdOffer);
-    // console.log(findCatOffer);
+    console.log(findPrdOffer);
+    console.log(findCatOffer);
 
     let productOffer;
     let cattegoryOffer;
@@ -148,7 +148,7 @@ const addCart = async (req, res) => {
         .json({ success: false, message: "Insufficient stock" });
     }
 
-    const productCategory = product.category.name;
+    const productCategory = product.category._id;
     let findcategoryOffer = { offer: 0 };
     const categoryOffer = await Offer.findOne({
       productCategory: productCategory,

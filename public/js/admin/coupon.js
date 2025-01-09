@@ -1,5 +1,5 @@
 let currentPage = 1;
-const limit = 5; // Set the limit (number of offers per page)
+const limit = 5;
 async function getOffers(page = 1) {
     try {
       const response = await fetch(`/admin/getOffers?page=${page}&limit=5`);
