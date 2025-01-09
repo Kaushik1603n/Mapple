@@ -70,56 +70,55 @@ const placeOrder = async (req, res) => {
       findcoupon.userId.push(userData._id);
       await findcoupon.save();
     }
+    let maxDiscount = 0;
+    if (findcoupon) {
+      maxDiscount = findcoupon.maxDiscount || false;
+    }
 
-    const maxDiscount = findcoupon.maxDiscount; // Max discount from coupon
-    let totalCouponDiscount = 0; // Initialize total discount
-    let adjustedDiscounts = 0; // Store adjusted discounts for each product
-    
-    if (orderedItem.length === 1) {
-      // Single product case
-      const item = orderedItem[0];
-      const itemDiscount = item.quantity * item.price * (couponPercentage / 100);
-      totalCouponDiscount = Math.min(itemDiscount, maxDiscount); // Cap to maxDiscount
-      item.couponDisnd = totalCouponDiscount;
-    } else {
-      let totalDiscount = 0;
-    
-      // Calculate the initial discount for each product
-      const productDiscounts = orderedItem.map((item) => {
-        const itemDiscount = item.quantity * item.price * (couponPercentage / 100);
-        totalDiscount += itemDiscount;
-        return { ...item, itemDiscount }; // Store item-specific discount
-      });
-    
-      if (totalDiscount > maxDiscount) {
-        // Adjust discounts proportionally if total exceeds maxDiscount
-        const discountRatio = maxDiscount / totalDiscount;
-        adjustedDiscounts = productDiscounts.map((item) => ({
-          ...item,
-          finalDiscount: item.itemDiscount * discountRatio, // Adjusted discount
-        }));
-        totalCouponDiscount = maxDiscount; // Total discount capped to maxDiscount
+    let totalCouponDiscount = 0;
+    let adjustedDiscounts = 0;
+
+    if (maxDiscount) {
+      if (orderedItem.length === 1) {
+        const item = orderedItem[0];
+        const itemDiscount =
+          item.quantity * item.price * (couponPercentage / 100);
+        totalCouponDiscount = Math.min(itemDiscount, maxDiscount); // Cap to maxDiscount
+        item.couponDisnd = totalCouponDiscount;
       } else {
-        // No adjustment needed, use the original discounts
-        adjustedDiscounts = productDiscounts.map((item) => ({
-          ...item,
-          finalDiscount: item.itemDiscount,
-        }));
-        totalCouponDiscount = totalDiscount; // Total discount is the sum of item discounts
+        let totalDiscount = 0;
+
+        const productDiscounts = orderedItem.map((item) => {
+          const itemDiscount =
+            item.quantity * item.price * (couponPercentage / 100);
+          totalDiscount += itemDiscount;
+          return { ...item, itemDiscount };
+        });
+
+        if (totalDiscount > maxDiscount) {
+          const discountRatio = maxDiscount / totalDiscount;
+          adjustedDiscounts = productDiscounts.map((item) => ({
+            ...item,
+            finalDiscount: item.itemDiscount * discountRatio,
+          }));
+          totalCouponDiscount = maxDiscount;
+        } else {
+          adjustedDiscounts = productDiscounts.map((item) => ({
+            ...item,
+            finalDiscount: item.itemDiscount,
+          }));
+          totalCouponDiscount = totalDiscount;
+        }
+
+        adjustedDiscounts.forEach((item, index) => {
+          orderedItem[index].couponDisnd = item.finalDiscount;
+        });
       }
-    
-      // Update original orderedItem with calculated discounts
-      adjustedDiscounts.forEach((item, index) => {
-        orderedItem[index].couponDisnd = item.finalDiscount;
+    } else {
+      orderedItem.forEach((item, index) => {
+        item.couponDisnd = 0;
       });
     }
-    
-    
-    // Log the final discount
-    // console.log(`Final coupon discount: ${couponDisnd}`);
-    
-    // Optional: Log individual product discounts
-    
 
     let finalAmount = Number(deliveryChargeValue);
     let totalPrice = 0;
@@ -136,22 +135,6 @@ const placeOrder = async (req, res) => {
           .json({ error: `Product with ID ${item.product} not found.` });
       }
 
-      // const maxDiscount = findcoupon.maxDiscount;
-      // let couponDisc=0
-      // if (orderedItem.length === 1) {
-      //    couponDisc =
-      //     item.quantity * item.price -
-      //       item.quantity * item.price * (1 - couponPercentage / 100) || 0;
-
-      //   if(couponDisc>maxDiscount){
-      //     console.log(couponDisc);
-      //     couponDisc=maxDiscount;
-      //   }
-      // }else{
-      //   const totalPrd = orderedItem.length;
-
-      // }
-
       totalPrice += item.quantity * product.regularPrice;
       finalAmount += item.quantity * item.price;
       orderedProduct.push({
@@ -166,13 +149,8 @@ const placeOrder = async (req, res) => {
         regularPrice: product.regularPrice,
         regularTotal: product.regularPrice * item.quantity,
         price: item.price,
-        total:
-          item.quantity * item.price - item.couponDisnd,
-          // (item.quantity * item.price -
-          //   item.quantity * item.price * (1 - couponPercentage / 100) || 0),
-        couponDiscount:
-          item.quantity * item.price -item.couponDisnd,
-            // item.quantity * item.price * (1 - couponPercentage / 100) || 0,
+        total: item.quantity * item.price - item.couponDisnd,
+        couponDiscount: item.quantity * item.price - item.couponDisnd,
         discount:
           product.regularPrice * item.quantity - item.quantity * product.price,
       });
@@ -261,7 +239,6 @@ const placeOrder = async (req, res) => {
     req.session.paymentData = null;
     req.session.orderId = null;
 
-    // console.log("success");
     res.status(404).json({ message: "Order placed successfully" });
   } catch (error) {
     console.error("Error creating order:", error);
@@ -271,6 +248,8 @@ const placeOrder = async (req, res) => {
 const verifyPayment = async (req, res) => {
   const userData = req.session.user;
   const userId = userData._id;
+  const couponCode = req.session.couponCode;
+
   const {
     orderedItem,
     deliveryAddress,
@@ -295,11 +274,72 @@ const verifyPayment = async (req, res) => {
   }
   const couponPercentage = req.session.couponDiscount;
 
+  let findcoupon;
+  if (couponCode) {
+    findcoupon = await coupon.findOne({
+      couponCode: couponCode,
+      isList: true,
+    });
+  }
+
+  let maxDiscount = 0;
+  if (findcoupon) {
+    maxDiscount = findcoupon.maxDiscount || false;
+  }
+
+  let totalCouponDiscount = 0;
+  let adjustedDiscounts = 0;
+
+  if (maxDiscount) {
+    if (orderedItem.length === 1) {
+      const item = orderedItem[0];
+      const itemDiscount =
+        item.quantity * item.price * (couponPercentage / 100);
+      totalCouponDiscount = Math.min(itemDiscount, maxDiscount); // Cap to maxDiscount
+      item.couponDisnd = totalCouponDiscount;
+    } else {
+      let totalDiscount = 0;
+
+      const productDiscounts = orderedItem.map((item) => {
+        const itemDiscount =
+          item.quantity * item.price * (couponPercentage / 100);
+        totalDiscount += itemDiscount;
+        return { ...item, itemDiscount };
+      });
+
+      if (totalDiscount > maxDiscount) {
+        const discountRatio = maxDiscount / totalDiscount;
+        adjustedDiscounts = productDiscounts.map((item) => ({
+          ...item,
+          finalDiscount: item.itemDiscount * discountRatio,
+        }));
+        totalCouponDiscount = maxDiscount;
+      } else {
+        adjustedDiscounts = productDiscounts.map((item) => ({
+          ...item,
+          finalDiscount: item.itemDiscount,
+        }));
+        totalCouponDiscount = totalDiscount;
+      }
+
+      adjustedDiscounts.forEach((item, index) => {
+        orderedItem[index].couponDisnd = item.finalDiscount;
+      });
+    }
+  } else {
+    orderedItem.forEach((item, index) => {
+      item.couponDisnd = 0;
+    });
+  }
+
+
   let finalAmount = Number(deliveryChargeValue);
   let totalPrice = 0;
   const orderedProduct = [];
   for (const item of orderedItem) {
     const product = await Product.findById(item.product); // product means productId
+   console.log(product);
+   
     if (!product) {
       const deleteCartItem = await cart.updateOne(
         { "items.productId": item.product },
@@ -325,12 +365,12 @@ const verifyPayment = async (req, res) => {
       regularTotal: product.regularPrice * item.quantity,
       price: item.price,
       total:
-        item.quantity * item.price -
-        (item.quantity * item.price -
-          item.quantity * item.price * (1 - couponPercentage / 100) || 0),
+        item.quantity * item.price - item.couponDisnd,
+        // (item.quantity * item.price -
+        //   item.quantity * item.price * (1 - couponPercentage / 100) || 0),
       couponDiscount:
-        item.quantity * item.price -
-          item.quantity * item.price * (1 - couponPercentage / 100) || 0,
+        item.quantity * item.price - item.couponDisnd,
+          // item.quantity * item.price * (1 - couponPercentage / 100) || 0,
       discount:
         product.regularPrice * item.quantity - item.quantity * product.price,
     });
@@ -342,15 +382,19 @@ const verifyPayment = async (req, res) => {
   });
   const discount = couponDisc ?? 0;
   // console.log((finalAmount - discount) * 100);
+  const amountAfterDiscount = finalAmount - discount;
 
-  const amount = (finalAmount - discount) * 100;
+  const amount = Math.round(amountAfterDiscount * 100);
   const currency = "INR";
 
   try {
+    console.log(amount, currency);
+
     const order = await razorpayInstance.orders.create({
       amount,
       currency,
     });
+
     const orderId = ` ORD${Date.now()}`;
     const newOrder = await failedorder.create({
       orderId: orderId,
@@ -375,7 +419,7 @@ const verifyPayment = async (req, res) => {
 
     return res.json({ orderId: order.id, amount });
   } catch (error) {
-    console.error(error);
+    console.error("payment err", error);
     res.status(500).send("Error creating order");
   }
 };
@@ -405,9 +449,8 @@ const retryPayment = async (req, res) => {
   });
 
   try {
-    // Check the existing order status using Razorpay's Orders API
     const order = await razorpay.orders.fetch(orderId);
-    console.log(order.status);
+    // console.log(order.status);
 
     if (order.status === "paid") {
       return res.status(400).json({ message: "Order is already paid." });
@@ -422,7 +465,6 @@ const retryPayment = async (req, res) => {
       return res.json({ orderId: order.id, amount: order.amount });
     }
 
-    // If the order is unpaid or failed, reuse the existing orderId
     res.json({ orderId: order.id, amount: order.amount });
   } catch (error) {
     console.error("Error fetching order:", error);
@@ -441,8 +483,8 @@ const updateOrder = async (req, res) => {
     }
     console.log(findOrder);
     const updatedOrderData = {
-      ...findOrder.toObject(), // Clone the order object
-      status: "pending", // Update the status field
+      ...findOrder.toObject(),
+      status: "pending",
     };
 
     const result = await order.create(updatedOrderData);
@@ -450,12 +492,33 @@ const updateOrder = async (req, res) => {
     req.session.paymentData = null;
     req.session.orderId = null;
 
-    // Optionally, delete the order from failedorder
     await failedorder.deleteOne({ paymentId: orderId });
     console.log("Order removed from failedorder collection");
     res.status(200).json({ success: true, message: "successfully Re-payment" });
   } catch (error) {
     console.error("Error moving order:", error);
+  }
+};
+
+const getCoupon = async (req, res) => {
+  try {
+    // Find coupons with isList set to true
+    const findcoupon = await coupon.find({
+      isList: true,
+    });
+    console.log(findcoupon);
+
+    // If no coupons are found, return an empty array
+    if (!findcoupon || findcoupon.length === 0) {
+      return res.status(200).json({ data: [] });
+    }
+
+    // If coupons are found, return them in the response
+    res.status(200).json({ data: findcoupon });
+  } catch (error) {
+    // Handle error: log it and send a failure response
+    console.error("Error fetching coupons:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -557,6 +620,7 @@ module.exports = {
   paymentFailed,
   retryPayment,
   updateOrder,
+  getCoupon,
   applyCoupon,
   removeCoupon,
 };

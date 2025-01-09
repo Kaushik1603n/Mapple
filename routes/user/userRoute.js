@@ -66,6 +66,7 @@ router.post("/verify-payment",auth.userAuth, userPlaceOrder.verifyPayment);
 router.get("/payment-failed",auth.userAuth, userPlaceOrder.paymentFailed);
 router.post("/retry-payment",auth.userAuth, userPlaceOrder.retryPayment);
 router.post("/update-order-status",auth.userAuth, userPlaceOrder.updateOrder);
+router.get("/getCoupon",auth.userAuth, userPlaceOrder.getCoupon);
 router.post("/applyCoupon",auth.userAuth, userPlaceOrder.applyCoupon);
 router.post("/removeCoupon",auth.userAuth, userPlaceOrder.removeCoupon);
 

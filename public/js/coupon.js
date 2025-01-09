@@ -57,87 +57,81 @@ function renderCouponTable(coupons) {
   });
 }
 
-
 function updateCouponStatus(couponId, status) {
-    if (confirm("Are you sure you want to change the Coupon's status?")) {
-        alert(status)
-        fetch(`/admin/update-Coupon-status/${couponId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ status: status=="true" })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Coupon status updated successfully!',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    })
-                    getAllCoupon();
-                } else {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Failed to update Coupon status.',
-                        icon: 'error',
-                        confirmButtonText: 'Try Again'
-                    });
-                }
-
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'An error occurred. Please try again.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-
-            });
-    }
-
+  if (confirm("Are you sure you want to change the Coupon's status?")) {
+    fetch(`/admin/update-Coupon-status/${couponId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status: status == "true" }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          Swal.fire({
+            title: "Success!",
+            text: "Coupon status updated successfully!",
+            icon: "success",
+            confirmButtonText: "OK",
+          });
+          getAllCoupon();
+        } else {
+          Swal.fire({
+            title: "Error!",
+            text: "Failed to update Coupon status.",
+            icon: "error",
+            confirmButtonText: "Try Again",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        Swal.fire({
+          title: "Error!",
+          text: "An error occurred. Please try again.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      });
+  }
 }
 
-
 document.addEventListener("click", function (event) {
-    if (event.target.classList.contains("delete-coupon")) {
-        const couponId = event.target.getAttribute("data-id");
+  if (event.target.classList.contains("delete-coupon")) {
+    const couponId = event.target.getAttribute("data-id");
 
-        // Debugging
-        console.log("Delete button clicked!");
-        console.log("Coupon ID:", couponId);
+    // Debugging
+    console.log("Delete button clicked!");
+    console.log("Coupon ID:", couponId);
 
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/admin/deleteCoupon/${couponId}`, {
-                    method: "DELETE",
-                })
-                    .then((response) => {
-                        console.log("Response:", response); // Debug
-                        if (response.ok) {
-                            Swal.fire("Deleted!", "Your coupon has been deleted.", "success")
-                            getAllCoupon();
-                        } else {
-                            Swal.fire("Error", "Failed to delete coupon.", "error");
-                        }
-                    })
-                    .catch((error) => {
-                        console.error("Error:", error);
-                        Swal.fire("Error", "An error occurred.", "error");
-                    });
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch(`/admin/deleteCoupon/${couponId}`, {
+          method: "DELETE",
+        })
+          .then((response) => {
+            console.log("Response:", response); // Debug
+            if (response.ok) {
+              Swal.fire("Deleted!", "Your coupon has been deleted.", "success");
+              getAllCoupon();
+            } else {
+              Swal.fire("Error", "Failed to delete coupon.", "error");
             }
-        });
-    }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            Swal.fire("Error", "An error occurred.", "error");
+          });
+      }
+    });
+  }
 });

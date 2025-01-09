@@ -97,7 +97,6 @@ async function getOffers(page = 1) {
   
 getOffers(currentPage);
 
-
 function updateOfferStatus(offerId, status) {
   if (confirm("Are you sure you want to change the Offer's status?")) {
     fetch(`/admin/update-Offer-status/${offerId}`, {

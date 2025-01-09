@@ -56,7 +56,7 @@ router.put("/update-Coupon-status/:id",checkAdminAuth,couponController.couponSta
 
 router.get("/orders",checkAdminAuth,orderController.loadOrders)
 router.get("/getOrders",checkAdminAuth,orderController.getOrders)
-router.get("/viewOeder/:id",checkAdminAuth,orderController.loadViewOrders)
+router.get("/viewOrder/:id",checkAdminAuth,orderController.loadViewOrders)
 router.get("/cancelReturn",checkAdminAuth,orderController.loadCancelReturn);
 router.get("/getReturnCancel",checkAdminAuth,orderController.getReturnCancel);
 router.post("/rejectCancelRequest",checkAdminAuth,orderController.rejectCancelRequest);

@@ -21,8 +21,7 @@
             <div class="container-fluid p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4 head-container">
                     <div class="d-flex align-items-center">
-                        <input type="text" class="form-control me-2" placeholder="Search">
-                        <button class="btn btn-outline-primary">Search</button>
+                        <a href="" class="text-decoration-none text-dark py-1">Category /</a>
                     </div>
                 </div>
                 <div class="card shadow-sm">
@@ -143,11 +142,11 @@
         function updateCategoryStatus(categoryId, status) {
             if (confirm("Are you sure you want to change the Category status?")) {
                 fetch(`/admin/updateCategoryStatus/${categoryId}`, {
-                    method: 'PATCH', // PATCH is appropriate for partial updates
+                    method: 'PATCH', 
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ status: status === 'list' }), // Adjust based on your backend logic
+                    body: JSON.stringify({ status: status === 'list' }),
                 })
                     .then(response => response.json())
                     .then(data => {
@@ -159,8 +158,6 @@
                                 confirmButtonText: 'OK'
                             });
 
-                            // Optionally update the DOM dynamically:
-                            // Example: Update the text or class of the status element
                             const statusElement = document.querySelector(`#category-status-${categoryId}`);
                             if (statusElement) {
                                 statusElement.textContent = status === 'blocked' ? 'Blocked' : 'Active';

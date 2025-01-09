@@ -94,95 +94,12 @@ const loadHomePage = async (req, res) => {
 const loadShope = async (req, res) => {
   const user = req.session.user;
   try {
-    const { search, variant, sortOption, priceRange, category } = req.query;
-
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = 8;
-    const skip = (page - 1) * limit;
-    let filter = {};
-
-    if (search) {
-      filter = {
-        $or: [
-          { productName: new RegExp(search, "i") },
-          { processor: new RegExp(search, "i") },
-        ],
-      };
-    }
-
-    if (category) {
-      if (Array.isArray(category)) {
-        filter.productName = { $in: new RegExp(category, "i") };
-      } else {
-        filter.productName = { $in: new RegExp(category, "i") };
-      }
-    }
-
-    if (variant) {
-      if (Array.isArray(variant)) {
-        filter.variant = { $in: variant };
-      } else {
-        filter.variant = variant;
-      }
-    }
-
-    if (priceRange) {
-      const ranges = Array.isArray(priceRange) ? priceRange : [priceRange];
-
-      const priceConditions = ranges.map((range) => {
-        const [min, max] = range.split("-").map(Number);
-        return { salePrice: { $gte: min, $lte: max } };
-      });
-
-      filter.$or = [...(filter.$or || []), ...priceConditions];
-    }
-
-    let sort = {};
-    if (sortOption === "lowToHigh") {
-      sort = { salePrice: 1 };
-    } else if (sortOption === "highToLow") {
-      sort = { salePrice: -1 };
-    } else if (sortOption === "aToZ") {
-      sort = { productName: -1 };
-    } else if (sortOption === "zToA") {
-      sort = { productName: 1 };
-    } else {
-      sort = { createdAt: -1 };
-    }
-
-    const allProduct = await Product.find(filter)
-      .populate("category")
-      .sort(sort)
-      .skip(skip)
-      .limit(limit);
-    const totalProducts = await Product.countDocuments(filter);
-    const totalPages = Math.ceil(totalProducts / limit);
-
     if (user) {
       res.render("user/shop", {
         user: user,
-        allProduct: allProduct,
-        variant: variant || [],
-        search,
-        sortOption: sortOption || {},
-        priceRange: priceRange || [],
-        totalProducts,
-        totalPages,
-        currentPage: page,
-        Category: category || [],
       });
     } else {
-      res.render("user/shop", {
-        allProduct: allProduct,
-        variant: variant || [],
-        search,
-        sortOption: sortOption || {},
-        priceRange: priceRange || [],
-        totalProducts,
-        totalPages,
-        currentPage: page,
-        Category: category || [],
-      });
+      res.render("user/shop", {});
     }
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -214,31 +131,26 @@ const shopData = async (req, res) => {
   }
   let categoryFilter = {};
   if (category && category.length) {
-    // Ensure that the category input is always an array
     const categoryArray = Array.isArray(category)
       ? category
       : category.split(",").map((item) => item.trim());
-  
+
     if (categoryArray.length) {
-      categoryFilter.name = { 
-        $in: categoryArray.map(item => new RegExp(item, 'i'))
+      categoryFilter.name = {
+        $in: categoryArray.map((item) => new RegExp(item, "i")),
       };
     }
   }
-  
 
   if (priceRange) {
-    // Split the ranges
     const ranges = priceRange
       .split(",")
       .map((range) => range.split("-").map(Number));
 
-    // For a single range, apply $gte and $lte directly
     if (ranges.length === 1) {
       const [min, max] = ranges[0];
       query.salePrice = { $gte: min, $lte: max };
     } else {
-      // For multiple ranges, use $or
       query.$or = ranges.map(([min, max]) => ({
         salePrice: { $gte: min, $lte: max },
       }));
@@ -250,48 +162,44 @@ const shopData = async (req, res) => {
   const sortOptions = {
     lowToHigh: { salePrice: 1 },
     highToLow: { salePrice: -1 },
-    aToZ: { productName: 1 },
-    zToA: { productName: -1 },
+    aToZ: { productName: -1 },
+    zToA: { productName: 1 },
   };
 
   const productsQuery = await Product.find(query)
-  .populate({
-    path: "category",
-    match: Object.keys(categoryFilter).length ? categoryFilter : undefined, // Apply match only if categoryFilter has conditions
-  })
-  .sort(sortOptions[sortOption] || { createdAt: -1 })
-  .skip((page - 1) * ITEMS_PER_PAGE)
-  .limit(ITEMS_PER_PAGE);
-
-  
-// Execute the query
-const products = await productsQuery;
-
-// Filter products based on category match
-const filteredProducts = Object.keys(categoryFilter).length
-  ? products.filter((product) => product.category)
-  : products;
-  
-
-// Calculate the total number of filtered products
-const totalFilteredProducts = Object.keys(categoryFilter).length
-  ? await Product.countDocuments({
-      ...query,
-      category: { $in: await categoty.find(categoryFilter).select("_id") },
+    .populate({
+      path: "category",
+      match: Object.keys(categoryFilter).length ? categoryFilter : undefined, // Apply match only if categoryFilter has conditions
     })
-  : await Product.countDocuments(query);
+    .sort(sortOptions[sortOption] || { createdAt: -1 })
+    .skip((page - 1) * ITEMS_PER_PAGE)
+    // .limit(ITEMS_PER_PAGE);
 
+  const products = await productsQuery;
+
+  const filteredProducts = Object.keys(categoryFilter).length
+    ? products.filter((product) => product.category)
+    : products;
+
+  const totalFilteredProducts = Object.keys(categoryFilter).length
+    ? await Product.countDocuments({
+        ...query,
+        category: { $in: await categoty.find(categoryFilter).select("_id") },
+      })
+    : await Product.countDocuments(query);
+
+  const totalPages = Math.ceil(totalFilteredProducts / ITEMS_PER_PAGE);
+
+  const limitedProduct =filteredProducts.slice(0, 8)
+  console.log(filteredProducts);
   
-const totalPages = Math.ceil(totalFilteredProducts / ITEMS_PER_PAGE);
 
-// Respond with filtered data
-res.json({
-  products: filteredProducts,
-  currentPage: page,
-  totalPages,
-  totalProducts: totalFilteredProducts,
-});
-
+  res.json({
+    products: limitedProduct,
+    currentPage: page,
+    totalPages,
+    totalProducts: totalFilteredProducts,
+  });
 };
 
 const loadSignup = async (req, res) => {

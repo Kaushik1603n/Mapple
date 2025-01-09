@@ -53,7 +53,9 @@
                         <div class="col-md-6">
                             <div class="card text-center">
                                 <div class="card-body">
-                                    <h5 class="card-title">Top 4 Categories</h5>
+                                    <% if(top4Category) { %>
+                                    <h5 class="card-title">Top <%= top4Category.length %> Categories</h5>
+                                    <% } %>
                                     <ul class="list-group">
                                         <% top4Category.forEach(category=> { %>
                                             <li

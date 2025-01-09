@@ -164,35 +164,6 @@
                 <aside class="col-lg-3 col-md-4 col-12 position-fixed sticky-aside bg-light p-4">
                     <h5 class="px-4 mb-3">Filters</h5>
                     <hr>
-                    <!-- <div class="filter-section px-4 mb-4">
-                        <h6>Filter by Variant</h6>
-                        <div>
-                            <input type="checkbox" class="variant-checkbox" name="variant" value="128GB" id="128GB"
-                                <%=variant.includes('128GB') ? 'checked' : '' %>>
-                            <label for="128GB">128GB</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" class="variant-checkbox" name="variant" value="256GB" id="256GB"
-                                <%=variant.includes('256GB') ? 'checked' : '' %>>
-                            <label for="256GB">256GB</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" class="variant-checkbox" name="variant" value="512GB" id="512GB"
-                                <%=variant.includes('512GB') ? 'checked' : '' %>>
-                            <label for="512GB">512GB</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" class="variant-checkbox" name="variant" value="1TB" id="1TB"
-                                <%=variant.includes('1TB') ? 'checked' : '' %>>
-                            <label for="1TB">1TB</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" class="variant-checkbox" name="variant" value="2TB" id="2TB"
-                                <%=variant.includes('2TB') ? 'checked' : '' %>>
-                            <label for="2TB">2TB</label>
-                        </div>
-                    </div> -->
-
                     
                     <div id="variantFilter" class="variant-filter filter-section d-flex flex-column flex-wrap gap-1 px-4 mb-4">
                         <label class="d-flex align-items-center">
@@ -272,102 +243,7 @@
 
                 </aside>
 
-                <!-- Product Listing -->
-                <!-- <main class="col-lg-9 col-md-8 offset-lg-3 offset-md-4">
-                    <div class="d-flex justify-content-between align-items-center my-4 p-2 rounded  shadow-lg">
-                        <div class="d-flex flex-fill ">
-                            <form id="searchForm" action="/user/shop" method="get"
-                                class="d-flex w-100 m-0 p-0 flex-column">
-                                <div class="d-flex mb-2 mx-2 pt-2">
-                                    <input type="text" class="form-control me-2 " name="search"
-                                        placeholder="Search products" aria-label="Search" value="<%= search || '' %>">
-                                    <button class="btn btn-dark px-3" type="submit">Search</button>
-                                </div>
-                            </form>
-                        </div>
-
-                        <select id="sortSelect" class="form-select w-auto mx-3 px-5 bg-light">
-                            <option value="all" <%=!sortOption || sortOption==='new' ? 'selected' : '' %>>New Product
-                            </option>
-                            <option value="lowToHigh" <%=sortOption==='lowToHigh' ? 'selected' : '' %>>Price (Low to
-                                High)</option>
-                            <option value="highToLow" <%=sortOption==='highToLow' ? 'selected' : '' %>>Price (High to
-                                Low)</option>
-                            <option value="aToZ" <%=sortOption==='aToZ' ? 'selected' : '' %>>Aa-Zz</option>
-                            <option value="zToA" <%=sortOption==='zToA' ? 'selected' : '' %>>Zz-Aa</option>
-                        </select>
-                    </div>
-
-                    <div class="row g-4">
-                        <% if (allProduct.length> 0) { %>
-                            <% allProduct.forEach(product=> { %>
-                                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                                    <div class="card border-0 shadow-lg text-center">
-                                        <div class="position-relative">
-                                            <img src="<%= product.productImage[0] %>"
-                                                class="card-img-top mx-auto pt-3 p-1" alt="<%= product.productName %>">
-                                            <button
-                                                class="btn btn-outline-light position-absolute top-0 end-0 m-2 like-btn"
-                                                data-id="<%= product._id %>">
-                                                <span class="like-icon">&#9825;</span>
-                                            </button>
-                                        </div>
-                                        <div class="card-body">
-                                            <h5 class="card-title">
-                                                <%= product.productName %>
-                                                    <%= product.variant %>
-                                            </h5>
-                                            <p class="text-muted mb-2"><span>&#8377;</span>
-                                                <%= product.salePrice.toLocaleString() %>
-                                            </p>
-                                            <a href="/user/productDetails/<%= product._id %>"
-                                                class="btn btn-dark w-100">Buy Now</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <% }); %>
-                                    <% } else { %>
-                                        <div class="col-12">
-                                            <p class="text-center text-muted">No products found for your search.</p>
-                                        </div>
-                                        <% } %>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center flex-wrap mx-5 my-4">
-                        <p class="mb-2 mb-md-0">Showing <%= (currentPage - 1) * 4 + 1 %> to <%= Math.min(currentPage *
-                                    4, totalProducts) %> of <%= totalProducts %>
-                        </p>
-                        <nav>
-                            <ul class="pagination pagination-sm mb-0">
-                                <% if (currentPage> 1) { %>
-                                    <li class="page-item">
-                                        <a class="page-link"
-                                            href="?search=<%= search %>&sortOption=<%= sortOption %>&page=<%= currentPage - 1 %>">←</a>
-                                    </li>
-                                    <% } %>
-                                        <% for (let i=1; i <=totalPages; i++) { %>
-                                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                                                <a class="page-link"
-                                                    href="?search=<%= search %>&sortOption=<%= sortOption %>&page=<%= i %>">
-                                                    <%= i %>
-                                                </a>
-                                            </li>
-                                            <% } %>
-                                                <% if (currentPage < totalPages) { %>
-                                                    <li class="page-item">
-                                                        <a class="page-link"
-                                                            href="?search=<%= search %>&sortOption=<%= sortOption %>&page=<%= currentPage + 1 %>">→</a>
-                                                    </li>
-                                                    <% } %>
-                            </ul>
-                        </nav>
-
-                    </div>
-
-
-
-                </main> -->
-                <main class="col-lg-9 col-md-8 offset-lg-3 offset-md-4">
+               <main class="col-lg-9 col-md-8 offset-lg-3 offset-md-4">
                     <div class="d-flex justify-content-between align-items-center my-4 p-2 rounded shadow-lg">
                         <div class="d-flex flex-fill">
                             <form id="searchForm" class="d-flex w-100">
