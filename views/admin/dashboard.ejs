@@ -54,28 +54,28 @@
                             <div class="card text-center">
                                 <div class="card-body">
                                     <% if(top4Category) { %>
-                                    <h5 class="card-title">Top <%= top4Category.length %> Categories</h5>
-                                    <% } %>
-                                    <ul class="list-group">
-                                        <% top4Category.forEach(category=> { %>
-                                            <li
-                                                class="list-group-item d-flex justify-content-between align-items-center">
-                                                <%= category.category.name %>
-                                                    <div style="width: 70%; margin-left: 10px;">
-                                                        <div class="progress">
-                                                            <div class="progress-bar" role="progressbar"
-                                                                style="width: <%= category.percentage %>%;  background-color: #464545"
-                                                                aria-valuenow="<%= category.percentage %>"
-                                                                aria-valuemin="0" aria-valuemax="100">
+                                        <h5 class="card-title">Top <%= top4Category.length %> Categories</h5>
+                                        <% } %>
+                                            <ul class="list-group">
+                                                <% top4Category.forEach(category=> { %>
+                                                    <li
+                                                        class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <%= category.category.name %>
+                                                            <div style="width: 70%; margin-left: 10px;">
+                                                                <div class="progress">
+                                                                    <div class="progress-bar" role="progressbar"
+                                                                        style="width: <%= category.percentage %>%;  background-color: #464545"
+                                                                        aria-valuenow="<%= category.percentage %>"
+                                                                        aria-valuemin="0" aria-valuemax="100">
+                                                                    </div>
+                                                                    <span class="px-1">
+                                                                        <%= category.percentage %>%
+                                                                    </span>
+                                                                </div>
                                                             </div>
-                                                            <span class="px-1">
-                                                                <%= category.percentage %>%
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                            </li>
-                                            <% }) %>
-                                    </ul>
+                                                    </li>
+                                                    <% }) %>
+                                            </ul>
                                 </div>
                             </div>
                         </div>
@@ -137,45 +137,54 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script>
-     
         const timeFilter = document.getElementById('time-filter');
         const combinedChartCanvas = document.getElementById('combinedChart');
 
-        // Initialize Combined Chart
+        // Initialize Combined Bar Chart
         let combinedChart = new Chart(combinedChartCanvas, {
-            type: 'line',
+            type: 'bar',  // Change chart type to 'bar'
             data: {
                 labels: [], // Labels will be dynamically set
                 datasets: [
                     {
                         label: 'Total Sales',
                         data: [], // Data will be dynamically set
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        fill: true,
+                        borderColor: 'rgba(75, 192, 192, 1)', // Border color for bars
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)', // Background color for bars
+                        barPercentage: 0.4, // Adjust bar width
+                        categoryPercentage: 0.5, // Adjust grouping of bars
                     },
                     {
                         label: 'Total Discount',
                         data: [], // Data will be dynamically set
                         borderColor: 'rgba(255, 99, 132, 1)',
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        fill: true,
+                        barPercentage: 0.4,
+                        categoryPercentage: 0.5,
                     },
                 ],
             },
             options: {
                 responsive: true,
                 scales: {
-                    x: { // Time-related axis
+                    x: {
+                        stacked: true, // Stack bars on the x-axis
                         ticks: { beginAtZero: true },
                     },
                     y: {
                         beginAtZero: true,
+                        stacked: true, // Stack bars on the y-axis
                     },
                 },
             },
         });
 
+        // Function to format date to dd/mm/yy
+        function formatDate(year, month, day) {
+            return `${day < 10 ? '0' + day : day}/${month < 10 ? '0' + month : month}/${year.toString().slice(-2)}`;
+        }
+
+        // Fetch Sales and Discount Data
         async function fetchSalesAndDiscountData(filter) {
             // Fetch both sales and discount data concurrently
             const [salesResponse, discountResponse] = await Promise.all([
@@ -190,11 +199,26 @@
             // Prepare chart labels based on the filter type
             let labels = [];
             if (filter === 'daily') {
-                labels = salesData.map(data => `Day ${data._id.dayOfYear}`);
+                labels = salesData.map(data => {
+                    const date = new Date(data._id.year, 0, data._id.dayOfYear); // Get the date for the dayOfYear
+                    return formatDate(date.getFullYear(), date.getMonth() + 1, date.getDate()); // Format as dd/mm/yy
+                });
             } else if (filter === 'weekly') {
-                labels = salesData.map(data => `Week ${data._id.isoWeek}`);
-            } else if (filter === 'monthly') {
-                labels = salesData.map(data => `${data._id.year} Month ${data._id.month}`);
+                labels = salesData.map(data => {
+                    // Get the first day of the ISO week
+                    const firstDayOfWeek = new Date(data._id.year, 0, (data._id.isoWeek - 1) * 7 + 1);
+                    // Adjust the first day to the correct ISO week start (Monday)
+                    const dayOfWeek = firstDayOfWeek.getDay(); // Get day of the week (0 for Sunday, 1 for Monday, etc.)
+                    const diff = firstDayOfWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust to Monday
+                    firstDayOfWeek.setDate(diff);
+
+                    return formatDate(firstDayOfWeek.getFullYear(), firstDayOfWeek.getMonth() + 1, firstDayOfWeek.getDate()); // Format as dd/mm/yy
+                });
+            }
+            else if (filter === 'monthly') {
+                labels = salesData.map(data => {
+                    return `${data._id.month < 10 ? '0' + data._id.month : data._id.month}/${data._id.year.toString().slice(-2)}`; // Format as mm/yy
+                });
             } else if (filter === 'yearly') {
                 labels = salesData.map(data => `Year ${data._id}`);
             }
@@ -217,9 +241,8 @@
         timeFilter.addEventListener('change', (e) => {
             fetchSalesAndDiscountData(e.target.value);
         });
-
-
     </script>
+
     <script>
         async function fetchLedgerData() {
             try {

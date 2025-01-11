@@ -20,7 +20,7 @@
           <%= locals.message %>
         </div>
         <% } %>
-          <form id="formID" action="/user/otpValidation" method="POST" onsubmit="return validateOTPform()">
+          <form id="formID" action="/otpValidation" method="POST" onsubmit="return validateOTPform()">
             <input type="hidden" name="email" value="<%= email %>">
             <input type="text" id="otp" placeholder="OTP" name="otp" required>
             <button class="create-account-btn" type="submit" id="continue-btn" >Continue</button>
@@ -43,7 +43,7 @@
       const otpInput = document.getElementById("otp").value;
   
       try {
-        const response = await fetch("/user/otpValidation", {
+        const response = await fetch("/otpValidation", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -120,7 +120,7 @@
   
       clearInterval(countdownInterval); 
       try {
-        const response = await fetch("/user/otpResend", {
+        const response = await fetch("/otpResend", {
           method: "POST",
         });
   

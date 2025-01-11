@@ -30,7 +30,7 @@ router.get("/logout", userController.logout);
 
 
 router.get("/productDetails/:productId", userCart.loadProductDetails);
-router.post("/cart", auth.userAuth,userCart.addCart);
+router.post("/cart", userCart.addCart);
 router.get("/cart",auth.userAuth, userCart.loadAddCart);
 router.delete("/cart/remove/:id",auth.userAuth, userCart.removeCartItem);
 router.post("/cart/update-quantity",auth.userAuth, userCart.updatequantity);

@@ -6,7 +6,6 @@ const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
 
-// Configure multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, "../../public/productsImage");
@@ -24,13 +23,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-const uploadImages = upload.array("images"); 
+const uploadImages = upload.array("images");
 
 const loadproducts = async (req, res) => {
-
   try {
     const searchQuery = req.query.search || "";
-    const isStatusFilter = req.query.status || "all"; 
+    const isStatusFilter = req.query.status || "all";
     const page = parseInt(req.query.page, 10) || 1;
     const limit = 5;
     const skip = (page - 1) * limit;
@@ -38,7 +36,7 @@ const loadproducts = async (req, res) => {
     const query = {
       $or: [
         { productName: new RegExp(searchQuery, "i") },
-        { processor: new RegExp(searchQuery, "i") }, 
+        { processor: new RegExp(searchQuery, "i") },
       ],
     };
 
@@ -82,7 +80,7 @@ const loadproducts = async (req, res) => {
       totalPages,
       totalProducts,
       searchQuery,
-      isStatusFilter, 
+      isStatusFilter,
     });
 
     // res.render("admin/products", { productsWithCategory });
@@ -93,7 +91,6 @@ const loadproducts = async (req, res) => {
 };
 
 const loadAddProducts = async (req, res) => {
-
   try {
     const category = await Category.find({ status: true });
 
@@ -176,7 +173,6 @@ const addProducts = async (req, res) => {
 };
 
 const loadUpdateProduct = async (req, res) => {
-
   const { id } = req.params;
   try {
     const product = await Product.findOne({ _id: id }).populate("category");
@@ -252,7 +248,7 @@ const updateProduct = async (req, res) => {
     res.json({
       success: true,
       message: "Product updated successfully",
-      product: updatedProduct, 
+      product: updatedProduct,
     });
   } catch (error) {
     console.log(error);

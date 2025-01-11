@@ -61,6 +61,7 @@
                                 <%= productDetails.variant %>
                                     (<%= productDetails.processor %>)
                         </h1>
+                        <input type="hidden" value="<%= productDetails._id %>" id="productID">
                         <% if(productOffer) { %>
                             <p class="text-dark fw-bold fs-3 mb-0">
                                 <span>&#8377;</span>
@@ -234,7 +235,6 @@
                 integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
                 crossorigin="anonymous"></script>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-     
 </body>
 
 </html>

@@ -42,12 +42,13 @@ app.use((req, res, next) => {
 });
 
 
+app.use("/", userRoutes);
 app.use("/user", userRoutes);
 app.use("/admin", adminRoutes);
 
-app.get("/", (req, res) => {
-  res.send("hello");
-});
+// app.get("/", (req, res) => {
+//   res.send("hello");
+// });
 
 // Set view engine
 app.set("views", path.join(__dirname, "views"));

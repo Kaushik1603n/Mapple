@@ -56,6 +56,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+// document.addEventListener("DOMContentLoaded", () => {
+// const productID = document.getElementById("productID").value;
+// const url =`http://localhost:5000/user/productDetails/${productID}`
+// window.location.href = url.toString();
+// })
 
 function switchToSlide(slideIndex) {
   const carousel = new bootstrap.Carousel("#productCarousel");

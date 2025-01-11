@@ -138,9 +138,9 @@ const loadDashboard = async (req, res) => {
 };
 
 const salesData = async (req, res) => {
-  const { filter } = req.query; // Get the filter (daily, weekly, monthly, or yearly)
+  const { filter } = req.query;
   let pipeline = [];
-  let result = filter || "monthly"; // Default to "monthly" if no filter is provided
+  let result = filter || "monthly";
   // console.log(result);
 
   try {
@@ -153,21 +153,21 @@ const salesData = async (req, res) => {
         {
           $group: {
             _id: {
-              year: { $year: "$createdAt" }, // Extract the year
-              dayOfYear: { $dayOfYear: "$createdAt" }, // Extract the day of the year
+              year: { $year: "$createdAt" },
+              dayOfYear: { $dayOfYear: "$createdAt" },
             },
             totalSales: { $sum: "$orderedItem.total" },
           },
         },
         {
           $match: {
-            "_id.dayOfYear": { $lte: 365 }, // Filter valid day-of-year values
+            "_id.dayOfYear": { $lte: 365 },
           },
         },
         {
           $sort: {
-            "_id.year": 1, // Sort by year first
-            "_id.dayOfYear": 1, // Then by day of the year
+            "_id.year": 1,
+            "_id.dayOfYear": 1,
           },
         },
       ];
@@ -180,16 +180,16 @@ const salesData = async (req, res) => {
         {
           $group: {
             _id: {
-              year: { $year: "$createdAt" }, // Extract the year
-              isoWeek: { $isoWeek: "$createdAt" }, // Extract the ISO week number
+              year: { $year: "$createdAt" },
+              isoWeek: { $isoWeek: "$createdAt" },
             },
             totalSales: { $sum: "$orderedItem.total" },
           },
         },
         {
           $sort: {
-            "_id.year": 1, // Sort by year first
-            "_id.isoWeek": 1, // Then by ISO week
+            "_id.year": 1,
+            "_id.isoWeek": 1,
           },
         },
       ];
@@ -202,16 +202,16 @@ const salesData = async (req, res) => {
         {
           $group: {
             _id: {
-              year: { $year: "$createdAt" }, // Extract year
-              month: { $month: "$createdAt" }, // Extract month
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
             },
             totalSales: { $sum: "$orderedItem.total" },
           },
         },
         {
           $sort: {
-            "_id.year": 1, // Sort by year
-            "_id.month": 1, // Then by month
+            "_id.year": 1,
+            "_id.month": 1,
           },
         },
       ];
@@ -375,9 +375,9 @@ const ledgerData = async (req, res) => {
   }
 };
 
-module.exports={
-    loadDashboard,
-    salesData,
-    discountDdata,
-    ledgerData,
-}
+module.exports = {
+  loadDashboard,
+  salesData,
+  discountDdata,
+  ledgerData,
+};

@@ -99,7 +99,7 @@ const loadShope = async (req, res) => {
         user: user,
       });
     } else {
-      res.render("user/shop", {});
+      res.render("user/shop");
     }
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -191,7 +191,7 @@ const shopData = async (req, res) => {
   const totalPages = Math.ceil(totalFilteredProducts / ITEMS_PER_PAGE);
 
   const limitedProduct =filteredProducts.slice(0, 8)
-  console.log(filteredProducts);
+  // console.log(filteredProducts);
   
 
   res.json({
@@ -269,7 +269,7 @@ const signup = async (req, res) => {
     console.log(referral);
 
     // req.session.registerUser=true;
-    res.redirect("/user/verificationOTP");
+    res.redirect("/verificationOTP");
     console.log("signUp verification OTP is: ", otp);
   } catch (error) {
     console.error("signUp error", error);
@@ -336,7 +336,7 @@ const verifyOTP = async (req, res) => {
         }
       }
 
-      res.json({ success: true, redirectUrl: "/user/login" });
+      res.json({ success: true, redirectUrl: "/" });
     } else {
       res
         .status(400)
@@ -383,10 +383,10 @@ const loadLogin = async (req, res) => {
     if (!req.session.user) {
       return res.render("user/login");
     } else {
-      res.redirect("/user");
+      res.redirect("/");
     }
   } catch (error) {
-    res.redirect("/user/pageNotFount");
+    res.redirect("/pageNotFount");
   }
 };
 
@@ -409,7 +409,7 @@ const login = async (req, res) => {
     }
 
     req.session.user = findUser;
-    res.redirect("/user");
+    res.redirect("/");
   } catch (error) {
     console.error("Login error", error);
     res.render("user/login", {
@@ -421,7 +421,7 @@ const login = async (req, res) => {
 const loadforgotPassword = async (req, res) => {
   try {
     if (req.session.user) {
-      return res.redirect("/user");
+      return res.redirect("/");
     } else {
       res.render("user/forgotPassword");
     }
@@ -430,7 +430,7 @@ const loadforgotPassword = async (req, res) => {
 
 const forgotPassword = async (req, res) => {
   if (req.session.user) {
-    return res.redirect("/user");
+    return res.redirect("/");
   }
   try {
     const { email } = req.body;
@@ -483,7 +483,7 @@ const otpValidation = async (req, res) => {
     findUser.resetTokenExpiry = undefined;
     await findUser.save();
 
-    res.redirect("/user/changePassword");
+    res.redirect("/changePassword");
   } catch (error) {
     console.log("error on catch");
   }
@@ -536,12 +536,12 @@ const OtpResend = async (req, res) => {
 const loadChangePass = async (req, res) => {
   try {
     if (req.session.user) {
-      return res.redirect("/user");
+      return res.redirect("/");
     }
 
     const email = req.session.emailVerify;
     if (!email) {
-      return res.redirect("/user/forgotPassword");
+      return res.redirect("/forgotPassword");
     }
 
     res.render("user/changePassword", { email });
@@ -555,7 +555,7 @@ const changePass = async (req, res) => {
   try {
     const email = req.session.emailVerify;
     if (!email) {
-      return res.redirect("/user/forgotPassword");
+      return res.redirect("/forgotPassword");
     }
 
     const { password } = req.body;
@@ -572,7 +572,7 @@ const changePass = async (req, res) => {
 
     req.session.emailVerify = null;
 
-    res.redirect("/user/login");
+    res.redirect("/login");
   } catch (error) {
     console.error("Error updating password:", error);
     res.status(500).send("An error occurred while updating the password.");
@@ -583,7 +583,7 @@ const googleLogin = async (req, res) => {
   try {
     req.session.user = req.user;
 
-    res.redirect("/user");
+    res.redirect("/");
   } catch (error) {
     res.status(500).send("Internal server error");
   }
@@ -594,13 +594,13 @@ const logout = async (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         console.log("Session destruction error", err);
-        return res.redirect("/user/pageNotFount");
+        return res.redirect("/pageNotFount");
       }
-      return res.redirect("/user/login");
+      return res.redirect("/login");
     });
   } catch (error) {
     console.log("Logout Error", error);
-    res.redirect("/user/pageNotFount");
+    res.redirect("/pageNotFount");
   }
 };
 

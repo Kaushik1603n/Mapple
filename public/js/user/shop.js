@@ -17,8 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const fetchProducts = async () => {
-    const query = new URLSearchParams(filters).toString();
-    const response = await fetch(`/user/shopData?${query}`);
+    const query = new URLSearchParams(filters).toString();   
+    const response = await fetch(`/shopData?${query}`);
     const data = await response.json();
     renderProducts(data.products);
     renderPagination(data.currentPage, data.totalPages);
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
           product.variant
         }</h5>
                             <p class="text-muted mb-2"><span>&#8377;</span> ${product.salePrice.toLocaleString()}</p>
-                            <a href="/user/productDetails/${
+                            <a href="/productDetails/${
                               product._id
                             }" class="btn btn-dark w-100">Buy Now</a>
                         </div>

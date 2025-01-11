@@ -303,7 +303,7 @@
 
                         console.log(`ProductId : ${productId} liked: ${likedProducts[productId]}`);
 
-                        fetch("/user/wishlist", {
+                        fetch("/wishlist", {
                             method: "POST",
                             headers: {
                                 'Content-Type': 'application/json',

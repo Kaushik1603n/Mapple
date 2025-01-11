@@ -27,39 +27,39 @@ const loadProductDetails = async (req, res) => {
       "category"
     );
 
-    const productCategoryId = productDetails.id;
+    // const productCategoryId = productDetails.id;
 
-    const findPrdOffer = await Offer.findOne({
-      productCategory: productCategoryId,
-      status: "Active",
-    });
-    const findCatOffer = await Offer.findOne({
-      productCategory: productDetails.category._id,
-      status: "Active",
-    });
-    console.log(findPrdOffer);
-    console.log(findCatOffer);
+    // const findPrdOffer = await Offer.findOne({
+    //   productCategory: productCategoryId,
+    //   status: "Active",
+    // });
+    // const findCatOffer = await Offer.findOne({
+    //   productCategory: productDetails.category._id,
+    //   status: "Active",
+    // });
+    // // console.log(findPrdOffer);
+    // // console.log(findCatOffer);
 
-    let productOffer;
-    let cattegoryOffer;
-    if (findPrdOffer) {
-      if (new Date() <= new Date(findPrdOffer.endDate)) {
-        productOffer = findPrdOffer.offer;
-      }
-    }
+    // let productOffer;
+    // let cattegoryOffer;
+    // if (findPrdOffer) {
+    //   if (new Date() <= new Date(findPrdOffer.endDate)) {
+    //     productOffer = findPrdOffer.offer;
+    //   }
+    // }
 
-    if (findCatOffer) {
-      if (new Date() <= new Date(findCatOffer.endDate)) {
-        cattegoryOffer = findCatOffer.offer;
-      }
-    }
+    // if (findCatOffer) {
+    //   if (new Date() <= new Date(findCatOffer.endDate)) {
+    //     cattegoryOffer = findCatOffer.offer;
+    //   }
+    // }
 
-    const productCategoryOffer = (productOffer || 0) + (cattegoryOffer || 0);
+    // const productCategoryOffer = (productOffer || 0) + (cattegoryOffer || 0);
 
-    let allReview = await Review.find({ product: productId }).populate(
-      "user",
-      "name email"
-    );
+    // let allReview = await Review.find({ product: productId }).populate(
+    //   "user",
+    //   "name email"
+    // );
 
     const products = await Product.aggregate([{ $sample: { size: 4 } }]);
 
@@ -89,11 +89,46 @@ const loadProductDetails = async (req, res) => {
           (!variant || product.variant === variant)
         );
       });
-
+      
       if (filteredProduct) {
         productDetails = filteredProduct;
       }
     }
+
+    const productCategoryId = productDetails.id;
+
+    const findPrdOffer = await Offer.findOne({
+      productCategory: productCategoryId,
+      status: "Active",
+    });
+    const findCatOffer = await Offer.findOne({
+      productCategory: productDetails.category._id,
+      status: "Active",
+    });
+    // console.log(findPrdOffer);
+    // console.log(findCatOffer);
+
+    let productOffer;
+    let cattegoryOffer;
+    if (findPrdOffer) {
+      if (new Date() <= new Date(findPrdOffer.endDate)) {
+        productOffer = findPrdOffer.offer;
+      }
+    }
+
+    if (findCatOffer) {
+      if (new Date() <= new Date(findCatOffer.endDate)) {
+        cattegoryOffer = findCatOffer.offer;
+      }
+    }
+
+    const productCategoryOffer = (productOffer || 0) + (cattegoryOffer || 0);
+
+    let allReview = await Review.find({ product: productDetails.id }).populate(
+      "user",
+      "name email"
+    );
+
 
     const availableVariants = [
       ...new Set(relatedProducts.map((product) => product.variant)),
