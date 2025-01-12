@@ -98,11 +98,11 @@ const loadProductDetails = async (req, res) => {
     const productCategoryId = productDetails.id;
 
     const findPrdOffer = await Offer.findOne({
-      productCategory: productCategoryId,
+      productCategoryID: productCategoryId,
       status: "Active",
     });
     const findCatOffer = await Offer.findOne({
-      productCategory: productDetails.category._id,
+      productCategoryID: productDetails.category._id,
       status: "Active",
     });
     // console.log(findPrdOffer);

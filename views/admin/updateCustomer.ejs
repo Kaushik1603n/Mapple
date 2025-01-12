@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Update Customer</title>
+    <link rel="icon" type="image/png" href="/icon/apple.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/stylesheet/customer.css">
     <style>
@@ -46,19 +47,15 @@
 
         input::placeholder {
             font-size: 12px;
-            /* Adjust the font size as needed */
             color: #888;
-            /* Optional: Change the color of the placeholder */
         }
     </style>
 </head>
 
 <body>
     <div class="d-flex flex-column flex-lg-row">
-        <!-- Sidebar -->
         <%- include("../../views/partials/admin/sidebar") %>
 
-            <!-- Main Content -->
             <div class="container-fluid py-5">
                 <div class="row">
                     <div class="col-12">
@@ -74,13 +71,11 @@
                     <div class="col-lg-10 col-md-12">
                         <div class="card shadow-lg p-4">
                             <div class="row">
-                                <!-- Profile Picture -->
                                 <div
                                     class="col-lg-4 col-md-5 text-center d-flex flex-column align-items-center justify-content-center">
                                     <img src="/image/profile.png" alt="Profile"
                                         class="rounded-circle img-fluid shadow mb-3">
                                 </div>
-                                <!-- Form Section -->
                                 <div class="col-lg-8 col-md-7">
                                     <h5 class="mb-4">Account Setting</h5>
                                     <form action="/admin/updateCustomer" method="post">
@@ -155,7 +150,6 @@
                                                                 <span class="error-message text-danger"></span>
                                                             </div>
 
-                                                            <!-- Confirm Password -->
                                                             <div class="col-md-6 mb-3">
                                                                 <label for="password-confirm" class="form-label">Confirm
                                                                     Password</label>
@@ -182,118 +176,7 @@
 
     <script src="/js/admin/updateCustomer"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const form = document.querySelector("form");
-            const nameInput = document.getElementById("name");
-            const emailInput = document.getElementById("email");
-            const secondaryEmailInput = document.getElementById("secondaryEmail");
-            const phoneInput = document.getElementById("phoneNumber");
-            const passwordInput = document.getElementById("password");
-            const confirmPasswordInput = document.getElementById("password-confirm");
-
-            const showError = (input, message) => {
-                const errorContainer = input.nextElementSibling;
-                if (errorContainer) {
-                    errorContainer.textContent = message;
-                    errorContainer.style.display = "block";
-                }
-            };
-
-            const clearError = (input) => {
-                const errorContainer = input.nextElementSibling;
-                if (errorContainer) {
-                    errorContainer.textContent = "";
-                    errorContainer.style.display = "none";
-                }
-            };
-
-            const validateName = () => {
-                const namePattern = /^[A-Za-z\s]+$/;
-                if (!nameInput.value.trim()) {
-                    showError(nameInput, "Name is required.");
-                    return false;
-                } else if (!namePattern.test(nameInput.value)) {
-                    showError(nameInput, "Name can only contain letters and spaces.");
-                    return false;
-                }
-                clearError(nameInput);
-                return true;
-            };
-
-            const validateEmail = (emailInput) => {
-                const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                if (!emailInput.value.trim()) {
-                    showError(emailInput, "Email is required.");
-                    return false;
-                } else if (!emailPattern.test(emailInput.value)) {
-                    showError(emailInput, "Invalid email format.");
-                    return false;
-                }
-                clearError(emailInput);
-                return true;
-            };
-
-            const validatePhone = () => {
-                const phonePattern = /^[0-9]{10}$/;
-                if (!phoneInput.value.trim()) {
-                    showError(phoneInput, "Phone number is required.");
-                    return false;
-                } else if (!phonePattern.test(phoneInput.value)) {
-                    showError(phoneInput, "Phone number must be 10 digits.");
-                    return false;
-                }
-                clearError(phoneInput);
-                return true;
-            };
-
-            const validatePassword = () => {
-                const password = passwordInput.value;
-                const confirmPassword = confirmPasswordInput.value;
-                if (password.length < 8) {
-                    showError(passwordInput, "Password must be at least 8 characters");
-                    return false;
-                } else if (!/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
-                    showError(passwordInput, "Password must contain letters and numbers.");
-                    return false;
-                }
-                clearError(passwordInput);
-
-                if (password !== confirmPassword) {
-                    showError(confirmPasswordInput, "Passwords do not match.");
-                    return false;
-                }
-                clearError(confirmPasswordInput);
-                return true;
-            };
-
-            form.addEventListener("submit", function (e) {
-                e.preventDefault();
-
-                const isNameValid = validateName();
-                const isEmailValid = validateEmail(emailInput);
-                const isSecondaryEmailValid = validateEmail(secondaryEmailInput);
-                const isPhoneValid = validatePhone();
-                const isPasswordValid = validatePassword();
-
-                if (isNameValid && isEmailValid && isSecondaryEmailValid && isPhoneValid && isPasswordValid) {
-                    form.submit();
-                }
-            });
-        });
-
-        window.onload = function () {
-            const alertMessage = document.getElementById("alertMessage");
-            if (alertMessage) {
-                setTimeout(() => {
-                    alertMessage.classList.remove("show");
-                    alertMessage.classList.add("d-none");
-                    alertMessage.innerText = ""
-                }, 4000);
-            }
-        };
-
-    </script> -->
+  
 </body>
 
 </html>

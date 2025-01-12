@@ -5,23 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link rel="icon" type="image/png" href="/icon/apple.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/stylesheet/dashboard.css">
 </head>
 
 <body class="bg-light">
     <div class="d-flex flex-column flex-lg-row">
-        <!-- Sidebar -->
         <%- include("../../views/partials/admin/sidebar") %>
 
-            <!-- Main Content -->
             <div class="container-fluid p-4 bg-light">
-                <!-- Header Section -->
                 <%- include("../../views/partials/admin/header") %>
 
 
                     <div class="row">
-                        <!-- Cards -->
                         <div class="col-md-6">
                             <div class="card text-center">
                                 <div class="card-body">
@@ -82,7 +79,6 @@
 
                     </div>
 
-                    <!-- Table -->
                     <div class="row mt-5">
                         <div class="col-md-12">
                             <h5>Sales and Discount Overview</h5>
@@ -117,7 +113,6 @@
                                         </tr>
                                     </thead>
                                     <tbody id="ledgerTableBody">
-                                        <!-- Ledger data will be dynamically inserted here -->
                                     </tbody>
                                 </table>
                             </div>
@@ -140,23 +135,22 @@
         const timeFilter = document.getElementById('time-filter');
         const combinedChartCanvas = document.getElementById('combinedChart');
 
-        // Initialize Combined Bar Chart
         let combinedChart = new Chart(combinedChartCanvas, {
-            type: 'bar',  // Change chart type to 'bar'
+            type: 'bar',  
             data: {
-                labels: [], // Labels will be dynamically set
+                labels: [], 
                 datasets: [
                     {
                         label: 'Total Sales',
-                        data: [], // Data will be dynamically set
-                        borderColor: 'rgba(75, 192, 192, 1)', // Border color for bars
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)', // Background color for bars
-                        barPercentage: 0.4, // Adjust bar width
-                        categoryPercentage: 0.5, // Adjust grouping of bars
+                        data: [],
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)', 
+                        barPercentage: 0.4, 
+                        categoryPercentage: 0.5, 
                     },
                     {
                         label: 'Total Discount',
-                        data: [], // Data will be dynamically set
+                        data: [], 
                         borderColor: 'rgba(255, 99, 132, 1)',
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
                         barPercentage: 0.4,
@@ -168,76 +162,65 @@
                 responsive: true,
                 scales: {
                     x: {
-                        stacked: true, // Stack bars on the x-axis
+                        stacked: true, 
                         ticks: { beginAtZero: true },
                     },
                     y: {
                         beginAtZero: true,
-                        stacked: true, // Stack bars on the y-axis
+                        stacked: true, 
                     },
                 },
             },
         });
 
-        // Function to format date to dd/mm/yy
         function formatDate(year, month, day) {
             return `${day < 10 ? '0' + day : day}/${month < 10 ? '0' + month : month}/${year.toString().slice(-2)}`;
         }
 
-        // Fetch Sales and Discount Data
         async function fetchSalesAndDiscountData(filter) {
-            // Fetch both sales and discount data concurrently
             const [salesResponse, discountResponse] = await Promise.all([
                 fetch(`/admin/sales-data?filter=${filter}`),
                 fetch(`/admin/discount-data?filter=${filter}`),
             ]);
 
-            // Parse responses as JSON
             const salesData = await salesResponse.json();
             const discountData = await discountResponse.json();
 
-            // Prepare chart labels based on the filter type
             let labels = [];
             if (filter === 'daily') {
                 labels = salesData.map(data => {
-                    const date = new Date(data._id.year, 0, data._id.dayOfYear); // Get the date for the dayOfYear
-                    return formatDate(date.getFullYear(), date.getMonth() + 1, date.getDate()); // Format as dd/mm/yy
+                    const date = new Date(data._id.year, 0, data._id.dayOfYear); 
+                    return formatDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
                 });
             } else if (filter === 'weekly') {
                 labels = salesData.map(data => {
-                    // Get the first day of the ISO week
                     const firstDayOfWeek = new Date(data._id.year, 0, (data._id.isoWeek - 1) * 7 + 1);
-                    // Adjust the first day to the correct ISO week start (Monday)
-                    const dayOfWeek = firstDayOfWeek.getDay(); // Get day of the week (0 for Sunday, 1 for Monday, etc.)
-                    const diff = firstDayOfWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust to Monday
+                    const dayOfWeek = firstDayOfWeek.getDay();
+                    const diff = firstDayOfWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
                     firstDayOfWeek.setDate(diff);
 
-                    return formatDate(firstDayOfWeek.getFullYear(), firstDayOfWeek.getMonth() + 1, firstDayOfWeek.getDate()); // Format as dd/mm/yy
+                    return formatDate(firstDayOfWeek.getFullYear(), firstDayOfWeek.getMonth() + 1, firstDayOfWeek.getDate());
                 });
             }
             else if (filter === 'monthly') {
                 labels = salesData.map(data => {
-                    return `${data._id.month < 10 ? '0' + data._id.month : data._id.month}/${data._id.year.toString().slice(-2)}`; // Format as mm/yy
+                    return `${data._id.month < 10 ? '0' + data._id.month : data._id.month}/${data._id.year.toString().slice(-2)}`;
                 });
             } else if (filter === 'yearly') {
                 labels = salesData.map(data => `Year ${data._id}`);
             }
 
-            // Extract data for sales and discounts
             const sales = salesData.map(data => data.totalSales);
             const discounts = discountData.map(data => data.totalDiscount);
 
-            // Update chart
             combinedChart.data.labels = labels;
-            combinedChart.data.datasets[0].data = sales; // Total Sales
-            combinedChart.data.datasets[1].data = discounts; // Total Discounts
+            combinedChart.data.datasets[0].data = sales; 
+            combinedChart.data.datasets[1].data = discounts; 
             combinedChart.update();
         }
 
-        // Initial data fetch for 'daily'
         fetchSalesAndDiscountData('daily');
 
-        // Listen for filter changes and update chart
         timeFilter.addEventListener('change', (e) => {
             fetchSalesAndDiscountData(e.target.value);
         });
@@ -251,7 +234,6 @@
 
                 const ledgerData = await response.json();
 
-                // Process and display data
                 console.log(ledgerData);
                 renderLedgerTable(ledgerData);
             } catch (error) {
@@ -296,14 +278,11 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            // Add title
             doc.setFontSize(18);
             doc.text('Ledger Book', 105, 10, { align: 'center' });
 
-            // Get table element
             const table = document.getElementById('ledgerTable');
 
-            // Convert table to data
             const data = [];
             const rows = table.querySelectorAll('tr');
             rows.forEach(row => {
@@ -314,12 +293,11 @@
             });
 
             doc.autoTable({
-                head: [data[0]], // First row as header
-                body: data.slice(1), // Rest of the rows as body
+                head: [data[0]],
+                body: data.slice(1),
                 startY: 20,
             });
 
-            // Save PDF
             doc.save('LedgerBook.pdf');
         }
 

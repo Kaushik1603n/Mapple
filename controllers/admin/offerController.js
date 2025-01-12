@@ -25,6 +25,7 @@ const getOffers = async (req, res) => {
     const allOffers = await Offer.find().skip(skip).limit(limit);
 
     const totalOffers = await Offer.countDocuments();
+    const catePrdName = await Category.findById(allOffers.productCategory)
 
     const totalPages = Math.ceil(totalOffers / limit);
 
@@ -98,20 +99,21 @@ const addOffers = async (req, res) => {
 
     let productCategoryID;
 
+    let catePrdName;
+
     if (offers === "product") {
       let productDetails = await product.findOne({
         _id: productCategory,
-      });
-      // console.log(productDetails);
+      }).populate("category");
 
-      productCategoryID = productDetails._id;
+      catePrdName = productDetails.productName;
     } else {
       categoryDetails = await Category.findOne({ _id: productCategory });
-      productCategoryID = categoryDetails._id;
+      catePrdName = categoryDetails.name;
     }
     if (offers === "product") {
       const productStatus = await product.findOneAndUpdate(
-        { _id: productCategoryID },
+        { _id: productCategory },
         { $set: { specialOffer: true } }
       );
     }
@@ -119,8 +121,8 @@ const addOffers = async (req, res) => {
 
     const addOffer = await Offer.create({
       offerType: offers,
-      productCategory: productCategory,
-      productCategoryID: productCategoryID,
+      productCategory: catePrdName,
+      productCategoryID: productCategory,
       title: title,
       description: description,
       offer: offer,

@@ -536,9 +536,7 @@ const applyCoupon = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Invalid or expired coupon." });
     }
-    req.session.couponCode = couponCode;
-    req.session.couponDiscount = findcoupon.discount;
-    // console.log(req.session.couponDiscount);
+
 
     if (findcoupon.userId.includes(userData._id)) {
       return res
@@ -571,6 +569,9 @@ const applyCoupon = async (req, res) => {
     }
     const finalAmount = totalAmount - discount;
 
+    req.session.couponCode = couponCode;
+    req.session.couponDiscount = findcoupon.discount;
+    
     res.status(200).json({
       success: true,
       message: "Coupon applied successfully!",

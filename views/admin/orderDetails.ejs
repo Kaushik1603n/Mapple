@@ -5,14 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order History</title>
-    <!-- Bootstrap CSS -->
+    <link rel="icon" type="image/png" href="/icon/apple.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
 
     <style>
-        /* Custom Styles */
         body {
             background-color: #f8f9fa;
         }
@@ -74,149 +73,150 @@
 </head>
 
 <body>
-    <!-- Sidebar -->
-    <%- include("../../views/partials/user/sidebar") %>
+    <div class="d-flex flex-column flex-lg-row">
 
-        <div class="content p-4">
-            <div class="row">
-                <div class="col-12">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item text-secondary"><a href="/admin/orders">Orders</a></li>
-                            <li class="breadcrumb-item text-dark fw-bold" aria-current="page">Orders details</li>
-                        </ol>
-                    </nav>
+        <%- include("../../views/partials/admin/sidebar") %>
+
+            <div class="container my-4 py-4 bg-white rounded shadow-sm p-4">
+                <div class="row">
+                    <div class="col-12">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item text-secondary"><a href="/admin/orders">Orders</a></li>
+                                <li class="breadcrumb-item text-dark fw-bold" aria-current="page">Orders details</li>
+                            </ol>
+                        </nav>
+                    </div>
                 </div>
-            </div>
-            <!-- Order Container -->
 
-            <% if (orderDetails && orderDetails.length> 0) { %>
-                <% orderDetails.forEach((order)=> { %>
-                    <div class="container mt-5 bg-light p-4 shadow-lg ">
-                        <h2 class="text-center">Product Detais</h2>
-                        <p class="text-center">Customer order is <%= order.orderedItem.status %>. Order ID: <strong>
-                                    <%= order.orderId %>
-                                </strong></p>
+                <% if (orderDetails && orderDetails.length> 0) { %>
+                    <% orderDetails.forEach((order)=> { %>
+                        <div class="container mt-5 bg-light p-4 shadow-lg ">
+                            <h2 class="text-center">Product Detais</h2>
+                            <p class="text-center">Customer order is <%= order.orderedItem.status %>. Order ID: <strong>
+                                        <%= order.orderId %>
+                                    </strong></p>
 
-                        <!-- Order Summary Section -->
-                        <div class="row">
-                            <div class="col-md-8">
-                                <h4>Order Details</h4>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Product</th>
-                                            <th>Price</th>
-                                            <th>Quantity</th>
-                                            <th>Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Repeat for each product in the order -->
-                                        <tr>
-                                            <td>
-                                                <img src="<%= order.orderedItem.firstImage %>" alt="Product" width="150"
-                                                    height="150">
-                                                <span>
-                                                    <%= order.orderedItem.productName %>
-                                                </span>
-                                            </td>
-                                            <td><b>
-                                                    <%= order.orderedItem.price || '0.00' %>
-                                                </b></td>
-                                            <td>
-                                                <%= order.orderedItem.quantity || 1 %>
-                                            </td>
-                                            <td><b>
-                                                    <%= order.orderedItem.total || '0.00' %>
-                                                </b></td>
-                                        </tr>
-                                        <!-- More products here -->
-                                    </tbody>
-                                </table>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h4>Order Details</h4>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Price</th>
+                                                <th>Quantity</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <img src="<%= order.orderedItem.firstImage %>" alt="Product"
+                                                        width="150" height="150">
+                                                    <span>
+                                                        <%= order.orderedItem.productName %>
+                                                    </span>
+                                                </td>
+                                                <td><b>
+                                                        <%= order.orderedItem.price || '0.00' %>
+                                                    </b></td>
+                                                <td>
+                                                    <%= order.orderedItem.quantity || 1 %>
+                                                </td>
+                                                <td><b>
+                                                        <%= order.orderedItem.total || '0.00' %>
+                                                    </b></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
 
-                                <div class="container my-5 bg-white p-4 shadow-lg ">
-                                    <h4>Product Detais</h4>
+                                    <div class="container my-5 bg-white p-4 shadow-lg ">
+                                        <h4>Product Detais</h4>
 
 
-                                    <%- order.orderedItem.description %>
+                                        <%- order.orderedItem.description %>
+                                    </div>
+
+                                    <h4>Order Summary</h4>
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>Subtotal:</strong></td>
+                                                <td><b>
+                                                        <%= order.orderedItem.regularTotal.toLocaleString() %>
+                                                    </b></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Discount:</strong></td>
+                                                <td><strong class="text-success">-<%= (order.orderedItem.discount||
+                                                            (order.orderedItem.regularTotal -
+                                                            order.orderedItem.total)-(order.orderedItem.couponDiscount
+                                                            || 0)).toFixed(2)%>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Coupon Discount</strong></td>
+                                                <td><strong class="text-success">
+                                                        - <%= (order.orderedItem.couponDiscount || 0).toFixed(2) %>
+                                                    </strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Shipping:</strong></td>
+                                                <td>0</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Total:</strong></td>
+                                                <td><strong>
+                                                        <%= order.orderedItem.total.toFixed(2) %>
+                                                    </strong></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
 
-                                <!-- Order Summary Section -->
-                                <h4>Order Summary</h4>
-                                <table class="table">
-                                    <tbody>
-                                        <tr>
-                                            <td><strong>Subtotal:</strong></td>
-                                            <td><b>
-                                                    <%= order.orderedItem.regularTotal.toLocaleString() %>
-                                                </b></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Discount:</strong></td>
-                                            <td><strong class="text-success">-<%= (order.orderedItem.discount||
-                                                        (order.orderedItem.regularTotal -
-                                                        order.orderedItem.total)-(order.orderedItem.couponDiscount ||
-                                                        0)).toFixed(2)%>
-                                                </strong>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Coupon Discount</strong></td>
-                                            <td><strong class="text-success">
-                                                - <%= (order.orderedItem.couponDiscount || 0).toFixed(2) %>
-                                            </strong></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Shipping:</strong></td>
-                                            <td>0</td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Total:</strong></td>
-                                            <td><strong>
-                                                    <%= order.orderedItem.total.toFixed(2)  %>
-                                                </strong></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div class="col-md-4">
+                                    <h4>Payment Information</h4>
+                                    <p><strong>Payment Method:</strong>
+                                        <%= order.paymentMethod %>
+                                    </p>
+                                    <p><strong>Billing Address:</strong>
+                                        <%= order.billingDetails.name %>, <br>
+                                            <%= order.billingDetails.homeAddress %>, <%= order.billingDetails.landmark
+                                                    %>,
+                                                    pin <%= order.billingDetails.zipCode %>,
+                                                        <%= order.billingDetails.city %>, <%= order.billingDetails.state
+                                                                %>,
+                                                                <%= order.billingDetails.country %>,
+                                                                    <br>
+                                                                    <%= order.billingDetails.phoneNumber %>
+                                    </p>
+                                    <p><strong>Delivery Address:</strong>
+                                        <%= order.deliveryAddress.name %>, <br>
+                                            <%= order.deliveryAddress.homeAddress %>, <%= order.deliveryAddress.landmark
+                                                    %>,
+                                                    pin <%= order.deliveryAddress.zipCode %>,
+                                                        <%= order.deliveryAddress.city %>, <%=
+                                                                order.deliveryAddress.state %>, <%=
+                                                                    order.deliveryAddress.country %>,
+                                                                    <br>
+                                                                    <%= order.deliveryAddress.phoneNumber %>
+                                    </p>
+                                </div>
                             </div>
 
-                            <!-- Payment and Address Section -->
-                            <div class="col-md-4">
-                                <h4>Payment Information</h4>
-                                <p><strong>Payment Method:</strong>
-                                    <%= order.paymentMethod %>
-                                </p>
-                                <p><strong>Billing Address:</strong>
-                                    <%= order.billingDetails.name %>, <br>
-                                        <%= order.billingDetails.homeAddress %>, <%= order.billingDetails.landmark %>,
-                                                pin <%= order.billingDetails.zipCode %>,
-                                                    <%= order.billingDetails.city %>, <%= order.billingDetails.state %>,
-                                                            <%= order.billingDetails.country %>,
-                                                                <br>
-                                                                <%= order.billingDetails.phoneNumber %>
-                                </p>
-                                <p><strong>Delivery Address:</strong>
-                                    <%= order.deliveryAddress.name %>, <br>
-                                        <%= order.deliveryAddress.homeAddress %>, <%= order.deliveryAddress.landmark %>,
-                                                pin <%= order.deliveryAddress.zipCode %>,
-                                                    <%= order.deliveryAddress.city %>, <%= order.deliveryAddress.state
-                                                            %>, <%= order.deliveryAddress.country %>,
-                                                                <br>
-                                                                <%= order.deliveryAddress.phoneNumber %>
-                                </p>
-                            </div>
                         </div>
-                        
-                    </div>
 
 
-                    <% }) %>
-                        <% } %>
-        </div>
+                        <% }) %>
+                            <% } %>
+            </div>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </body>
 

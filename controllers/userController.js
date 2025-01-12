@@ -169,7 +169,10 @@ const shopData = async (req, res) => {
   const productsQuery = await Product.find(query)
     .populate({
       path: "category",
-      match: Object.keys(categoryFilter).length ? categoryFilter : undefined, // Apply match only if categoryFilter has conditions
+      match: {
+        ...categoryFilter,
+        "categoryDetails.status": true, 
+      }, 
     })
     .sort(sortOptions[sortOption] || { createdAt: -1 })
     .skip((page - 1) * ITEMS_PER_PAGE)
@@ -325,8 +328,8 @@ const verifyOTP = async (req, res) => {
           });
 
           const findOwner = await User.findOneAndUpdate(
-            { _id: findReferral._id }, // Find the referrer
-            { $push: { referredUsers: saveUserData._id } }, // Add the new user to referredUsers array
+            { _id: findReferral._id },
+            { $push: { referredUsers: saveUserData._id } }, 
             { new: true }
           );
 
