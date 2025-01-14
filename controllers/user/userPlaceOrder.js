@@ -150,7 +150,7 @@ const placeOrder = async (req, res) => {
         regularTotal: product.regularPrice * item.quantity,
         price: item.price,
         total: item.quantity * item.price - item.couponDisnd,
-        couponDiscount: item.quantity * item.price - item.couponDisnd,
+        couponDiscount: item.couponDisnd,
         discount:
           product.regularPrice * item.quantity - item.quantity * product.price,
       });
