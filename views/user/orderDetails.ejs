@@ -544,9 +544,15 @@
                                             </tr>
                                             <tr>
                                                 <td><strong>Discount:</strong></td>
-                                                <td>-<%= item.discount|| (item.regularTotal -
-                                                        item.total).toLocaleString() %>
+                                                <td><strong class="text-success">-<%= item.discount|| (item.regularTotal -
+                                                        item.total) - (item.couponDiscount || 0).toFixed(0)  %></strong>
                                                 </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Coupon Discount</strong></td>
+                                                <td><strong class="text-success">
+                                                        - <%= (item.couponDiscount || 0).toFixed(2) %>
+                                                    </strong></td>
                                             </tr>
                                             <tr>
                                                 <td><strong>Shipping:</strong></td>

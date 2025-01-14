@@ -369,7 +369,7 @@ const verifyPayment = async (req, res) => {
         // (item.quantity * item.price -
         //   item.quantity * item.price * (1 - couponPercentage / 100) || 0),
       couponDiscount:
-        item.quantity * item.price - item.couponDisnd,
+        item.couponDisnd,
           // item.quantity * item.price * (1 - couponPercentage / 100) || 0,
       discount:
         product.regularPrice * item.quantity - item.quantity * product.price,

@@ -152,16 +152,16 @@
                                                 <td><strong class="text-success">
                                                         -<%= order.orderedItem.discount||
                                                             (order.orderedItem.regularTotal -
-                                                            order.orderedItem.total).toLocaleString() %>
+                                                            order.orderedItem.total) -(order.orderedItem.couponDiscount || 0).toFixed(0) %>
                                                     </strong>
                                                 </td>
                                             </tr>
-                                            <!-- <tr>
+                                            <tr>
                                                 <td><strong>Coupon Discount</strong></td>
                                                 <td><strong class="text-success">
                                                         - <%= (order.orderedItem.couponDiscount || 0).toFixed(2) %>
                                                     </strong></td>
-                                            </tr> -->
+                                            </tr>
                                             <tr>
                                                 <td><strong>Shipping:</strong></td>
                                                 <td>0</td>

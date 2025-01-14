@@ -17,14 +17,21 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const fetchProducts = async () => {
-    const query = new URLSearchParams(filters).toString();   
+    const query = new URLSearchParams(filters).toString(); 
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    const productsContainer = document.getElementById("productsContainer");
+    productsContainer.innerHTML = ""
+    loadingSpinner.style.display = "flex";
+  
     const response = await fetch(`/shopData?${query}`);
     const data = await response.json();
+    loadingSpinner.style.display = "none";
     renderProducts(data.products);
     renderPagination(data.currentPage, data.totalPages);
   };
 
   const renderProducts = (products) => {
+
     productsContainer.innerHTML = products
       .map(
         (product) => `
