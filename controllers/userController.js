@@ -171,7 +171,7 @@ const shopData = async (req, res) => {
       path: "category",
       match: {
         ...categoryFilter,
-        "categoryDetails.status": true, 
+        "status": true, 
       }, 
     })
     .sort(sortOptions[sortOption] || { createdAt: -1 })
